@@ -30,7 +30,7 @@
         /* Optimize for no-scroll experience */
         overflow-y: hidden;
     }
-    
+
     /* Game Header Mobile Styles */
     .game-header {
         position: relative;
@@ -40,13 +40,13 @@
         padding-top: 2px;
         padding-bottom: 2px;
     }
-    
+
     .game-header h1 {
         font-size: 16px;
         margin: 0;
         text-align: center;
     }
-    
+
     .help-btn {
         padding: 4px 8px;
         font-size: 10px;
@@ -63,13 +63,13 @@
         /* Remove from normal flow to save space */
         margin: 0;
     }
-    
+
     .help-icon {
         width: 16px;
         height: 16px;
         font-size: 12px;
     }
-    
+
     .help-text {
         font-size: 10px;
         /* Hide text on very small screens to save space */
@@ -129,7 +129,7 @@
         flex-direction: column;
         justify-content: center;
     }
-    
+
     .task-info h3 {
         font-size: 16px;
         margin-bottom: 6px;
@@ -139,7 +139,7 @@
         word-wrap: break-word;
         overflow-wrap: break-word;
     }
-    
+
     .task-info p {
         font-size: 14px;
         margin: 4px 0;
@@ -149,7 +149,7 @@
         word-wrap: break-word;
         overflow-wrap: break-word;
     }
-    
+
     .task-info #taskDescription {
         font-size: 15px;
         padding: 8px;
@@ -167,7 +167,7 @@
         justify-content: center;
         text-align: center;
     }
-    
+
     .task-info .step-indicator {
         font-size: 12px;
         padding: 4px 8px;
@@ -207,7 +207,7 @@
         justify-content: center;
         align-items: center;
     }
-    
+
     .player-area h3,
     .house-area h3 {
         font-size: 18px;
@@ -254,8 +254,8 @@
         margin: 1px 0;
         border-radius: 6px;
     }
-    
-    .survey > p {
+
+    .survey>p {
         font-size: 14px;
         margin: 2px 0;
         line-height: 1.3;
@@ -269,7 +269,7 @@
     .survey-question {
         margin: 2px 0;
     }
-    
+
     .survey-question strong {
         font-size: 16px;
         display: block;
@@ -447,7 +447,7 @@
         /* Improve touch scrolling */
         -webkit-overflow-scrolling: touch;
     }
-    
+
     .help-modal-content {
         border-radius: 15px;
         max-height: 95vh;
@@ -455,44 +455,45 @@
         /* Ensure modal content is touch-friendly */
         touch-action: pan-y;
     }
-    
+
     .help-modal-header {
         padding: 15px;
     }
-    
+
     .help-modal-header h2 {
         font-size: 18px;
     }
-    
+
     .help-close-btn {
         width: 35px;
         height: 35px;
         font-size: 20px;
     }
-    
+
     .help-modal-body {
         padding: 15px;
         max-height: calc(95vh - 80px);
     }
-    
+
     .help-section h3 {
         font-size: 16px;
         margin-bottom: 8px;
     }
-    
+
     .help-section p,
     .help-section li {
         font-size: 14px;
         line-height: 1.5;
     }
-    
+
     .help-section {
         margin-bottom: 20px;
         padding-bottom: 15px;
     }
-    
+
     /* Contextual Button Mobile Styles */
-    #hitBtn, #standBtn {
+    #hitBtn,
+    #standBtn {
         min-width: 130px;
         font-size: 16px;
         padding: 14px 18px;
@@ -505,37 +506,38 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         font-weight: bold;
     }
-    
-    #hitBtn:active, #standBtn:active {
+
+    #hitBtn:active,
+    #standBtn:active {
         transform: scale(0.95);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    
+
     /* Flavor Text Mobile Styles */
     .flavor-text {
         padding: 6px 8px;
         margin: 6px 0;
         border-radius: 4px;
     }
-    
+
     .flavor-text p {
         font-size: 11px;
         line-height: 1.2;
         margin: 0;
     }
-    
+
     /* Round result optimization */
     #roundResult {
         font-size: 12px;
         line-height: 1.2;
         position: relative;
     }
-    
+
     #roundResult p {
         margin: 4px 0;
         font-size: 12px;
     }
-    
+
     /* Popup notification styles for mobile */
     .popup-notification {
         position: fixed;
@@ -555,49 +557,57 @@
         min-width: 200px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-    
+
     .popup-notification.zen-gain {
         background: linear-gradient(135deg, #2ECC71, #27AE60);
     }
-    
+
     .popup-notification.stress-change {
         background: linear-gradient(135deg, #E74C3C, #C0392B);
     }
-    
+
     .popup-notification.stress-decrease {
         background: linear-gradient(135deg, #3498DB, #2980B9);
     }
-    
+
     @keyframes popupFadeInOut {
         0% {
             opacity: 0;
             transform: translate(-50%, -50%) scale(0.8);
         }
-        20%, 80% {
+
+        20%,
+        80% {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
         }
+
         100% {
             opacity: 0;
             transform: translate(-50%, -50%) scale(0.8);
         }
     }
-    
+
     /* Mobile-specific animations */
     @keyframes mobilePulse {
-        0%, 100% {
+
+        0%,
+        100% {
             box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
         }
+
         50% {
             box-shadow: 0 12px 25px rgba(255, 107, 107, 0.6);
         }
     }
 
     /* Ensure touch targets meet accessibility guidelines */
-    button, .activity-btn, input[type="radio"] {
+    button,
+    .activity-btn,
+    input[type="radio"] {
         min-height: 44px;
     }
-    
+
     /* Optimize for mobile performance */
     * {
         -webkit-tap-highlight-color: transparent;
@@ -605,22 +615,26 @@
         -webkit-user-select: none;
         user-select: none;
     }
-    
-    input[type="radio"], label {
+
+    input[type="radio"],
+    label {
         -webkit-user-select: auto;
         user-select: auto;
     }
-    
+
     /* Prevent zoom on input focus */
-    input, button, select, textarea {
+    input,
+    button,
+    select,
+    textarea {
         font-size: 16px;
     }
-    
+
     /* Optimize for single-screen experience - remove wasted whitespace */
-    .game-container > * {
+    .game-container>* {
         flex-shrink: 0;
     }
-    
+
     /* Ensure game content fits in viewport without wasted space */
     .game-container {
         height: 100vh;
@@ -631,9 +645,10 @@
         gap: 4px;
         padding: 6px;
     }
-    
+
     /* Make game area and zen activities compact */
-    .zen-activities, .game-area {
+    .zen-activities,
+    .game-area {
         flex: 0 0 auto;
     }
 }
@@ -644,6 +659,7 @@
         body {
             min-height: 100vh;
         }
+
         .game-container {
             max-height: 100vh;
         }
@@ -656,13 +672,13 @@
         max-width: 600px;
         padding: 15px;
     }
-    
+
     .avatar {
         width: 80px;
         height: 80px;
         font-size: 32px;
     }
-    
+
     .stress-meter {
         width: 180px;
     }
@@ -674,16 +690,18 @@
         max-height: 100vh;
         overflow-y: auto;
     }
-    
+
     .avatar-container {
         margin-bottom: 5px;
     }
-    
-    .survey, .zen-activities, .game-area {
+
+    .survey,
+    .zen-activities,
+    .game-area {
         margin: 5px 0;
         padding: 6px;
     }
-    
+
     /* Keep task-info prominent even in landscape */
     .task-info {
         margin: 6px 0;
@@ -698,13 +716,13 @@
         width: calc(100% - 2px);
         box-sizing: border-box;
     }
-    
+
     .task-info h3 {
         font-size: 14px;
         margin-bottom: 4px;
         line-height: 1.2;
     }
-    
+
     .task-info #taskDescription {
         font-size: 13px;
         padding: 6px;
@@ -712,11 +730,11 @@
         line-height: 1.2;
         background: rgba(255, 255, 255, 0.25) !important;
     }
-    
+
     .survey-question {
         margin: 4px 0;
     }
-    
+
     .survey-question label {
         min-height: 32px;
         padding: 4px 0;
@@ -729,48 +747,48 @@
         font-size: 18px;
         margin: 3px 0;
     }
-    
+
     .avatar-container {
         margin-bottom: 5px;
     }
-    
+
     .avatar {
         width: 40px;
         height: 40px;
         font-size: 20px;
     }
-    
+
     .survey {
         padding: 6px;
         margin: 3px 0;
     }
-    
+
     .survey h3 {
         font-size: 14px;
         margin-bottom: 3px;
     }
-    
-    .survey > p {
+
+    .survey>p {
         font-size: 11px;
         margin: 3px 0;
     }
-    
+
     .survey-question {
         margin: 5px 0;
     }
-    
+
     .survey-question strong {
         font-size: 12px;
         margin-bottom: 2px;
     }
-    
+
     .survey-question label {
         min-height: 32px;
         padding: 3px 0;
         font-size: 11px;
         margin: 2px 0;
     }
-    
+
     /* Ultra-compact help button for very small screens */
     .help-btn {
         padding: 2px 4px;
@@ -783,18 +801,18 @@
         top: 3px;
         right: 3px;
     }
-    
+
     .help-icon {
         width: 12px;
         height: 12px;
         font-size: 9px;
     }
-    
+
     /* Reduce header padding for very small screens */
     .game-header {
         padding-right: 30px;
     }
-    
+
     /* Ensure task info remains prominent even on very small screens */
     .task-info {
         padding: 15px 10px;
@@ -803,13 +821,294 @@
         box-shadow: 0 10px 25px rgba(255, 107, 107, 0.5);
         border: 3px solid #FF4757;
     }
-    
+
     .task-info h3 {
         font-size: 16px;
     }
-    
+
     .task-info #taskDescription {
         font-size: 15px;
         padding: 10px;
+    }
+}
+
+/* Mobil
+e styles for new messaging components */
+@media (max-width: 767px) {
+
+    /* Stress Management Tip Mobile Styles */
+    .stress-tip {
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        max-width: none !important;
+        width: calc(100% - 20px) !important;
+        font-size: 11px !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+        z-index: 1001 !important;
+        line-height: 1.3 !important;
+        /* Ensure text wraps properly */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        /* Prevent text overflow */
+        max-height: 80px;
+        overflow-y: auto;
+    }
+
+    .stress-tip strong {
+        font-size: 12px !important;
+        margin-bottom: 4px !important;
+        display: block;
+    }
+
+    /* Progressive Flavor Text Mobile Styles */
+    .progressive-flavor {
+        margin: 4px 0 !important;
+        padding: 0 !important;
+    }
+
+    .progressive-flavor p {
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+        margin: 4px 0 !important;
+        padding: 6px 8px !important;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+        border-left: 2px solid #6c757d !important;
+        border-radius: 3px !important;
+        /* Ensure text wraps properly */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        /* Prevent overflow */
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* DMV Outcome Message Mobile Styles */
+    .outcome-message.dmv-themed {
+        margin: 6px 0 !important;
+        padding: 0 !important;
+    }
+
+    .outcome-message.dmv-themed>div {
+        padding: 8px 10px !important;
+        margin: 4px 0 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        /* Ensure proper text wrapping */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .outcome-message.dmv-themed p:first-child {
+        font-size: 12px !important;
+        font-weight: bold !important;
+        margin: 0 0 6px 0 !important;
+        line-height: 1.3 !important;
+        /* Ensure text fits */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .outcome-message.dmv-themed p:last-child {
+        font-size: 10px !important;
+        margin: 0 !important;
+        line-height: 1.3 !important;
+        font-style: italic;
+        /* Ensure text fits */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Round Result Container Mobile Optimization */
+    #roundResult {
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+        margin: 6px 0 !important;
+        padding: 4px !important;
+        /* Ensure content doesn't overflow */
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: visible;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    #roundResult p {
+        margin: 3px 0 !important;
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+        /* Ensure text wraps properly */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+    }
+
+    /* Game Area Mobile Optimization for New Messages */
+    .game-area {
+        /* Ensure game area can accommodate new messaging */
+        min-height: 220px !important;
+        padding: 8px !important;
+        /* Allow content to flow properly */
+        overflow: visible;
+    }
+
+    /* Buttons Container Mobile Optimization */
+    .buttons {
+        margin: 8px 0 !important;
+        /* Ensure buttons don't get cut off */
+        flex-shrink: 0;
+        padding: 4px 0;
+    }
+
+    /* Contextual Button Mobile Enhancements */
+    #hitBtn,
+    #standBtn {
+        font-size: 14px !important;
+        padding: 12px 16px !important;
+        margin: 4px 2px !important;
+        min-width: 120px !important;
+        min-height: 48px !important;
+        /* Ensure button text wraps if needed */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    /* Next Step Button Mobile Optimization */
+    #nextStepBtn {
+        font-size: 14px !important;
+        padding: 12px 20px !important;
+        margin: 8px auto !important;
+        min-height: 48px !important;
+        display: block;
+        width: fit-content;
+        max-width: 200px;
+    }
+
+    /* Ensure all new messaging components respect mobile viewport */
+    .flavor-text,
+    .outcome-message,
+    .stress-tip,
+    .progressive-flavor {
+        /* Prevent horizontal overflow */
+        max-width: 100vw;
+        box-sizing: border-box;
+        /* Ensure proper text rendering */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Ultra-small screen optimizations for new messaging */
+@media (max-width: 767px) and (max-height: 600px) {
+    .stress-tip {
+        font-size: 10px !important;
+        padding: 6px 8px !important;
+        max-height: 60px !important;
+        top: 5px !important;
+        right: 5px !important;
+        left: 5px !important;
+    }
+
+    .stress-tip strong {
+        font-size: 10px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .progressive-flavor p {
+        font-size: 10px !important;
+        padding: 4px 6px !important;
+    }
+
+    .outcome-message.dmv-themed p:first-child {
+        font-size: 11px !important;
+    }
+
+    .outcome-message.dmv-themed p:last-child {
+        font-size: 9px !important;
+    }
+
+    #roundResult {
+        font-size: 10px !important;
+    }
+
+    #roundResult p {
+        font-size: 10px !important;
+        margin: 2px 0 !important;
+    }
+}
+
+/* Landscape mobile optimizations for new messaging */
+@media (max-width: 767px) and (orientation: landscape) {
+    .stress-tip {
+        top: 5px !important;
+        right: 5px !important;
+        left: auto !important;
+        width: 250px !important;
+        max-width: 40vw !important;
+        font-size: 10px !important;
+        padding: 6px 8px !important;
+        max-height: 70px !important;
+    }
+
+    .progressive-flavor p {
+        font-size: 10px !important;
+        padding: 4px 6px !important;
+        line-height: 1.2 !important;
+    }
+
+    .outcome-message.dmv-themed p:first-child {
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+    }
+
+    .outcome-message.dmv-themed p:last-child {
+        font-size: 9px !important;
+        line-height: 1.2 !important;
+    }
+
+    #roundResult {
+        font-size: 10px !important;
+        margin: 4px 0 !important;
+    }
+}
+
+/* Ensure new messaging animations work well on mobile */
+@media (max-width: 767px) {
+    @keyframes fadeInSlide {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Reduce animation duration on mobile for better performance */
+    .progressive-flavor,
+    .outcome-message.dmv-themed,
+    .stress-tip {
+        animation-duration: 0.2s !important;
     }
 }

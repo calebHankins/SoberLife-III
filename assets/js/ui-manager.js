@@ -467,21 +467,44 @@ export function displayProgressiveFlavorText(flavorText) {
         // Sanitize the flavor text to prevent XSS
         const sanitizedText = flavorText.replace(/[<>]/g, '');
         
-        // Enhanced styling for progressive flavor text
-        flavorDiv.innerHTML = `
-            <p style="
-                font-style: italic; 
-                color: #555; 
-                margin: 10px 0; 
-                padding: 8px 12px;
-                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-                border-left: 3px solid #6c757d;
-                border-radius: 4px;
-                font-size: 13px;
-                line-height: 1.4;
-                animation: fadeInSlide 0.3s ease-out;
-            ">${sanitizedText}</p>
-        `;
+        // Check if mobile viewport for responsive styling
+        const isMobile = window.innerWidth <= 767;
+        
+        if (isMobile) {
+            flavorDiv.innerHTML = `
+                <p style="
+                    font-style: italic; 
+                    color: #555; 
+                    margin: 4px 0; 
+                    padding: 6px 8px;
+                    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                    border-left: 2px solid #6c757d;
+                    border-radius: 3px;
+                    font-size: 11px;
+                    line-height: 1.3;
+                    animation: fadeInSlide 0.3s ease-out;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                ">${sanitizedText}</p>
+            `;
+        } else {
+            flavorDiv.innerHTML = `
+                <p style="
+                    font-style: italic; 
+                    color: #555; 
+                    margin: 10px 0; 
+                    padding: 8px 12px;
+                    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                    border-left: 3px solid #6c757d;
+                    border-radius: 4px;
+                    font-size: 13px;
+                    line-height: 1.4;
+                    animation: fadeInSlide 0.3s ease-out;
+                ">${sanitizedText}</p>
+            `;
+        }
         
         roundResult.appendChild(flavorDiv);
         
@@ -529,30 +552,69 @@ export function updateOutcomeMessage(outcome) {
         const outcomeDiv = document.createElement('div');
         outcomeDiv.className = 'outcome-message dmv-themed';
         
-        outcomeDiv.innerHTML = `
-            <div style="
-                padding: 12px 16px;
-                margin: 10px 0;
-                border-radius: 8px;
-                background: linear-gradient(135deg, #fff, #f8f9fa);
-                border: 1px solid #dee2e6;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            ">
-                <p style="
-                    font-size: 14px; 
-                    font-weight: bold; 
-                    margin: 0 0 8px 0;
-                    color: #495057;
-                ">${dmvMessage.replace(/[<>]/g, '')}</p>
-                <p style="
-                    font-size: 12px;
-                    color: #6c757d;
-                    margin: 0;
-                    font-style: italic;
-                    line-height: 1.4;
-                ">${stressInsight.replace(/[<>]/g, '')}</p>
-            </div>
-        `;
+        // Check if mobile viewport for responsive styling
+        const isMobile = window.innerWidth <= 767;
+        
+        if (isMobile) {
+            outcomeDiv.innerHTML = `
+                <div style="
+                    padding: 8px 10px;
+                    margin: 4px 0;
+                    border-radius: 6px;
+                    background: linear-gradient(135deg, #fff, #f8f9fa);
+                    border: 1px solid #dee2e6;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                ">
+                    <p style="
+                        font-size: 12px; 
+                        font-weight: bold; 
+                        margin: 0 0 6px 0;
+                        color: #495057;
+                        line-height: 1.3;
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                    ">${dmvMessage.replace(/[<>]/g, '')}</p>
+                    <p style="
+                        font-size: 10px;
+                        color: #6c757d;
+                        margin: 0;
+                        font-style: italic;
+                        line-height: 1.3;
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                    ">${stressInsight.replace(/[<>]/g, '')}</p>
+                </div>
+            `;
+        } else {
+            outcomeDiv.innerHTML = `
+                <div style="
+                    padding: 12px 16px;
+                    margin: 10px 0;
+                    border-radius: 8px;
+                    background: linear-gradient(135deg, #fff, #f8f9fa);
+                    border: 1px solid #dee2e6;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                ">
+                    <p style="
+                        font-size: 14px; 
+                        font-weight: bold; 
+                        margin: 0 0 8px 0;
+                        color: #495057;
+                    ">${dmvMessage.replace(/[<>]/g, '')}</p>
+                    <p style="
+                        font-size: 12px;
+                        color: #6c757d;
+                        margin: 0;
+                        font-style: italic;
+                        line-height: 1.4;
+                    ">${stressInsight.replace(/[<>]/g, '')}</p>
+                </div>
+            `;
+        }
         
         roundResult.appendChild(outcomeDiv);
         
@@ -581,21 +643,48 @@ export function showStressManagementTip(outcome) {
         // Create a temporary tip display
         const tipDiv = document.createElement('div');
         tipDiv.className = 'stress-tip';
-        tipDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            border: 1px solid #2196f3;
-            border-radius: 8px;
-            padding: 12px 16px;
-            max-width: 300px;
-            font-size: 12px;
-            color: #1565c0;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            z-index: 1000;
-            animation: slideInRight 0.3s ease-out;
-        `;
+        
+        // Check if mobile viewport
+        const isMobile = window.innerWidth <= 767;
+        
+        if (isMobile) {
+            tipDiv.style.cssText = `
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+                border: 1px solid #2196f3;
+                border-radius: 6px;
+                padding: 8px 12px;
+                font-size: 11px;
+                color: #1565c0;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                z-index: 1001;
+                animation: slideInRight 0.3s ease-out;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                max-height: 80px;
+                overflow-y: auto;
+                line-height: 1.3;
+            `;
+        } else {
+            tipDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+                border: 1px solid #2196f3;
+                border-radius: 8px;
+                padding: 12px 16px;
+                max-width: 300px;
+                font-size: 12px;
+                color: #1565c0;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                z-index: 1000;
+                animation: slideInRight 0.3s ease-out;
+            `;
+        }
         
         tipDiv.innerHTML = `
             <strong>💡 Stress Management Tip:</strong><br>
