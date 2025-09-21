@@ -79,7 +79,11 @@
             <li><strong>Help Modal Functionality:</strong> Validates modal show/hide behavior and error handling</li>
             <li><strong>Task Prominence System:</strong> Tests task description updates and animation triggers</li>
             <li><strong>Contextual Button Updates:</strong> Verifies dynamic button text and tooltip updates</li>
+            <li><strong>Progressive Flavor Text:</strong> Tests varied flavor text for repeated actions</li>
+            <li><strong>DMV Outcome Messaging:</strong> Validates DMV-themed outcome messages replace blackjack terms</li>
+            <li><strong>Stress Management Insights:</strong> Tests educational feedback integration</li>
             <li><strong>Error Handling:</strong> Tests fallback systems and XSS protection</li>
+            <li><strong>Integration Testing:</strong> Validates complete messaging system workflow</li>
         </ul>
         
         <h2>Manual Testing Checklist</h2>
@@ -94,7 +98,8 @@
         </ul>
     </div>
 
-    <script src="ui-features.test.js"></script>
+    <script type="module" src="ui-features.test.js"></script>
+    <script type="module" src="messaging-integration.test.js"></script>
     <script>
         // Override console methods to capture output
         const originalConsole = {

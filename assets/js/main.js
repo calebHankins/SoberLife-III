@@ -1,9 +1,9 @@
 // SoberLife III - Main Game Controller
 // Game initialization and coordination
 
-import { gameState, updateGameState, resetGameState, steps } from './game-state.js';
+import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction } from './game-state.js';
 import { createDeck, shuffleDeck, calculateScore } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo } from './ui-manager.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel } from './stress-system.js';
 
 // Initialize the game when page loads
@@ -221,61 +221,113 @@ export function startGame() {
 
 // Start a new blackjack round
 export function startNewRound() {
-    // Create and shuffle new deck
-    const deck = createDeck();
-    shuffleDeck(deck);
-    
-    updateGameState({
-        deck: deck,
-        playerCards: [],
-        houseCards: [],
-        gameInProgress: true
-    });
+    try {
+        // Reset hand state for fresh progressive flavor text
+        resetHandState();
+        
+        // Create and shuffle new deck
+        const deck = createDeck();
+        shuffleDeck(deck);
+        
+        updateGameState({
+            deck: deck,
+            playerCards: [],
+            houseCards: [],
+            gameInProgress: true
+        });
 
-    // Deal initial cards
-    gameState.playerCards.push(gameState.deck.pop());
-    gameState.houseCards.push(gameState.deck.pop());
-    gameState.playerCards.push(gameState.deck.pop());
-    gameState.houseCards.push(gameState.deck.pop());
+        // Deal initial cards
+        gameState.playerCards.push(gameState.deck.pop());
+        gameState.houseCards.push(gameState.deck.pop());
+        gameState.playerCards.push(gameState.deck.pop());
+        gameState.houseCards.push(gameState.deck.pop());
 
-    // Update UI
-    updateTaskDescription();
-    updateCards();
-    updateDisplay();
-    updateZenActivities();
-    updateContextualButtons();
-    
-    // Emphasize task info for new rounds
-    emphasizeTaskInfo();
+        // Update UI
+        updateTaskDescription();
+        updateCards();
+        updateDisplay();
+        updateZenActivities();
+        updateContextualButtons();
+        
+        // Emphasize task info for new rounds
+        emphasizeTaskInfo();
 
-    // Enable game buttons
-    const hitBtn = document.getElementById('hitBtn');
-    const standBtn = document.getElementById('standBtn');
-    const nextStepBtn = document.getElementById('nextStepBtn');
-    
-    if (hitBtn) hitBtn.disabled = false;
-    if (standBtn) standBtn.disabled = false;
-    if (nextStepBtn) nextStepBtn.classList.add('hidden');
+        // Enable game buttons
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        const nextStepBtn = document.getElementById('nextStepBtn');
+        
+        if (hitBtn) hitBtn.disabled = false;
+        if (standBtn) standBtn.disabled = false;
+        if (nextStepBtn) nextStepBtn.classList.add('hidden');
 
-    // Clear previous round result
-    const roundResult = document.getElementById('roundResult');
-    if (roundResult) roundResult.innerHTML = '';
+        // Clear previous round result
+        const roundResult = document.getElementById('roundResult');
+        if (roundResult) roundResult.innerHTML = '';
+        
+        // Log hand state for debugging
+        console.log(`New round started - Hand ID: ${handState.currentHand}, Hit count reset to: ${handState.hitCount}`);
+        
+    } catch (error) {
+        console.error('Error starting new round:', error);
+        
+        // Fallback behavior - basic round setup
+        const deck = createDeck();
+        shuffleDeck(deck);
+        
+        updateGameState({
+            deck: deck,
+            playerCards: [],
+            houseCards: [],
+            gameInProgress: true
+        });
+
+        // Deal initial cards
+        if (gameState.deck.length >= 4) {
+            gameState.playerCards.push(gameState.deck.pop());
+            gameState.houseCards.push(gameState.deck.pop());
+            gameState.playerCards.push(gameState.deck.pop());
+            gameState.houseCards.push(gameState.deck.pop());
+        }
+
+        updateCards();
+        updateDisplay();
+    }
 }
 
 // Player hits (takes another card)
 export function hit() {
     if (!gameState.gameInProgress || gameState.deck.length === 0) return;
 
-    // Show contextual flavor text
-    showFlavorText('hit');
+    try {
+        // Increment hit count for progressive messaging
+        incrementHitCount();
+        
+        // Show progressive flavor text based on hit count
+        showFlavorText('hit');
 
-    gameState.playerCards.push(gameState.deck.pop());
-    updateCards();
+        // Add card to player's hand
+        gameState.playerCards.push(gameState.deck.pop());
+        updateCards();
 
-    const playerScore = calculateScore(gameState.playerCards);
-    if (playerScore > 21) {
-        // Player busted
-        endRound('bust');
+        const playerScore = calculateScore(gameState.playerCards);
+        if (playerScore > 21) {
+            // Player exceeded 21 - use DMV-themed messaging
+            endRound('bust');
+        }
+        
+    } catch (error) {
+        console.error('Error in hit action:', error);
+        // Fallback behavior - still add card but without progressive messaging
+        if (gameState.deck.length > 0) {
+            gameState.playerCards.push(gameState.deck.pop());
+            updateCards();
+            
+            const playerScore = calculateScore(gameState.playerCards);
+            if (playerScore > 21) {
+                endRound('bust');
+            }
+        }
     }
 }
 
@@ -283,109 +335,163 @@ export function hit() {
 export function stand() {
     if (!gameState.gameInProgress) return;
 
-    // Show contextual flavor text
-    showFlavorText('stand');
+    try {
+        // Set last action for tracking
+        setLastAction('stand');
+        
+        // Show contextual flavor text
+        showFlavorText('stand');
 
     // House plays according to standard rules
     while (calculateScore(gameState.houseCards) < 17 && gameState.deck.length > 0) {
         gameState.houseCards.push(gameState.deck.pop());
     }
 
-    const playerScore = calculateScore(gameState.playerCards);
-    const houseScore = calculateScore(gameState.houseCards);
+        const playerScore = calculateScore(gameState.playerCards);
+        const houseScore = calculateScore(gameState.houseCards);
 
-    if (houseScore > 21) {
-        endRound('house_bust');
-    } else if (playerScore > houseScore) {
-        endRound('win');
-    } else if (playerScore < houseScore) {
-        endRound('lose');
-    } else {
-        endRound('tie');
+        if (houseScore > 21) {
+            endRound('house_bust');
+        } else if (playerScore > houseScore) {
+            endRound('win');
+        } else if (playerScore < houseScore) {
+            endRound('lose');
+        } else {
+            endRound('tie');
+        }
+        
+    } catch (error) {
+        console.error('Error in stand action:', error);
+        // Fallback behavior - still play house hand
+        while (calculateScore(gameState.houseCards) < 17 && gameState.deck.length > 0) {
+            gameState.houseCards.push(gameState.deck.pop());
+        }
+        
+        const playerScore = calculateScore(gameState.playerCards);
+        const houseScore = calculateScore(gameState.houseCards);
+
+        if (houseScore > 21) {
+            endRound('house_bust');
+        } else if (playerScore > houseScore) {
+            endRound('win');
+        } else if (playerScore < houseScore) {
+            endRound('lose');
+        } else {
+            endRound('tie');
+        }
     }
 }
 
-// End the current round with a result
+// End the current round with a result using DMV-themed messaging
 export function endRound(result) {
-    updateGameState({ gameInProgress: false });
-    
-    const hitBtn = document.getElementById('hitBtn');
-    const standBtn = document.getElementById('standBtn');
-    const nextStepBtn = document.getElementById('nextStepBtn');
-    
-    if (hitBtn) hitBtn.disabled = true;
-    if (standBtn) standBtn.disabled = true;
-    
-    updateCards();
+    try {
+        updateGameState({ gameInProgress: false });
+        
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        const nextStepBtn = document.getElementById('nextStepBtn');
+        
+        if (hitBtn) hitBtn.disabled = true;
+        if (standBtn) standBtn.disabled = true;
+        
+        updateCards();
 
-    let resultText = '';
-    let zenChange = 0;
-    let stressChange = 0;
+        // Calculate zen and stress changes based on outcome
+        let zenChange = 0;
+        let stressChange = 0;
 
-    switch (result) {
-        case 'win':
-            resultText = '🎉 You won! Great job managing the pressure!';
-            zenChange = 15;
-            stressChange = -5;
-            break;
-        case 'lose':
-            resultText = '😔 House wins. Take a deep breath and try again.';
-            stressChange = 15;
-            break;
-        case 'tie':
-            resultText = '🤝 It\'s a tie! Not bad under pressure.';
-            zenChange = 5;
-            stressChange = 5;
-            break;
-        case 'bust':
-            resultText = '💥 Busted! The stress got to you this time.';
-            stressChange = 30;
-            break;
-        case 'house_bust':
-            resultText = '🎊 House busted! Your patience paid off!';
-            zenChange = 15;
-            stressChange = -5;
-            break;
-    }
+        switch (result) {
+            case 'win':
+                zenChange = 15;
+                stressChange = -5;
+                break;
+            case 'lose':
+                stressChange = 15;
+                break;
+            case 'tie':
+                zenChange = 5;
+                stressChange = 5;
+                break;
+            case 'bust':
+                stressChange = 30;
+                break;
+            case 'house_bust':
+                zenChange = 15;
+                stressChange = -5;
+                break;
+        }
 
-    // Apply changes
-    updateGameState({
-        zenPoints: Math.max(0, gameState.zenPoints + zenChange),
-        stressLevel: Math.max(0, Math.min(100, gameState.stressLevel + stressChange))
-    });
+        // Apply changes to game state
+        updateGameState({
+            zenPoints: Math.max(0, gameState.zenPoints + zenChange),
+            stressLevel: Math.max(0, Math.min(100, gameState.stressLevel + stressChange))
+        });
 
-    // Update display
-    updateDisplay();
-    updateZenActivities();
+        // Update display elements
+        updateDisplay();
+        updateZenActivities();
 
-    // Show result with just the main message
-    const roundResult = document.getElementById('roundResult');
-    if (roundResult) {
-        roundResult.innerHTML = `
-            <p style="font-size: 14px; font-weight: bold; margin: 8px 0;">${resultText}</p>
-        `;
-    }
+        // Show DMV-themed outcome message with educational content
+        updateOutcomeMessage(result);
+        
+        // Show stress management tip after a brief delay
+        setTimeout(() => {
+            showStressManagementTip(result);
+        }, 1000);
 
-    // Show popup notifications for changes
-    if (zenChange > 0) {
-        showPopupNotification(`+${zenChange} Zen Points!`, 'zen-gain');
-    }
-    if (stressChange !== 0) {
-        const stressType = stressChange > 0 ? 'stress-change' : 'stress-decrease';
-        const stressText = stressChange > 0 ? `+${stressChange}% Stress` : `${stressChange}% Stress`;
-        showPopupNotification(stressText, stressType);
-    }
+        // Show popup notifications for changes
+        if (zenChange > 0) {
+            showPopupNotification(`+${zenChange} Zen Points!`, 'zen-gain');
+        }
+        if (stressChange !== 0) {
+            const stressType = stressChange > 0 ? 'stress-change' : 'stress-decrease';
+            const stressText = stressChange > 0 ? `+${stressChange}% Stress` : `${stressChange}% Stress`;
+            showPopupNotification(stressText, stressType);
+        }
 
-    // Check for game over conditions
-    if (gameState.stressLevel >= 100) {
-        setTimeout(() => showGameOver(), 1500);
-        return;
-    }
+        // Check for game over conditions
+        if (gameState.stressLevel >= 100) {
+            setTimeout(() => showGameOver(), 2000); // Slightly longer delay for new messaging
+            return;
+        }
 
-    // Always show next step button - players can progress regardless of win/loss
-    if (nextStepBtn) {
-        nextStepBtn.textContent = 'Next Step';
-        nextStepBtn.classList.remove('hidden');
+        // Always show next step button - players can progress regardless of outcome
+        if (nextStepBtn) {
+            nextStepBtn.textContent = 'Next Step';
+            nextStepBtn.classList.remove('hidden');
+        }
+        
+    } catch (error) {
+        console.error('Error in endRound:', error);
+        
+        // Fallback behavior - basic game state updates
+        updateGameState({ gameInProgress: false });
+        
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        const nextStepBtn = document.getElementById('nextStepBtn');
+        
+        if (hitBtn) hitBtn.disabled = true;
+        if (standBtn) standBtn.disabled = true;
+        
+        updateCards();
+        updateDisplay();
+        updateZenActivities();
+        
+        // Show basic fallback message
+        const roundResult = document.getElementById('roundResult');
+        if (roundResult) {
+            roundResult.innerHTML = `
+                <p style="font-size: 14px; font-weight: bold; margin: 8px 0;">
+                    You're learning valuable stress management skills!
+                </p>
+            `;
+        }
+        
+        if (nextStepBtn) {
+            nextStepBtn.textContent = 'Next Step';
+            nextStepBtn.classList.remove('hidden');
+        }
     }
 }
 

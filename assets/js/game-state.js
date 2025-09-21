@@ -13,6 +13,13 @@ export let gameState = {
     surveyCompleted: false
 };
 
+// Track hit count per hand for progressive flavor text
+export let handState = {
+    hitCount: 0,
+    currentHand: 0,
+    lastAction: ''
+};
+
 // DMV task steps
 export const steps = [
     "Check in at the front desk",
@@ -86,6 +93,119 @@ export const contextualActions = {
     }
 };
 
+// DMV-themed outcome messages replacing blackjack terminology
+export const dmvOutcomeMessages = {
+    win: [
+        "✅ You handled that step perfectly! Your preparation and patience paid off.",
+        "🎯 Excellent work! You navigated the bureaucracy like a pro.",
+        "💪 Great job staying calm under pressure. The DMV staff appreciated your approach.",
+        "🌟 Outstanding! You turned a potentially stressful situation into a success.",
+        "👏 Well done! Your mindful approach made all the difference."
+    ],
+    lose: [
+        "📋 The process got a bit overwhelming this time. Take a breath and regroup.",
+        "⏰ The timing wasn't quite right. Sometimes these things take patience.",
+        "🔄 That step didn't go as planned. Let's try a different approach.",
+        "💭 No worries - even experienced DMV visitors have challenging moments.",
+        "🎯 Close, but not quite there. You're learning valuable lessons about persistence."
+    ],
+    tie: [
+        "⚖️ You held your ground well. Sometimes persistence is the key.",
+        "🤝 A balanced approach - you're learning to work with the system.",
+        "⏳ Patience is paying off. You're getting the hang of this process.",
+        "🎭 You matched the pace perfectly. That's good situational awareness.",
+        "🧘 Steady progress - you're maintaining your composure beautifully."
+    ],
+    bust: [
+        "😰 The stress got to you this time. Remember to use your zen techniques!",
+        "🌪️ You got caught up in the moment. Deep breathing can help reset your focus.",
+        "⚡ The pressure built up too quickly. Next time, try pacing yourself.",
+        "🎢 The bureaucratic rollercoaster got intense! Time for some mindfulness.",
+        "🔥 Things heated up fast. Remember, you have tools to manage this stress."
+    ],
+    house_bust: [
+        "🎉 The system worked in your favor! Sometimes patience is rewarded.",
+        "✨ Perfect timing! Your calm approach let things fall into place.",
+        "🍀 The bureaucratic stars aligned for you this time!",
+        "🎊 Excellent! The DMV process actually went smoothly for once.",
+        "🌈 What a pleasant surprise! Your zen approach created positive energy."
+    ]
+};
+
+// Progressive flavor text for multiple hits per hand
+export const progressiveFlavorText = {
+    0: { // Check in at the front desk
+        hit: [
+            "You decide to gather more information before proceeding",
+            "You ask a follow-up question to make sure you understand",
+            "You double-check one more detail to be absolutely certain",
+            "You politely request clarification on the next steps",
+            "You take a moment to organize your thoughts and documents"
+        ],
+        stand: [
+            "You choose to observe and wait for the right moment",
+            "You practice patience while the clerk finishes with others",
+            "You use this time to center yourself and stay calm"
+        ]
+    },
+    1: { // Wait in line
+        hit: [
+            "You actively monitor your position in the queue",
+            "You check the display board again for any updates",
+            "You glance around to see how the line is moving",
+            "You notice other people's strategies and learn from them",
+            "You use this time to practice your breathing exercises"
+        ],
+        stand: [
+            "You maintain your composure and wait peacefully",
+            "You find a comfortable stance and practice mindfulness",
+            "You accept the wait time and use it for mental preparation"
+        ]
+    },
+    2: { // Present documents
+        hit: [
+            "You carefully verify everything is in order",
+            "You organize your papers one more time",
+            "You make sure you haven't missed any required documents",
+            "You double-check that all forms are properly filled out",
+            "You arrange everything in the exact order requested"
+        ],
+        stand: [
+            "You trust your preparation and proceed confidently",
+            "You present your documents with quiet assurance",
+            "You maintain calm confidence in your thoroughness"
+        ]
+    },
+    3: { // Take photo
+        hit: [
+            "You want to make sure your photo looks good",
+            "You adjust your posture slightly for a better shot",
+            "You take a moment to compose yourself for the camera",
+            "You ask about the lighting to ensure the best result",
+            "You practice your most natural, relaxed expression"
+        ],
+        stand: [
+            "You're satisfied with the result and ready to continue",
+            "You accept the photo with grace and move forward",
+            "You trust that the photo captures you well enough"
+        ]
+    },
+    4: { // Pay fee and receive license
+        hit: [
+            "You carefully review everything before leaving",
+            "You double-check all the information on your temporary license",
+            "You make sure you understand the next steps in the process",
+            "You verify that all details are correct and complete",
+            "You ask about when your permanent license will arrive"
+        ],
+        stand: [
+            "You're ready to wrap up and head home",
+            "You complete the process with satisfaction",
+            "You finish with a sense of accomplishment"
+        ]
+    }
+};
+
 // Success messages for game completion
 export const successMessages = [
     {
@@ -124,6 +244,7 @@ export function resetGameState() {
     gameState.playerCards = [];
     gameState.houseCards = [];
     gameState.surveyCompleted = false;
+    resetHandState();
 }
 
 export function generateSuccessMessage() {
@@ -212,4 +333,180 @@ function getFallbackActionDescription(action) {
 
 function getFallbackFlavorText(action) {
     return action === 'hit' ? 'You decide to take more risk' : 'You choose to play it safe';
+}
+
+// Hand state management functions
+export function resetHandState() {
+    handState.hitCount = 0;
+    handState.currentHand = Date.now(); // Use timestamp as unique hand ID
+    handState.lastAction = '';
+}
+
+export function incrementHitCount() {
+    handState.hitCount++;
+    handState.lastAction = 'hit';
+}
+
+export function setLastAction(action) {
+    handState.lastAction = action;
+}
+
+// Progressive flavor text system
+export function getProgressiveFlavorText(action, step, hitCount) {
+    try {
+        // Validate inputs
+        if (typeof step !== 'number' || step < 0 || step >= steps.length) {
+            console.warn(`Invalid step index: ${step}, using fallback`);
+            return getFallbackProgressiveFlavorText(action, hitCount);
+        }
+        
+        if (!progressiveFlavorText[step] || !progressiveFlavorText[step][action]) {
+            console.warn(`No progressive flavor text found for step ${step}, action ${action}`);
+            return getFallbackProgressiveFlavorText(action, hitCount);
+        }
+        
+        const flavorArray = progressiveFlavorText[step][action];
+        if (!Array.isArray(flavorArray) || flavorArray.length === 0) {
+            console.warn(`Invalid flavor text array for step ${step}, action ${action}`);
+            return getFallbackProgressiveFlavorText(action, hitCount);
+        }
+        
+        // Use hit count to select appropriate flavor text, cycling if needed
+        const index = Math.min(hitCount, flavorArray.length - 1);
+        return flavorArray[index];
+        
+    } catch (error) {
+        console.error('Error getting progressive flavor text:', error);
+        return getFallbackProgressiveFlavorText(action, hitCount);
+    }
+}
+
+// DMV outcome message system
+export function getDMVOutcomeMessage(outcome) {
+    try {
+        if (!dmvOutcomeMessages[outcome] || !Array.isArray(dmvOutcomeMessages[outcome])) {
+            console.warn(`No DMV outcome messages found for: ${outcome}`);
+            return getFallbackDMVOutcomeMessage(outcome);
+        }
+        
+        const messages = dmvOutcomeMessages[outcome];
+        if (messages.length === 0) {
+            return getFallbackDMVOutcomeMessage(outcome);
+        }
+        
+        // Return random message for variety
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        return messages[randomIndex];
+        
+    } catch (error) {
+        console.error('Error getting DMV outcome message:', error);
+        return getFallbackDMVOutcomeMessage(outcome);
+    }
+}
+
+// Fallback functions for progressive flavor text and DMV outcomes
+function getFallbackProgressiveFlavorText(action, hitCount) {
+    const fallbackMessages = {
+        hit: [
+            "You decide to take another approach",
+            "You try a different strategy this time",
+            "You persist with your current approach",
+            "You continue working through the process",
+            "You stay focused on your goal"
+        ],
+        stand: [
+            "You choose to proceed as planned",
+            "You stick with your current approach",
+            "You maintain your steady course"
+        ]
+    };
+    
+    const messages = fallbackMessages[action] || fallbackMessages.hit;
+    const index = Math.min(hitCount, messages.length - 1);
+    return messages[index];
+}
+
+function getFallbackDMVOutcomeMessage(outcome) {
+    const fallbackMessages = {
+        win: "✅ You handled that step well! Your approach was effective.",
+        lose: "📋 That step was challenging. Take a moment to regroup and try again.",
+        tie: "⚖️ You're making steady progress. Keep up the good work!",
+        bust: "😰 The stress built up quickly. Remember to use your zen techniques!",
+        house_bust: "🎉 Things worked out in your favor this time!"
+    };
+    
+    return fallbackMessages[outcome] || "You're learning valuable lessons about managing stress in challenging situations.";
+}
+
+// Educational stress management insights for outcomes
+export const stressManagementInsights = {
+    win: [
+        "Success often comes from staying calm and prepared. Your mindful approach paid off!",
+        "When we manage our stress well, we make better decisions. Great job staying centered!",
+        "Your patience and preparation created a positive outcome. This is stress management in action!",
+        "Notice how staying calm helped you navigate this challenge successfully.",
+        "Your zen approach turned a potentially stressful situation into a win!"
+    ],
+    lose: [
+        "Every challenge is a learning opportunity. What stress management technique could help next time?",
+        "Setbacks are normal - the key is how we respond. Take a deep breath and try again.",
+        "This is a chance to practice resilience. Remember, you have tools to handle stress.",
+        "Even experienced people face difficulties. The important thing is to keep learning and growing.",
+        "Consider this practice for real-world situations. Each attempt builds your stress management skills."
+    ],
+    tie: [
+        "Persistence and patience are key stress management skills. You're developing both!",
+        "Sometimes the best approach is steady, consistent effort. You're doing great!",
+        "Balance is important in stress management. You're finding your rhythm.",
+        "Maintaining composure under pressure is a valuable life skill. Keep practicing!",
+        "Your steady approach shows emotional regulation - a core stress management technique."
+    ],
+    bust: [
+        "When stress builds up quickly, it's time to use your coping tools. Try some deep breathing!",
+        "This is exactly why we practice stress management - to handle moments like these.",
+        "High stress can cloud our judgment. Remember to pause, breathe, and reset.",
+        "Your zen activities are there for moments like this. Don't forget to use them!",
+        "Stress overload happens to everyone. The key is recognizing it and taking action."
+    ],
+    house_bust: [
+        "Sometimes patience and calm energy create positive outcomes we didn't expect!",
+        "Your zen approach influenced the entire situation. That's the power of mindfulness!",
+        "When we stay centered, we often find that things work out better than expected.",
+        "This shows how managing our own stress can positively affect our environment.",
+        "Your calm presence helped create a favorable outcome. That's advanced stress management!"
+    ]
+};
+
+// Get educational insight for outcome
+export function getStressManagementInsight(outcome) {
+    try {
+        if (!stressManagementInsights[outcome] || !Array.isArray(stressManagementInsights[outcome])) {
+            return getFallbackStressManagementInsight(outcome);
+        }
+        
+        const insights = stressManagementInsights[outcome];
+        if (insights.length === 0) {
+            return getFallbackStressManagementInsight(outcome);
+        }
+        
+        // Return random insight for variety
+        const randomIndex = Math.floor(Math.random() * insights.length);
+        return insights[randomIndex];
+        
+    } catch (error) {
+        console.error('Error getting stress management insight:', error);
+        return getFallbackStressManagementInsight(outcome);
+    }
+}
+
+function getFallbackStressManagementInsight(outcome) {
+    const fallbackInsights = {
+        win: "Great job managing the pressure! Your calm approach made all the difference.",
+        lose: "Every challenge teaches us something. What stress management technique will you try next?",
+        tie: "Steady progress is still progress. You're building valuable stress management skills.",
+        bust: "When stress peaks, remember to breathe and use your zen techniques.",
+        house_bust: "Sometimes staying calm creates unexpected positive outcomes!"
+    };
+    
+    return fallbackInsights[outcome] || "Each experience helps you develop better stress management skills.";
 }

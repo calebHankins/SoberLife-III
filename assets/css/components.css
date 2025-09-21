@@ -625,3 +625,97 @@
         transform: translateY(0);
     }
 }
+/* Progress
+ive Flavor Text Animations */
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Progressive Flavor Text Styling */
+.progressive-flavor {
+    animation: fadeInSlide 0.3s ease-out;
+}
+
+.progressive-flavor p {
+    position: relative;
+    overflow: hidden;
+}
+
+.progressive-flavor p::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: linear-gradient(to bottom, #6c757d, #adb5bd);
+    animation: expandHeight 0.3s ease-out;
+}
+
+@keyframes expandHeight {
+    from {
+        height: 0;
+    }
+    to {
+        height: 100%;
+    }
+}
+
+/* DMV Outcome Message Styling */
+.outcome-message.dmv-themed {
+    animation: fadeInSlide 0.4s ease-out;
+}
+
+.outcome-message.dmv-themed p:first-child {
+    position: relative;
+}
+
+.outcome-message.dmv-themed p:first-child::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(to right, #495057, transparent);
+    animation: expandWidth 0.5s ease-out 0.2s both;
+}
+
+@keyframes expandWidth {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+/* Stress Management Tip Styling */
+.stress-tip {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    line-height: 1.4;
+}
+
+.stress-tip strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #0d47a1;
+}

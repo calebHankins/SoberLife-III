@@ -1,7 +1,7 @@
 // SoberLife III - UI Manager
 // DOM manipulation and visual updates
 
-import { gameState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText } from './game-state.js';
+import { gameState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight } from './game-state.js';
 import { calculateScore } from './card-system.js';
 
 // Utility functions for showing/hiding elements
@@ -423,12 +423,36 @@ export function updateContextualButtons() {
     }
 }
 
-// Show flavor text for actions with error handling
+// Show progressive flavor text for actions with error handling
 export function showFlavorText(action) {
     try {
-        const flavorText = getContextualFlavorText(action);
+        // Use progressive flavor text system
+        const flavorText = getProgressiveFlavorText(action, gameState.currentStep, handState.hitCount);
         if (!flavorText) {
             return; // No flavor text to show
+        }
+        
+        displayProgressiveFlavorText(flavorText);
+        
+    } catch (error) {
+        console.error('Error showing flavor text:', error);
+        // Fallback to basic contextual flavor text
+        try {
+            const fallbackText = getContextualFlavorText(action);
+            if (fallbackText) {
+                displayProgressiveFlavorText(fallbackText);
+            }
+        } catch (fallbackError) {
+            console.error('Error showing fallback flavor text:', fallbackError);
+        }
+    }
+}
+
+// Display progressive flavor text with enhanced styling
+export function displayProgressiveFlavorText(flavorText) {
+    try {
+        if (!flavorText || typeof flavorText !== 'string') {
+            return;
         }
         
         const roundResult = document.getElementById('roundResult');
@@ -438,26 +462,164 @@ export function showFlavorText(action) {
         }
         
         const flavorDiv = document.createElement('div');
-        flavorDiv.className = 'flavor-text';
+        flavorDiv.className = 'flavor-text progressive-flavor';
         
         // Sanitize the flavor text to prevent XSS
         const sanitizedText = flavorText.replace(/[<>]/g, '');
-        flavorDiv.innerHTML = `<p style="font-style: italic; color: #666; margin: 10px 0;">${sanitizedText}</p>`;
+        
+        // Enhanced styling for progressive flavor text
+        flavorDiv.innerHTML = `
+            <p style="
+                font-style: italic; 
+                color: #555; 
+                margin: 10px 0; 
+                padding: 8px 12px;
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                border-left: 3px solid #6c757d;
+                border-radius: 4px;
+                font-size: 13px;
+                line-height: 1.4;
+                animation: fadeInSlide 0.3s ease-out;
+            ">${sanitizedText}</p>
+        `;
         
         roundResult.appendChild(flavorDiv);
         
-        // Remove flavor text after 3 seconds with error handling
+        // Remove flavor text after 4 seconds (slightly longer for progressive text)
         setTimeout(() => {
             try {
                 if (flavorDiv && flavorDiv.parentNode) {
-                    flavorDiv.parentNode.removeChild(flavorDiv);
+                    // Fade out animation
+                    flavorDiv.style.opacity = '0';
+                    flavorDiv.style.transform = 'translateY(-10px)';
+                    flavorDiv.style.transition = 'all 0.3s ease-out';
+                    
+                    setTimeout(() => {
+                        if (flavorDiv.parentNode) {
+                            flavorDiv.parentNode.removeChild(flavorDiv);
+                        }
+                    }, 300);
                 }
             } catch (removeError) {
-                console.warn('Error removing flavor text:', removeError);
+                console.warn('Error removing progressive flavor text:', removeError);
             }
-        }, 3000);
+        }, 4000);
         
     } catch (error) {
-        console.error('Error showing flavor text:', error);
+        console.error('Error displaying progressive flavor text:', error);
+    }
+}
+
+// Update outcome message display with DMV-themed messaging
+export function updateOutcomeMessage(outcome) {
+    try {
+        const dmvMessage = getDMVOutcomeMessage(outcome);
+        const stressInsight = getStressManagementInsight(outcome);
+        
+        const roundResult = document.getElementById('roundResult');
+        if (!roundResult) {
+            console.warn('Round result element not found for outcome message');
+            return;
+        }
+        
+        // Clear previous content
+        roundResult.innerHTML = '';
+        
+        // Create outcome message container
+        const outcomeDiv = document.createElement('div');
+        outcomeDiv.className = 'outcome-message dmv-themed';
+        
+        outcomeDiv.innerHTML = `
+            <div style="
+                padding: 12px 16px;
+                margin: 10px 0;
+                border-radius: 8px;
+                background: linear-gradient(135deg, #fff, #f8f9fa);
+                border: 1px solid #dee2e6;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            ">
+                <p style="
+                    font-size: 14px; 
+                    font-weight: bold; 
+                    margin: 0 0 8px 0;
+                    color: #495057;
+                ">${dmvMessage.replace(/[<>]/g, '')}</p>
+                <p style="
+                    font-size: 12px;
+                    color: #6c757d;
+                    margin: 0;
+                    font-style: italic;
+                    line-height: 1.4;
+                ">${stressInsight.replace(/[<>]/g, '')}</p>
+            </div>
+        `;
+        
+        roundResult.appendChild(outcomeDiv);
+        
+    } catch (error) {
+        console.error('Error updating outcome message:', error);
+        // Fallback to basic message
+        const roundResult = document.getElementById('roundResult');
+        if (roundResult) {
+            roundResult.innerHTML = `
+                <p style="font-size: 14px; font-weight: bold; margin: 8px 0;">
+                    You're learning valuable stress management skills!
+                </p>
+            `;
+        }
+    }
+}
+
+// Show stress management tip based on outcome
+export function showStressManagementTip(outcome) {
+    try {
+        const insight = getStressManagementInsight(outcome);
+        if (!insight) {
+            return;
+        }
+        
+        // Create a temporary tip display
+        const tipDiv = document.createElement('div');
+        tipDiv.className = 'stress-tip';
+        tipDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 12px 16px;
+            max-width: 300px;
+            font-size: 12px;
+            color: #1565c0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        
+        tipDiv.innerHTML = `
+            <strong>💡 Stress Management Tip:</strong><br>
+            ${insight.replace(/[<>]/g, '')}
+        `;
+        
+        document.body.appendChild(tipDiv);
+        
+        // Remove tip after 6 seconds
+        setTimeout(() => {
+            if (tipDiv.parentNode) {
+                tipDiv.style.opacity = '0';
+                tipDiv.style.transform = 'translateX(100%)';
+                tipDiv.style.transition = 'all 0.3s ease-out';
+                
+                setTimeout(() => {
+                    if (tipDiv.parentNode) {
+                        tipDiv.parentNode.removeChild(tipDiv);
+                    }
+                }, 300);
+            }
+        }, 6000);
+        
+    } catch (error) {
+        console.error('Error showing stress management tip:', error);
     }
 }
