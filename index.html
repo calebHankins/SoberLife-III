@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@
         .game-container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             padding: 20px;
             max-width: 800px;
             width: 90%;
@@ -94,7 +95,8 @@
             margin: 20px 0;
         }
 
-        .player-area, .house-area {
+        .player-area,
+        .house-area {
             flex: 1;
             margin: 0 10px;
         }
@@ -119,7 +121,7 @@
             font-size: 18px;
             font-weight: bold;
             color: #333;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         .card.red {
@@ -212,7 +214,7 @@
             text-align: center;
             max-width: 500px;
             width: 90%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             border: 4px solid #FF4757;
         }
 
@@ -223,16 +225,26 @@
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px) rotate(-5deg); }
-            75% { transform: translateX(5px) rotate(5deg); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px) rotate(-5deg);
+            }
+
+            75% {
+                transform: translateX(5px) rotate(5deg);
+            }
         }
 
         .game-over h2 {
             color: white;
             font-size: 32px;
             margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .game-over-message {
@@ -272,12 +284,76 @@
         #tryAgainBtn:hover {
             background: #27AE60;
         }
+
+        .zen-activities {
+            background: linear-gradient(135deg, #E8F5E8 0%, #D4F1D4 100%);
+            border: 2px solid #2ECC71;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .zen-activities h3 {
+            color: #27AE60;
+            margin-bottom: 10px;
+        }
+
+        .zen-activities p {
+            color: #2C3E50;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .activity-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .activity-btn {
+            background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+            max-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .activity-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .activity-btn:disabled {
+            background: #BDC3C7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .activity-btn small {
+            display: block;
+            font-size: 11px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
     </style>
 </head>
+
 <body>
     <div class="game-container">
         <h1>🧘 SoberLife - III🧘</h1>
-        
+
         <!-- Avatar and Stress Meter -->
         <div class="avatar-container">
             <div class="avatar" id="avatar">😊</div>
@@ -294,7 +370,7 @@
         <div class="survey" id="surveySection">
             <h3>Pre-Task Assessment</h3>
             <p>Before we begin your DMV visit, let's assess your current stress level:</p>
-            
+
             <div class="survey-question">
                 <strong>How did you sleep last night?</strong>
                 <label><input type="radio" name="sleep" value="0"> Great! 8+ hours of solid sleep</label>
@@ -332,6 +408,26 @@
             <p>Complete each step by getting closer to 21 than the house without going over!</p>
         </div>
 
+        <!-- Zen Activities Panel -->
+        <div class="zen-activities hidden" id="zenActivities">
+            <h3>🧘 Stress Relief Activities</h3>
+            <p>Use your zen points to manage stress during your DMV visit:</p>
+            <div class="activity-buttons">
+                <button class="activity-btn" onclick="useZenActivity('breath')" id="breathBtn">
+                    🌬️ Deep Breath<br>
+                    <small>10 zen points • -10% stress</small>
+                </button>
+                <button class="activity-btn" onclick="useZenActivity('stretch')" id="stretchBtn">
+                    🤸 Quick Stretch<br>
+                    <small>25 zen points • -20% stress</small>
+                </button>
+                <button class="activity-btn" onclick="useZenActivity('meditation')" id="meditationBtn">
+                    🧘 Mini Meditation<br>
+                    <small>50 zen points • -35% stress</small>
+                </button>
+            </div>
+        </div>
+
         <!-- Game Area -->
         <div class="game-area hidden" id="gameArea">
             <div class="cards-container">
@@ -346,13 +442,13 @@
                     <div class="score" id="houseScore">Score: ?</div>
                 </div>
             </div>
-            
+
             <div class="buttons">
                 <button id="hitBtn" onclick="hit()">Hit</button>
                 <button id="standBtn" onclick="stand()">Stand</button>
                 <button id="nextStepBtn" onclick="nextStep()" class="hidden">Next Step</button>
             </div>
-            
+
             <div id="roundResult"></div>
         </div>
 
@@ -361,8 +457,10 @@
             <div class="game-over-content">
                 <div class="game-over-avatar">🤯</div>
                 <h2>STRESS OVERLOAD!</h2>
-                <p class="game-over-message">You've reached maximum stress levels and had a complete meltdown at the DMV!</p>
-                <p class="game-over-subtext">The clerk called security, your paperwork got lost, and you're now banned from this location for 30 days.</p>
+                <p class="game-over-message">You've reached maximum stress levels and had a complete meltdown at the
+                    DMV!</p>
+                <p class="game-over-subtext">The clerk called security, your paperwork got lost, and you're now banned
+                    from this location for 30 days.</p>
                 <div class="game-over-stats">
                     <p>Final Stress Level: <span id="finalStressLevel">100%</span></p>
                     <p>Steps Completed: <span id="stepsCompleted">0/5</span></p>
@@ -387,7 +485,7 @@
 
         const steps = [
             "Check in at the front desk",
-            "Wait in line for your number to be called", 
+            "Wait in line for your number to be called",
             "Present your documents to the clerk",
             "Take your photo for the Real ID",
             "Pay the renewal fee and receive your temporary license"
@@ -427,7 +525,7 @@
         function calculateScore(cards) {
             let score = 0;
             let aces = 0;
-            
+
             for (let card of cards) {
                 if (card.value === 'A') {
                     aces++;
@@ -436,12 +534,12 @@
                     score += card.numValue;
                 }
             }
-            
+
             while (score > 21 && aces > 0) {
                 score -= 10;
                 aces--;
             }
-            
+
             return score;
         }
 
@@ -450,30 +548,32 @@
             const sleepAnswer = document.querySelector('input[name="sleep"]:checked');
             const preparedAnswer = document.querySelector('input[name="prepared"]:checked');
             const dayAnswer = document.querySelector('input[name="day"]:checked');
-            
+
             if (!sleepAnswer || !preparedAnswer || !dayAnswer) {
                 const errorMsg = document.getElementById('surveyError');
                 errorMsg.style.display = 'block';
                 return;
             }
-            
+
             // Calculate initial stress from survey
             const surveyInputs = document.querySelectorAll('input[type="radio"]:checked');
             let initialStress = 0;
-            
+
             surveyInputs.forEach(input => {
                 initialStress += parseInt(input.value);
             });
-            
+
             gameState.stressLevel = initialStress;
             gameState.zenPoints = Math.max(50, 150 - initialStress);
-            
+
             updateDisplay();
-            
+            updateZenActivities();
+
             document.getElementById('surveySection').classList.add('hidden');
             document.getElementById('taskInfo').classList.remove('hidden');
+            document.getElementById('zenActivities').classList.remove('hidden');
             document.getElementById('gameArea').classList.remove('hidden');
-            
+
             startNewRound();
         }
 
@@ -482,32 +582,32 @@
             gameState.playerCards = [];
             gameState.houseCards = [];
             gameState.gameInProgress = true;
-            
+
             // Deal initial cards
             gameState.playerCards.push(gameState.deck.pop());
             gameState.houseCards.push(gameState.deck.pop());
             gameState.playerCards.push(gameState.deck.pop());
             gameState.houseCards.push(gameState.deck.pop());
-            
+
             updateDisplay();
             updateCards();
-            
+
             document.getElementById('hitBtn').disabled = false;
             document.getElementById('standBtn').disabled = false;
             document.getElementById('nextStepBtn').classList.add('hidden');
             document.getElementById('roundResult').innerHTML = '';
-            
+
             // Update task description
-            document.getElementById('taskDescription').textContent = 
+            document.getElementById('taskDescription').textContent =
                 `Step ${gameState.currentStep}: ${steps[gameState.currentStep - 1]}`;
         }
 
         function hit() {
             if (!gameState.gameInProgress) return;
-            
+
             gameState.playerCards.push(gameState.deck.pop());
             updateCards();
-            
+
             const playerScore = calculateScore(gameState.playerCards);
             if (playerScore > 21) {
                 // Player busted
@@ -517,15 +617,15 @@
 
         function stand() {
             if (!gameState.gameInProgress) return;
-            
+
             // House plays
             while (calculateScore(gameState.houseCards) < 17) {
                 gameState.houseCards.push(gameState.deck.pop());
             }
-            
+
             const playerScore = calculateScore(gameState.playerCards);
             const houseScore = calculateScore(gameState.houseCards);
-            
+
             if (houseScore > 21) {
                 endRound('house_bust');
             } else if (playerScore > houseScore) {
@@ -541,15 +641,15 @@
             gameState.gameInProgress = false;
             document.getElementById('hitBtn').disabled = true;
             document.getElementById('standBtn').disabled = true;
-            
+
             // Update cards display now that game is over
             updateCards();
-            
+
             let resultText = '';
             let zenChange = 0;
             let stressChange = 0;
-            
-            switch(result) {
+
+            switch (result) {
                 case 'win':
                 case 'house_bust':
                     resultText = '🎉 You stayed calm and handled this step well!';
@@ -572,28 +672,28 @@
                     stressChange = 30;
                     break;
             }
-            
+
             gameState.zenPoints = Math.max(0, gameState.zenPoints + zenChange);
             gameState.stressLevel = Math.max(0, Math.min(100, gameState.stressLevel + stressChange));
-            
+
             updateDisplay();
-            
+
             document.getElementById('roundResult').innerHTML = `
                 <p style="font-size: 18px; margin: 10px 0;">${resultText}</p>
                 <p>Zen Points: ${zenChange > 0 ? '+' : ''}${zenChange} | Stress: ${stressChange > 0 ? '+' : ''}${stressChange}</p>
             `;
-            
+
             if (gameState.zenPoints <= 0) {
-                document.getElementById('roundResult').innerHTML += 
+                document.getElementById('roundResult').innerHTML +=
                     '<p style="color: red; font-weight: bold;">💔 You ran out of zen points! The DMV visit was too overwhelming.</p>';
                 return;
             }
-            
+
             if (gameState.currentStep < gameState.totalSteps) {
                 document.getElementById('nextStepBtn').classList.remove('hidden');
             } else {
                 // Game complete
-                document.getElementById('roundResult').innerHTML += 
+                document.getElementById('roundResult').innerHTML +=
                     '<p style="color: white; font-weight: bold;">🎊 Congratulations! You successfully completed your DMV visit!</p>';
             }
         }
@@ -606,10 +706,10 @@
         function updateCards() {
             const playerCardsEl = document.getElementById('playerCards');
             const houseCardsEl = document.getElementById('houseCards');
-            
+
             playerCardsEl.innerHTML = '';
             houseCardsEl.innerHTML = '';
-            
+
             // Player cards
             gameState.playerCards.forEach(card => {
                 const cardEl = document.createElement('div');
@@ -620,12 +720,12 @@
                 cardEl.textContent = card.value + card.suit;
                 playerCardsEl.appendChild(cardEl);
             });
-            
+
             // House cards (hide hole card only if game is still in progress)
             gameState.houseCards.forEach((card, index) => {
                 const cardEl = document.createElement('div');
                 cardEl.className = 'card';
-                
+
                 // Hide the hole card (second card) only while game is in progress
                 if (gameState.gameInProgress && index === 1) {
                     cardEl.textContent = '?';
@@ -642,11 +742,11 @@
                 }
                 houseCardsEl.appendChild(cardEl);
             });
-            
+
             // Update scores
             const playerScore = calculateScore(gameState.playerCards);
             document.getElementById('playerScore').textContent = `Score: ${playerScore}`;
-            
+
             // Show house score when game is over
             if (gameState.gameInProgress) {
                 document.getElementById('houseScore').textContent = 'Score: ?';
@@ -659,12 +759,12 @@
         function updateDisplay() {
             // Update zen points
             document.getElementById('zenPoints').textContent = `Zen Points: ${gameState.zenPoints}`;
-            
+
             // Update stress meter
             const stressFill = document.getElementById('stressFill');
             const stressPercent = gameState.stressLevel;
             stressFill.style.width = `${stressPercent}%`;
-            
+
             // Color based on stress level
             if (stressPercent < 30) {
                 stressFill.style.background = '#32CD32';
@@ -673,7 +773,7 @@
             } else {
                 stressFill.style.background = '#FF6347';
             }
-            
+
             // Update avatar based on stress
             const avatar = document.getElementById('avatar');
             if (stressPercent < 20) {
@@ -692,18 +792,80 @@
                 avatar.textContent = '😵';
                 avatar.style.background = '#FA8072';
             }
-            
+
+            // Update zen activities availability
+            updateZenActivities();
+
             // Check for game over condition
             if (stressPercent >= 100) {
                 showGameOver();
             }
         }
 
+        function updateZenActivities() {
+            const breathBtn = document.getElementById('breathBtn');
+            const stretchBtn = document.getElementById('stretchBtn');
+            const meditationBtn = document.getElementById('meditationBtn');
+
+            // Enable/disable buttons based on available zen points
+            breathBtn.disabled = gameState.zenPoints < 10;
+            stretchBtn.disabled = gameState.zenPoints < 25;
+            meditationBtn.disabled = gameState.zenPoints < 50;
+        }
+
+        function useZenActivity(activity) {
+            let cost = 0;
+            let stressReduction = 0;
+            let activityName = '';
+            let message = '';
+
+            switch (activity) {
+                case 'breath':
+                    cost = 10;
+                    stressReduction = 10;
+                    activityName = 'Deep Breath';
+                    message = '🌬️ You take a deep, calming breath and feel more centered.';
+                    break;
+                case 'stretch':
+                    cost = 25;
+                    stressReduction = 20;
+                    activityName = 'Quick Stretch';
+                    message = '🤸 You do some quick stretches and release tension from your body.';
+                    break;
+                case 'meditation':
+                    cost = 50;
+                    stressReduction = 35;
+                    activityName = 'Mini Meditation';
+                    message = '🧘 You close your eyes and meditate for a moment, finding inner peace.';
+                    break;
+            }
+
+            // Check if player has enough zen points
+            if (gameState.zenPoints < cost) {
+                return;
+            }
+
+            // Apply the activity
+            gameState.zenPoints -= cost;
+            gameState.stressLevel = Math.max(0, gameState.stressLevel - stressReduction);
+
+            // Show feedback
+            const roundResult = document.getElementById('roundResult');
+            roundResult.innerHTML = `
+                <div style="background: #E8F5E8; border: 2px solid #2ECC71; border-radius: 10px; padding: 15px; margin: 10px 0; color: #27AE60;">
+                    <p style="font-size: 16px; margin: 5px 0;">${message}</p>
+                    <p><strong>-${cost} zen points | -${stressReduction}% stress</strong></p>
+                </div>
+            `;
+
+            updateDisplay();
+        }
+
         function showGameOver() {
             // Update game over stats
             document.getElementById('finalStressLevel').textContent = `${gameState.stressLevel}%`;
             document.getElementById('stepsCompleted').textContent = `${gameState.currentStep - 1}/${gameState.totalSteps}`;
-            
+
             // Show game over screen
             document.getElementById('gameOverScreen').classList.remove('hidden');
         }
@@ -720,41 +882,42 @@
                 deck: [],
                 gameInProgress: false
             };
-            
+
             // Hide game over screen
             document.getElementById('gameOverScreen').classList.add('hidden');
-            
+
             // Show survey section again
             document.getElementById('surveySection').classList.remove('hidden');
             document.getElementById('taskInfo').classList.add('hidden');
+            document.getElementById('zenActivities').classList.add('hidden');
             document.getElementById('gameArea').classList.add('hidden');
-            
+
             // Clear survey selections
             const radioButtons = document.querySelectorAll('input[type="radio"]');
             radioButtons.forEach(radio => {
                 radio.checked = false;
             });
-            
+
             // Reset button state
             document.getElementById('startGameBtn').disabled = true;
             document.getElementById('surveyError').style.display = 'none';
-            
+
             // Update display
             updateDisplay();
         }
 
         // Initialize display
         updateDisplay();
-        
+
         // Add event listeners to survey radio buttons
         function checkSurveyCompletion() {
             const sleepAnswer = document.querySelector('input[name="sleep"]:checked');
             const preparedAnswer = document.querySelector('input[name="prepared"]:checked');
             const dayAnswer = document.querySelector('input[name="day"]:checked');
-            
+
             const startBtn = document.getElementById('startGameBtn');
             const errorMsg = document.getElementById('surveyError');
-            
+
             if (sleepAnswer && preparedAnswer && dayAnswer) {
                 startBtn.disabled = false;
                 errorMsg.style.display = 'none';
@@ -763,18 +926,18 @@
                 errorMsg.style.display = 'none'; // Hide error until they try to click
             }
         }
-        
+
         // Add listeners to all radio buttons
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const radioButtons = document.querySelectorAll('input[type="radio"]');
             radioButtons.forEach(radio => {
                 radio.addEventListener('change', checkSurveyCompletion);
             });
-            
+
             // Initial check
             checkSurveyCompletion();
         });
-        
+
         // If DOM is already loaded, run immediately
         if (document.readyState === 'loading') {
             // Do nothing, event listener above will handle it
@@ -787,4 +950,5 @@
         }
     </script>
 </body>
+
 </html>
