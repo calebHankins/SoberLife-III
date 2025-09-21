@@ -19,6 +19,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 10px;
+        }
+
+        /* Mobile-first responsive design */
+        @media (max-width: 767px) {
+            body {
+                align-items: flex-start;
+                padding: 5px;
+                min-height: 100vh;
+                /* Fallback for browsers without dvh support */
+                min-height: 100dvh;
+            }
         }
 
         .game-container {
@@ -31,11 +43,44 @@
             text-align: center;
         }
 
+        /* Mobile viewport optimization */
+        @media (max-width: 767px) {
+            .game-container {
+                border-radius: 15px;
+                padding: 10px;
+                width: 95%;
+                max-height: 100vh;
+                /* Fallback for browsers without dvh support */
+                max-height: 100dvh;
+                overflow-y: auto;
+                box-sizing: border-box;
+                margin: 0;
+                /* Ensure container uses available space efficiently */
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+            
+            /* Optimize spacing for mobile */
+            .game-container h1 {
+                font-size: 24px;
+                margin: 10px 0;
+            }
+        }
+
         .avatar-container {
             display: flex;
             justify-content: center;
             align-items: center;
             margin-bottom: 20px;
+        }
+
+        @media (max-width: 767px) {
+            .avatar-container {
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
         }
 
         .avatar {
@@ -51,6 +96,16 @@
             transition: all 0.3s ease;
         }
 
+        @media (max-width: 767px) {
+            .avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+                margin-right: 10px;
+                border: 3px solid #333;
+            }
+        }
+
         .stress-meter {
             width: 200px;
             height: 20px;
@@ -58,6 +113,13 @@
             border-radius: 10px;
             overflow: hidden;
             border: 2px solid #333;
+        }
+
+        @media (max-width: 767px) {
+            .stress-meter {
+                width: 150px;
+                height: 18px;
+            }
         }
 
         .stress-fill {
@@ -73,12 +135,37 @@
             margin: 10px 0;
         }
 
+        @media (max-width: 767px) {
+            .zen-points {
+                font-size: 18px;
+                margin: 8px 0;
+            }
+        }
+
         .task-info {
             background: #F0F8FF;
             border: 2px solid #4169E1;
             border-radius: 15px;
             padding: 15px;
             margin: 20px 0;
+        }
+
+        @media (max-width: 767px) {
+            .task-info {
+                padding: 10px;
+                margin: 15px 0;
+                border-radius: 12px;
+            }
+            
+            .task-info h3 {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+            
+            .task-info p {
+                font-size: 14px;
+                margin: 5px 0;
+            }
         }
 
         .game-area {
@@ -89,10 +176,26 @@
             color: white;
         }
 
+        @media (max-width: 767px) {
+            .game-area {
+                padding: 15px;
+                margin: 15px 0;
+                border-radius: 12px;
+            }
+        }
+
         .cards-container {
             display: flex;
             justify-content: space-around;
             margin: 20px 0;
+        }
+
+        @media (max-width: 767px) {
+            .cards-container {
+                margin: 15px 0;
+                flex-direction: column;
+                gap: 15px;
+            }
         }
 
         .player-area,
@@ -101,12 +204,32 @@
             margin: 0 10px;
         }
 
+        @media (max-width: 767px) {
+            .player-area,
+            .house-area {
+                margin: 0;
+            }
+            
+            .player-area h3,
+            .house-area h3 {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+        }
+
         .cards {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin: 10px 0;
             flex-wrap: wrap;
+        }
+
+        @media (max-width: 767px) {
+            .cards {
+                gap: 5px;
+                margin: 8px 0;
+            }
         }
 
         .card {
@@ -124,6 +247,15 @@
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
         }
 
+        @media (max-width: 767px) {
+            .card {
+                width: 45px;
+                height: 60px;
+                font-size: 14px;
+                border-radius: 6px;
+            }
+        }
+
         .card.red {
             color: #DC143C;
         }
@@ -134,8 +266,21 @@
             margin: 10px 0;
         }
 
+        @media (max-width: 767px) {
+            .score {
+                font-size: 16px;
+                margin: 8px 0;
+            }
+        }
+
         .buttons {
             margin: 20px 0;
+        }
+
+        @media (max-width: 767px) {
+            .buttons {
+                margin: 15px 0;
+            }
         }
 
         button {
@@ -149,6 +294,16 @@
             cursor: pointer;
             margin: 5px;
             transition: all 0.3s ease;
+        }
+
+        @media (max-width: 767px) {
+            button {
+                padding: 12px 20px;
+                font-size: 14px;
+                margin: 4px;
+                min-height: 44px;
+                border-radius: 20px;
+            }
         }
 
         button:hover {
@@ -174,14 +329,39 @@
             margin: 20px 0;
         }
 
+        @media (max-width: 767px) {
+            .survey {
+                padding: 15px;
+                margin: 15px 0;
+                border-radius: 12px;
+            }
+        }
+
         .survey h3 {
             color: #B8860B;
             margin-bottom: 15px;
         }
 
+        @media (max-width: 767px) {
+            .survey h3 {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+        }
+
         .survey-question {
             margin: 15px 0;
             text-align: left;
+        }
+
+        @media (max-width: 767px) {
+            .survey-question {
+                margin: 12px 0;
+            }
+            
+            .survey-question strong {
+                font-size: 14px;
+            }
         }
 
         .survey-question label {
@@ -190,8 +370,29 @@
             cursor: pointer;
         }
 
+        @media (max-width: 767px) {
+            .survey-question label {
+                margin: 8px 0;
+                padding: 8px 0;
+                font-size: 14px;
+                /* Increase touch target area */
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+        }
+
         .survey-question input[type="radio"] {
             margin-right: 8px;
+        }
+
+        @media (max-width: 767px) {
+            .survey-question input[type="radio"] {
+                margin-right: 12px;
+                /* Increase radio button size for better touch interaction */
+                transform: scale(1.2);
+                margin-left: 4px;
+            }
         }
 
         .game-over {
@@ -218,10 +419,29 @@
             border: 4px solid #FF4757;
         }
 
+        @media (max-width: 767px) {
+            .game-over-content {
+                padding: 20px;
+                border-radius: 15px;
+                width: 95%;
+                max-width: 350px;
+                max-height: 90vh;
+                overflow-y: auto;
+                border: 3px solid #FF4757;
+            }
+        }
+
         .game-over-avatar {
             font-size: 80px;
             margin-bottom: 20px;
             animation: shake 0.5s infinite;
+        }
+
+        @media (max-width: 767px) {
+            .game-over-avatar {
+                font-size: 60px;
+                margin-bottom: 15px;
+            }
         }
 
         @keyframes shake {
@@ -247,11 +467,25 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
+        @media (max-width: 767px) {
+            .game-over h2 {
+                font-size: 24px;
+                margin-bottom: 12px;
+            }
+        }
+
         .game-over-message {
             color: white;
             font-size: 18px;
             margin-bottom: 10px;
             font-weight: bold;
+        }
+
+        @media (max-width: 767px) {
+            .game-over-message {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
         }
 
         .game-over-subtext {
@@ -261,11 +495,26 @@
             font-style: italic;
         }
 
+        @media (max-width: 767px) {
+            .game-over-subtext {
+                font-size: 12px;
+                margin-bottom: 15px;
+            }
+        }
+
         .game-over-stats {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             padding: 15px;
             margin: 20px 0;
+        }
+
+        @media (max-width: 767px) {
+            .game-over-stats {
+                padding: 12px;
+                margin: 15px 0;
+                border-radius: 8px;
+            }
         }
 
         .game-over-stats p {
@@ -274,11 +523,27 @@
             font-weight: bold;
         }
 
+        @media (max-width: 767px) {
+            .game-over-stats p {
+                font-size: 14px;
+                margin: 4px 0;
+            }
+        }
+
         #tryAgainBtn {
             background: #2ECC71;
             font-size: 18px;
             padding: 15px 30px;
             margin-top: 20px;
+        }
+
+        @media (max-width: 767px) {
+            #tryAgainBtn {
+                font-size: 16px;
+                padding: 12px 24px;
+                margin-top: 15px;
+                min-height: 44px;
+            }
         }
 
         #tryAgainBtn:hover {
@@ -294,9 +559,24 @@
             text-align: center;
         }
 
+        @media (max-width: 767px) {
+            .zen-activities {
+                padding: 15px;
+                margin: 15px 0;
+                border-radius: 12px;
+            }
+        }
+
         .zen-activities h3 {
             color: #27AE60;
             margin-bottom: 10px;
+        }
+
+        @media (max-width: 767px) {
+            .zen-activities h3 {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
         }
 
         .zen-activities p {
@@ -305,11 +585,25 @@
             font-size: 14px;
         }
 
+        @media (max-width: 767px) {
+            .zen-activities p {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+        }
+
         .activity-buttons {
             display: flex;
             justify-content: space-around;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        @media (max-width: 767px) {
+            .activity-buttons {
+                gap: 8px;
+                justify-content: center;
+            }
         }
 
         .activity-btn {
@@ -329,6 +623,17 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
+        @media (max-width: 767px) {
+            .activity-btn {
+                padding: 12px 8px;
+                font-size: 12px;
+                min-width: 100px;
+                max-width: 110px;
+                min-height: 44px;
+                border-radius: 10px;
+            }
+        }
+
         .activity-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
@@ -346,6 +651,109 @@
             font-size: 11px;
             margin-top: 5px;
             opacity: 0.9;
+        }
+
+        @media (max-width: 767px) {
+            .activity-btn small {
+                font-size: 10px;
+                margin-top: 3px;
+            }
+        }
+
+        /* Viewport unit fallbacks for older browsers */
+        @supports not (height: 100dvh) {
+            @media (max-width: 767px) {
+                body {
+                    min-height: 100vh;
+                }
+                .game-container {
+                    max-height: 100vh;
+                }
+            }
+        }
+
+        /* Additional mobile compatibility */
+        @media (max-width: 767px) {
+            /* Ensure touch targets meet accessibility guidelines */
+            button, .activity-btn, input[type="radio"] {
+                min-height: 44px;
+            }
+            
+            /* Optimize for mobile performance */
+            * {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+            
+            input[type="radio"], label {
+                -webkit-user-select: auto;
+                user-select: auto;
+            }
+            
+            /* iOS Safari specific fixes */
+            body {
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Prevent zoom on input focus */
+            input, button, select, textarea {
+                font-size: 16px;
+            }
+            
+            /* Fix for iOS Safari viewport height issues */
+            .game-container {
+                min-height: -webkit-fill-available;
+            }
+            
+            /* Android Chrome specific optimizations */
+            button, .activity-btn {
+                -webkit-appearance: none;
+                appearance: none;
+            }
+            
+            /* Improve text rendering on mobile */
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                text-rendering: optimizeLegibility;
+            }
+        }
+
+        /* Tablet-specific optimizations */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .game-container {
+                max-width: 600px;
+                padding: 15px;
+            }
+            
+            .avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+            
+            .stress-meter {
+                width: 180px;
+            }
+        }
+
+        /* Landscape mobile optimizations */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .game-container {
+                max-height: 100vh;
+                overflow-y: auto;
+            }
+            
+            .avatar-container {
+                margin-bottom: 10px;
+            }
+            
+            .survey, .task-info, .zen-activities, .game-area {
+                margin: 10px 0;
+                padding: 10px;
+            }
         }
     </style>
 </head>
