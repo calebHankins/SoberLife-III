@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoberLife III - Stress Management Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 20px;
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .avatar-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-right: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .stress-meter {
+            width: 200px;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #333;
+        }
+
+        .stress-fill {
+            height: 100%;
+            transition: all 0.5s ease;
+            border-radius: 8px;
+        }
+
+        .zen-points {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2E8B57;
+            margin: 10px 0;
+        }
+
+        .task-info {
+            background: #F0F8FF;
+            border: 2px solid #4169E1;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .game-area {
+            background: #228B22;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .player-area, .house-area {
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            width: 60px;
+            height: 80px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .card.red {
+            color: #DC143C;
+        }
+
+        .score {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .buttons {
+            margin: 20px 0;
+        }
+
+        button {
+            background: #4169E1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #1E90FF;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .survey {
+            background: #FFF8DC;
+            border: 2px solid #DAA520;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .survey h3 {
+            color: #B8860B;
+            margin-bottom: 15px;
+        }
+
+        .survey-question {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .survey-question label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        .survey-question input[type="radio"] {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🧘 SoberLife - III🧘</h1>
+        
+        <!-- Avatar and Stress Meter -->
+        <div class="avatar-container">
+            <div class="avatar" id="avatar">😊</div>
+            <div>
+                <div>Stress Level</div>
+                <div class="stress-meter">
+                    <div class="stress-fill" id="stressFill"></div>
+                </div>
+                <div class="zen-points" id="zenPoints">Zen Points: 100</div>
+            </div>
+        </div>
+
+        <!-- Survey Section -->
+        <div class="survey" id="surveySection">
+            <h3>Pre-Task Assessment</h3>
+            <p>Before we begin your DMV visit, let's assess your current stress level:</p>
+            
+            <div class="survey-question">
+                <strong>How did you sleep last night?</strong>
+                <label><input type="radio" name="sleep" value="0"> Great! 8+ hours of solid sleep</label>
+                <label><input type="radio" name="sleep" value="10"> Pretty well, 6-8 hours</label>
+                <label><input type="radio" name="sleep" value="20"> Not great, 4-6 hours</label>
+                <label><input type="radio" name="sleep" value="30"> Terrible, less than 4 hours</label>
+            </div>
+
+            <div class="survey-question">
+                <strong>How prepared do you feel for the DMV?</strong>
+                <label><input type="radio" name="prepared" value="0"> Very prepared, all documents ready</label>
+                <label><input type="radio" name="prepared" value="10"> Mostly prepared</label>
+                <label><input type="radio" name="prepared" value="20"> Somewhat prepared</label>
+                <label><input type="radio" name="prepared" value="30"> Not prepared at all</label>
+            </div>
+
+            <div class="survey-question">
+                <strong>How's your day been so far?</strong>
+                <label><input type="radio" name="day" value="0"> Amazing, everything's going smoothly</label>
+                <label><input type="radio" name="day" value="10"> Pretty good</label>
+                <label><input type="radio" name="day" value="20"> Okay, some minor issues</label>
+                <label><input type="radio" name="day" value="30"> Stressful, lots of problems</label>
+            </div>
+
+            <button onclick="startGame()">Begin DMV Visit</button>
+        </div>
+
+        <!-- Task Info -->
+        <div class="task-info hidden" id="taskInfo">
+            <h3>🏛️ Task: DMV License Renewal & Real ID</h3>
+            <p id="taskDescription">Step 1: Check in at the front desk</p>
+            <p>Complete each step by getting closer to 21 than the house without going over!</p>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area hidden" id="gameArea">
+            <div class="cards-container">
+                <div class="player-area">
+                    <h3>You</h3>
+                    <div class="cards" id="playerCards"></div>
+                    <div class="score" id="playerScore">Score: 0</div>
+                </div>
+                <div class="house-area">
+                    <h3>DMV Stress</h3>
+                    <div class="cards" id="houseCards"></div>
+                    <div class="score" id="houseScore">Score: ?</div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button id="hitBtn" onclick="hit()">Hit</button>
+                <button id="standBtn" onclick="stand()">Stand</button>
+                <button id="nextStepBtn" onclick="nextStep()" class="hidden">Next Step</button>
+            </div>
+            
+            <div id="roundResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            zenPoints: 100,
+            stressLevel: 0,
+            currentStep: 1,
+            totalSteps: 5,
+            playerCards: [],
+            houseCards: [],
+            deck: [],
+            gameInProgress: false
+        };
+
+        const steps = [
+            "Check in at the front desk",
+            "Wait in line for your number to be called", 
+            "Present your documents to the clerk",
+            "Take your photo for the Real ID",
+            "Pay the renewal fee and receive your temporary license"
+        ];
+
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+        function createDeck() {
+            const deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({
+                        suit: suit,
+                        value: value,
+                        numValue: getCardValue(value)
+                    });
+                }
+            }
+            return shuffleDeck(deck);
+        }
+
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        function getCardValue(value) {
+            if (value === 'A') return 11;
+            if (['J', 'Q', 'K'].includes(value)) return 10;
+            return parseInt(value);
+        }
+
+        function calculateScore(cards) {
+            let score = 0;
+            let aces = 0;
+            
+            for (let card of cards) {
+                if (card.value === 'A') {
+                    aces++;
+                    score += 11;
+                } else {
+                    score += card.numValue;
+                }
+            }
+            
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces--;
+            }
+            
+            return score;
+        }
+
+        function startGame() {
+            // Calculate initial stress from survey
+            const surveyInputs = document.querySelectorAll('input[type="radio"]:checked');
+            let initialStress = 0;
+            
+            surveyInputs.forEach(input => {
+                initialStress += parseInt(input.value);
+            });
+            
+            gameState.stressLevel = initialStress;
+            gameState.zenPoints = Math.max(50, 150 - initialStress);
+            
+            updateDisplay();
+            
+            document.getElementById('surveySection').classList.add('hidden');
+            document.getElementById('taskInfo').classList.remove('hidden');
+            document.getElementById('gameArea').classList.remove('hidden');
+            
+            startNewRound();
+        }
+
+        function startNewRound() {
+            gameState.deck = createDeck();
+            gameState.playerCards = [];
+            gameState.houseCards = [];
+            gameState.gameInProgress = true;
+            
+            // Deal initial cards
+            gameState.playerCards.push(gameState.deck.pop());
+            gameState.houseCards.push(gameState.deck.pop());
+            gameState.playerCards.push(gameState.deck.pop());
+            gameState.houseCards.push(gameState.deck.pop());
+            
+            updateDisplay();
+            updateCards();
+            
+            document.getElementById('hitBtn').disabled = false;
+            document.getElementById('standBtn').disabled = false;
+            document.getElementById('nextStepBtn').classList.add('hidden');
+            document.getElementById('roundResult').innerHTML = '';
+            
+            // Update task description
+            document.getElementById('taskDescription').textContent = 
+                `Step ${gameState.currentStep}: ${steps[gameState.currentStep - 1]}`;
+        }
+
+        function hit() {
+            if (!gameState.gameInProgress) return;
+            
+            gameState.playerCards.push(gameState.deck.pop());
+            updateCards();
+            
+            const playerScore = calculateScore(gameState.playerCards);
+            if (playerScore > 21) {
+                // Player busted
+                endRound('bust');
+            }
+        }
+
+        function stand() {
+            if (!gameState.gameInProgress) return;
+            
+            // House plays
+            while (calculateScore(gameState.houseCards) < 17) {
+                gameState.houseCards.push(gameState.deck.pop());
+            }
+            
+            updateCards();
+            
+            const playerScore = calculateScore(gameState.playerCards);
+            const houseScore = calculateScore(gameState.houseCards);
+            
+            if (houseScore > 21) {
+                endRound('house_bust');
+            } else if (playerScore > houseScore) {
+                endRound('win');
+            } else if (playerScore === houseScore) {
+                endRound('tie');
+            } else {
+                endRound('lose');
+            }
+        }
+
+        function endRound(result) {
+            gameState.gameInProgress = false;
+            document.getElementById('hitBtn').disabled = true;
+            document.getElementById('standBtn').disabled = true;
+            
+            let resultText = '';
+            let zenChange = 0;
+            let stressChange = 0;
+            
+            switch(result) {
+                case 'win':
+                case 'house_bust':
+                    resultText = '🎉 You stayed calm and handled this step well!';
+                    zenChange = 15;
+                    stressChange = -5;
+                    break;
+                case 'tie':
+                    resultText = '😐 You managed okay, but could have been smoother.';
+                    zenChange = 5;
+                    stressChange = 5;
+                    break;
+                case 'lose':
+                    resultText = '😰 This step was more stressful than expected.';
+                    zenChange = -10;
+                    stressChange = 15;
+                    break;
+                case 'bust':
+                    resultText = '😵 You got overwhelmed and lost your cool!';
+                    zenChange = -25;
+                    stressChange = 30;
+                    break;
+            }
+            
+            gameState.zenPoints = Math.max(0, gameState.zenPoints + zenChange);
+            gameState.stressLevel = Math.max(0, Math.min(100, gameState.stressLevel + stressChange));
+            
+            updateDisplay();
+            
+            document.getElementById('roundResult').innerHTML = `
+                <p style="font-size: 18px; margin: 10px 0;">${resultText}</p>
+                <p>Zen Points: ${zenChange > 0 ? '+' : ''}${zenChange} | Stress: ${stressChange > 0 ? '+' : ''}${stressChange}</p>
+            `;
+            
+            if (gameState.zenPoints <= 0) {
+                document.getElementById('roundResult').innerHTML += 
+                    '<p style="color: red; font-weight: bold;">💔 You ran out of zen points! The DMV visit was too overwhelming.</p>';
+                return;
+            }
+            
+            if (gameState.currentStep < gameState.totalSteps) {
+                document.getElementById('nextStepBtn').classList.remove('hidden');
+            } else {
+                // Game complete
+                document.getElementById('roundResult').innerHTML += 
+                    '<p style="color: green; font-weight: bold;">🎊 Congratulations! You successfully completed your DMV visit!</p>';
+            }
+        }
+
+        function nextStep() {
+            gameState.currentStep++;
+            startNewRound();
+        }
+
+        function updateCards() {
+            const playerCardsEl = document.getElementById('playerCards');
+            const houseCardsEl = document.getElementById('houseCards');
+            
+            playerCardsEl.innerHTML = '';
+            houseCardsEl.innerHTML = '';
+            
+            // Player cards
+            gameState.playerCards.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card';
+                if (card.suit === '♥' || card.suit === '♦') {
+                    cardEl.classList.add('red');
+                }
+                cardEl.textContent = card.value + card.suit;
+                playerCardsEl.appendChild(cardEl);
+            });
+            
+            // House cards (hide second card if game in progress)
+            gameState.houseCards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card';
+                
+                if (gameState.gameInProgress && index === 1) {
+                    cardEl.textContent = '?';
+                    cardEl.style.background = '#333';
+                    cardEl.style.color = 'white';
+                } else {
+                    if (card.suit === '♥' || card.suit === '♦') {
+                        cardEl.classList.add('red');
+                    }
+                    cardEl.textContent = card.value + card.suit;
+                }
+                houseCardsEl.appendChild(cardEl);
+            });
+            
+            // Update scores
+            const playerScore = calculateScore(gameState.playerCards);
+            document.getElementById('playerScore').textContent = `Score: ${playerScore}`;
+            
+            if (gameState.gameInProgress) {
+                document.getElementById('houseScore').textContent = 'Score: ?';
+            } else {
+                const houseScore = calculateScore(gameState.houseCards);
+                document.getElementById('houseScore').textContent = `Score: ${houseScore}`;
+            }
+        }
+
+        function updateDisplay() {
+            // Update zen points
+            document.getElementById('zenPoints').textContent = `Zen Points: ${gameState.zenPoints}`;
+            
+            // Update stress meter
+            const stressFill = document.getElementById('stressFill');
+            const stressPercent = gameState.stressLevel;
+            stressFill.style.width = `${stressPercent}%`;
+            
+            // Color based on stress level
+            if (stressPercent < 30) {
+                stressFill.style.background = '#32CD32';
+            } else if (stressPercent < 60) {
+                stressFill.style.background = '#FFD700';
+            } else {
+                stressFill.style.background = '#FF6347';
+            }
+            
+            // Update avatar based on stress
+            const avatar = document.getElementById('avatar');
+            if (stressPercent < 20) {
+                avatar.textContent = '😊';
+                avatar.style.background = '#90EE90';
+            } else if (stressPercent < 40) {
+                avatar.textContent = '🙂';
+                avatar.style.background = '#F0E68C';
+            } else if (stressPercent < 60) {
+                avatar.textContent = '😐';
+                avatar.style.background = '#DDA0DD';
+            } else if (stressPercent < 80) {
+                avatar.textContent = '😰';
+                avatar.style.background = '#F0A460';
+            } else {
+                avatar.textContent = '😵';
+                avatar.style.background = '#FA8072';
+            }
+        }
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
