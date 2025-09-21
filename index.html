@@ -26,7 +26,7 @@
         @media (max-width: 767px) {
             body {
                 align-items: flex-start;
-                padding: 5px;
+                padding: 2px;
                 min-height: 100vh;
                 /* Fallback for browsers without dvh support */
                 min-height: 100dvh;
@@ -46,9 +46,9 @@
         /* Mobile viewport optimization */
         @media (max-width: 767px) {
             .game-container {
-                border-radius: 15px;
-                padding: 10px;
-                width: 95%;
+                border-radius: 10px;
+                padding: 8px;
+                width: 98%;
                 max-height: 100vh;
                 /* Fallback for browsers without dvh support */
                 max-height: 100dvh;
@@ -63,8 +63,8 @@
             
             /* Optimize spacing for mobile */
             .game-container h1 {
-                font-size: 24px;
-                margin: 10px 0;
+                font-size: 20px;
+                margin: 5px 0;
             }
         }
 
@@ -77,9 +77,9 @@
 
         @media (max-width: 767px) {
             .avatar-container {
-                margin-bottom: 15px;
+                margin-bottom: 8px;
                 flex-wrap: wrap;
-                gap: 10px;
+                gap: 8px;
             }
         }
 
@@ -98,11 +98,11 @@
 
         @media (max-width: 767px) {
             .avatar {
-                width: 60px;
-                height: 60px;
-                font-size: 28px;
-                margin-right: 10px;
-                border: 3px solid #333;
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+                margin-right: 8px;
+                border: 2px solid #333;
             }
         }
 
@@ -117,8 +117,8 @@
 
         @media (max-width: 767px) {
             .stress-meter {
-                width: 150px;
-                height: 18px;
+                width: 120px;
+                height: 16px;
             }
         }
 
@@ -137,8 +137,8 @@
 
         @media (max-width: 767px) {
             .zen-points {
-                font-size: 18px;
-                margin: 8px 0;
+                font-size: 16px;
+                margin: 4px 0;
             }
         }
 
@@ -331,9 +331,14 @@
 
         @media (max-width: 767px) {
             .survey {
-                padding: 15px;
-                margin: 15px 0;
-                border-radius: 12px;
+                padding: 8px;
+                margin: 5px 0;
+                border-radius: 8px;
+            }
+            
+            .survey > p {
+                font-size: 12px;
+                margin: 5px 0;
             }
         }
 
@@ -344,8 +349,8 @@
 
         @media (max-width: 767px) {
             .survey h3 {
-                font-size: 18px;
-                margin-bottom: 10px;
+                font-size: 16px;
+                margin-bottom: 5px;
             }
         }
 
@@ -356,11 +361,13 @@
 
         @media (max-width: 767px) {
             .survey-question {
-                margin: 12px 0;
+                margin: 8px 0;
             }
             
             .survey-question strong {
-                font-size: 14px;
+                font-size: 13px;
+                display: block;
+                margin-bottom: 4px;
             }
         }
 
@@ -372,13 +379,14 @@
 
         @media (max-width: 767px) {
             .survey-question label {
-                margin: 8px 0;
-                padding: 8px 0;
-                font-size: 14px;
+                margin: 3px 0;
+                padding: 6px 0;
+                font-size: 12px;
                 /* Increase touch target area */
-                min-height: 44px;
+                min-height: 36px;
                 display: flex;
                 align-items: center;
+                line-height: 1.2;
             }
         }
 
@@ -388,10 +396,11 @@
 
         @media (max-width: 767px) {
             .survey-question input[type="radio"] {
-                margin-right: 12px;
+                margin-right: 8px;
                 /* Increase radio button size for better touch interaction */
-                transform: scale(1.2);
-                margin-left: 4px;
+                transform: scale(1.1);
+                margin-left: 2px;
+                flex-shrink: 0;
             }
         }
 
@@ -747,12 +756,70 @@
             }
             
             .avatar-container {
-                margin-bottom: 10px;
+                margin-bottom: 5px;
             }
             
             .survey, .task-info, .zen-activities, .game-area {
-                margin: 10px 0;
-                padding: 10px;
+                margin: 5px 0;
+                padding: 6px;
+            }
+            
+            .survey-question {
+                margin: 4px 0;
+            }
+            
+            .survey-question label {
+                min-height: 32px;
+                padding: 4px 0;
+            }
+        }
+
+        /* Ultra-compact mobile survey for very small screens */
+        @media (max-width: 767px) and (max-height: 600px) {
+            .game-container h1 {
+                font-size: 18px;
+                margin: 3px 0;
+            }
+            
+            .avatar-container {
+                margin-bottom: 5px;
+            }
+            
+            .avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .survey {
+                padding: 6px;
+                margin: 3px 0;
+            }
+            
+            .survey h3 {
+                font-size: 14px;
+                margin-bottom: 3px;
+            }
+            
+            .survey > p {
+                font-size: 11px;
+                margin: 3px 0;
+            }
+            
+            .survey-question {
+                margin: 5px 0;
+            }
+            
+            .survey-question strong {
+                font-size: 12px;
+                margin-bottom: 2px;
+            }
+            
+            .survey-question label {
+                min-height: 32px;
+                padding: 3px 0;
+                font-size: 11px;
+                margin: 2px 0;
             }
         }
     </style>
