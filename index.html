@@ -238,7 +238,10 @@
                 <label><input type="radio" name="day" value="30"> Stressful, lots of problems</label>
             </div>
 
-            <button onclick="startGame()">Begin DMV Visit</button>
+            <div id="surveyError" style="color: red; font-weight: bold; margin: 10px 0; display: none;">
+                Please answer all questions before beginning your DMV visit!
+            </div>
+            <button id="startGameBtn" onclick="startGame()" disabled>Begin DMV Visit</button>
         </div>
 
         <!-- Task Info -->
@@ -347,6 +350,17 @@
         }
 
         function startGame() {
+            // Validate that all survey questions are answered
+            const sleepAnswer = document.querySelector('input[name="sleep"]:checked');
+            const preparedAnswer = document.querySelector('input[name="prepared"]:checked');
+            const dayAnswer = document.querySelector('input[name="day"]:checked');
+            
+            if (!sleepAnswer || !preparedAnswer || !dayAnswer) {
+                const errorMsg = document.getElementById('surveyError');
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
             // Calculate initial stress from survey
             const surveyInputs = document.querySelectorAll('input[type="radio"]:checked');
             let initialStress = 0;
@@ -586,6 +600,46 @@
 
         // Initialize display
         updateDisplay();
+        
+        // Add event listeners to survey radio buttons
+        function checkSurveyCompletion() {
+            const sleepAnswer = document.querySelector('input[name="sleep"]:checked');
+            const preparedAnswer = document.querySelector('input[name="prepared"]:checked');
+            const dayAnswer = document.querySelector('input[name="day"]:checked');
+            
+            const startBtn = document.getElementById('startGameBtn');
+            const errorMsg = document.getElementById('surveyError');
+            
+            if (sleepAnswer && preparedAnswer && dayAnswer) {
+                startBtn.disabled = false;
+                errorMsg.style.display = 'none';
+            } else {
+                startBtn.disabled = true;
+                errorMsg.style.display = 'none'; // Hide error until they try to click
+            }
+        }
+        
+        // Add listeners to all radio buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', checkSurveyCompletion);
+            });
+            
+            // Initial check
+            checkSurveyCompletion();
+        });
+        
+        // If DOM is already loaded, run immediately
+        if (document.readyState === 'loading') {
+            // Do nothing, event listener above will handle it
+        } else {
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', checkSurveyCompletion);
+            });
+            checkSurveyCompletion();
+        }
     </script>
 </body>
 </html>
