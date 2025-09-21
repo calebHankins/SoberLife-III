@@ -4,7 +4,7 @@ A fun, interactive stress management game that simulates a DMV visit using black
 
 ## 🎮 Play the Game
 
-Visit the live game: [Your GitHub Pages URL will appear here after deployment]
+Visit the[ live game on github pages](https://calebhankins.github.io/SoberLife-III/)!
 
 ## 🎯 How to Play
 
