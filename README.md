@@ -23,7 +23,50 @@ Visit the[ live game on github pages](https://calebhankins.github.io/SoberLife-I
 
 ## 🚀 Local Development
 
+### Quick Start
 Simply open `index.html` in your web browser to play locally.
+
+### File Structure
+The game is now organized into separate files for better maintainability:
+
+```
+/
+├── index.html              # Main HTML structure
+├── assets/
+│   ├── css/               # Stylesheets
+│   │   ├── main.css       # Base styles and layout
+│   │   ├── components.css # UI component styles
+│   │   └── responsive.css # Mobile and responsive styles
+│   └── js/                # JavaScript modules
+│       ├── game-state.js  # Game state management
+│       ├── card-system.js # Blackjack card logic
+│       ├── ui-manager.js  # DOM manipulation and updates
+│       ├── stress-system.js # Stress and zen point management
+│       └── main.js        # Game initialization and coordination
+├── README.md              # This file
+└── model_spec.md          # Comprehensive game design document
+```
+
+### Development Workflow
+1. Make changes to the appropriate files (HTML, CSS, or JavaScript modules)
+2. Refresh your browser to see changes
+3. No build process required - files are served directly
+
+### Serving with a Local Server (Optional)
+For testing ES6 modules, you may want to serve the files through a local server:
+
+```bash
+# Python 3
+python -m http.server 8000
+
+# Python 2  
+python -m SimpleHTTPServer 8000
+
+# Node.js
+npx serve . -p 8000
+```
+
+Then visit `http://localhost:8000` in your browser.
 
 ## 📝 License
 

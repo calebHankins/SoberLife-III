@@ -104,14 +104,39 @@ The game uses familiar blackjack rules as a metaphor for handling life's challen
 ## Technical Implementation
 
 ### Architecture
-- **Single File**: Complete game in one HTML file
-- **No Dependencies**: Self-contained with embedded CSS/JS
-- **Web Distribution**: Easily shareable via any web host
+- **Multi-File Structure**: Organized into separate HTML, CSS, and JavaScript files
+- **Modular Design**: JavaScript split into logical modules for maintainability
+- **No Dependencies**: Self-contained with no external libraries or frameworks
+- **Web Distribution**: Easily deployable via GitHub Pages or any static host
+
+### File Organization
+```
+/
+├── index.html              # Main HTML structure
+├── assets/
+│   ├── css/               # Stylesheets organized by purpose
+│   │   ├── main.css       # Base styles and layout
+│   │   ├── components.css # UI component styles
+│   │   └── responsive.css # Mobile and responsive styles
+│   └── js/                # JavaScript modules
+│       ├── game-state.js  # Game state management
+│       ├── card-system.js # Blackjack card logic
+│       ├── ui-manager.js  # DOM manipulation and updates
+│       ├── stress-system.js # Stress and zen point management
+│       └── main.js        # Game initialization and coordination
+```
+
+### Module Architecture
+- **game-state.js**: Central state management with game data and constants
+- **card-system.js**: Blackjack logic including deck creation, shuffling, and scoring
+- **ui-manager.js**: DOM manipulation and visual updates for all game elements
+- **stress-system.js**: Zen activities and stress management functionality
+- **main.js**: Game controller that coordinates all modules and handles user interactions
 
 ### Browser Compatibility
-- **Modern Browsers**: Chrome, Firefox, Safari, Edge
-- **Responsive Design**: Works on desktop and mobile
-- **No External Resources**: Fonts, icons all embedded
+- **Modern Browsers**: Chrome, Firefox, Safari, Edge (ES6 module support required)
+- **Responsive Design**: Works on desktop and mobile devices
+- **No External Resources**: All assets embedded or self-contained
 
 ## Game Balance
 
