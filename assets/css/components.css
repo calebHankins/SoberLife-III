@@ -536,7 +536,7 @@
     padding: 20px;
     overflow-y: auto;
     max-height: calc(90vh - 100px);
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'Comic Sans MS', sans-serif;
 }
 
 .help-section {
@@ -710,7 +710,7 @@ ive Flavor Text Animations */
 
 /* Stress Management Tip Styling */
 .stress-tip {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'Comic Sans MS', sans-serif;
     line-height: 1.4;
 }
 
