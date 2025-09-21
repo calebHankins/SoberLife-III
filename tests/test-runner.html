@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoberLife III - UI Features Test Runner</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4fc3f7;
+            border-bottom: 2px solid #4fc3f7;
+            padding-bottom: 10px;
+        }
+        .test-output {
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .run-button {
+            background: #4fc3f7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .run-button:hover {
+            background: #29b6f6;
+        }
+        .success {
+            color: #4caf50;
+        }
+        .error {
+            color: #f44336;
+        }
+        .warning {
+            color: #ff9800;
+        }
+        .info {
+            color: #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 SoberLife III - UI Features Test Suite</h1>
+        
+        <p>This test runner validates the task visibility improvements and new UI features.</p>
+        
+        <div>
+            <button class="run-button" onclick="runTests()">Run All Tests</button>
+            <button class="run-button" onclick="clearOutput()">Clear Output</button>
+        </div>
+        
+        <div class="test-output" id="testOutput">
+            Click "Run All Tests" to start the test suite...
+        </div>
+        
+        <h2>Test Coverage</h2>
+        <ul>
+            <li><strong>Contextual Action Mapping:</strong> Tests the DMV-specific action mappings and fallback systems</li>
+            <li><strong>Help Modal Functionality:</strong> Validates modal show/hide behavior and error handling</li>
+            <li><strong>Task Prominence System:</strong> Tests task description updates and animation triggers</li>
+            <li><strong>Contextual Button Updates:</strong> Verifies dynamic button text and tooltip updates</li>
+            <li><strong>Error Handling:</strong> Tests fallback systems and XSS protection</li>
+        </ul>
+        
+        <h2>Manual Testing Checklist</h2>
+        <ul>
+            <li>✓ Task info is prominently displayed with gradient background</li>
+            <li>✓ Help button opens modal with comprehensive game instructions</li>
+            <li>✓ Hit/Stand buttons show contextual text based on current DMV step</li>
+            <li>✓ Task animations trigger when advancing to new steps</li>
+            <li>✓ Keyboard shortcuts work (H for Hit, S for Stand, ? for Help)</li>
+            <li>✓ Mobile responsive design maintains task prominence</li>
+            <li>✓ Error handling gracefully handles missing elements</li>
+        </ul>
+    </div>
+
+    <script src="ui-features.test.js"></script>
+    <script>
+        // Override console methods to capture output
+        const originalConsole = {
+            log: console.log,
+            warn: console.warn,
+            error: console.error,
+            assert: console.assert
+        };
+        
+        let testOutput = [];
+        
+        function captureConsole() {
+            console.log = function(...args) {
+                const message = args.join(' ');
+                testOutput.push({ type: 'log', message });
+                originalConsole.log(...args);
+            };
+            
+            console.warn = function(...args) {
+                const message = args.join(' ');
+                testOutput.push({ type: 'warn', message });
+                originalConsole.warn(...args);
+            };
+            
+            console.error = function(...args) {
+                const message = args.join(' ');
+                testOutput.push({ type: 'error', message });
+                originalConsole.error(...args);
+            };
+            
+            console.assert = function(condition, message) {
+                if (!condition) {
+                    testOutput.push({ type: 'error', message: `Assertion failed: ${message}` });
+                    throw new Error(`Assertion failed: ${message}`);
+                }
+                originalConsole.assert(condition, message);
+            };
+        }
+        
+        function restoreConsole() {
+            console.log = originalConsole.log;
+            console.warn = originalConsole.warn;
+            console.error = originalConsole.error;
+            console.assert = originalConsole.assert;
+        }
+        
+        function formatOutput() {
+            const outputEl = document.getElementById('testOutput');
+            let html = '';
+            
+            testOutput.forEach(entry => {
+                let className = '';
+                let icon = '';
+                
+                switch (entry.type) {
+                    case 'error':
+                        className = 'error';
+                        icon = '❌ ';
+                        break;
+                    case 'warn':
+                        className = 'warning';
+                        icon = '⚠️ ';
+                        break;
+                    case 'log':
+                        if (entry.message.includes('✓')) {
+                            className = 'success';
+                            icon = '';
+                        } else if (entry.message.includes('Testing')) {
+                            className = 'info';
+                            icon = '🧪 ';
+                        } else {
+                            className = '';
+                            icon = '';
+                        }
+                        break;
+                }
+                
+                html += `<span class="${className}">${icon}${entry.message}</span>\n`;
+            });
+            
+            outputEl.innerHTML = html;
+        }
+        
+        function runTests() {
+            testOutput = [];
+            captureConsole();
+            
+            try {
+                // Run the test suite
+                if (typeof runAllTests === 'function') {
+                    runAllTests();
+                } else {
+                    console.error('Test suite not loaded properly');
+                }
+            } catch (error) {
+                console.error('Test execution failed:', error.message);
+            } finally {
+                restoreConsole();
+                formatOutput();
+            }
+        }
+        
+        function clearOutput() {
+            document.getElementById('testOutput').innerHTML = 'Output cleared. Click "Run All Tests" to start the test suite...';
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', function() {
+            setTimeout(runTests, 1000);
+        });
+    </script>
+</body>
+</html>

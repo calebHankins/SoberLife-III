@@ -13,8 +13,8 @@
     }
 
     .game-container {
-        border-radius: 10px;
-        padding: 8px;
+        border-radius: 8px;
+        padding: 4px;
         width: 98%;
         max-height: 100vh;
         /* Fallback for browsers without dvh support */
@@ -27,80 +27,200 @@
         flex-direction: column;
         justify-content: flex-start;
         min-height: -webkit-fill-available;
+        /* Optimize for no-scroll experience */
+        overflow-y: hidden;
     }
     
-    /* Optimize spacing for mobile */
-    .game-container h1 {
+    /* Game Header Mobile Styles */
+    .game-header {
+        position: relative;
+        margin-bottom: 1px;
+        /* Add padding to avoid overlap with floating help button */
+        padding-right: 40px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+    
+    .game-header h1 {
         font-size: 16px;
-        margin: 1px 0;
+        margin: 0;
+        text-align: center;
+    }
+    
+    .help-btn {
+        padding: 4px 8px;
+        font-size: 10px;
+        min-height: 28px;
+        border-radius: 20px;
+        /* Make it more compact */
+        flex-shrink: 0;
+        gap: 4px;
+        /* Alternative: position absolute for minimal space usage */
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 100;
+        /* Remove from normal flow to save space */
+        margin: 0;
+    }
+    
+    .help-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 12px;
+    }
+    
+    .help-text {
+        font-size: 10px;
+        /* Hide text on very small screens to save space */
+        display: none;
     }
 
     .avatar-container {
         margin-bottom: 2px;
-        flex-wrap: wrap;
-        gap: 3px;
+        flex-wrap: nowrap;
+        gap: 4px;
+        align-items: center;
+        padding: 4px 0;
+        flex-shrink: 0;
     }
 
     .avatar {
-        width: 35px;
-        height: 35px;
-        font-size: 18px;
-        margin-right: 4px;
-        border: 1px solid #333;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        margin-right: 6px;
+        border: 2px solid #333;
     }
 
     .stress-meter {
-        width: 100px;
-        height: 14px;
+        width: 120px;
+        height: 16px;
     }
 
     .zen-points {
-        font-size: 12px;
-        margin: 1px 0;
+        font-size: 14px;
+        margin: 2px 0;
+        font-weight: bold;
     }
 
     .task-info {
-        padding: 10px;
-        margin: 15px 0;
+        padding: 12px 10px;
+        margin: 2px 0;
         border-radius: 12px;
+        /* Ensure task remains prominent on mobile */
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        border: 2px solid #FF4757;
+        /* Enhanced mobile visibility */
+        position: relative;
+        /* Ensure task info is always visible above other content */
+        z-index: 20;
+        /* Reduce animation on mobile for better readability */
+        animation: mobilePulse 4s ease-in-out infinite;
+        /* Ensure full width usage */
+        width: calc(100% - 4px);
+        box-sizing: border-box;
+        /* Ensure text doesn't overflow */
+        overflow: visible;
+        word-wrap: break-word;
+        flex-shrink: 0;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     
     .task-info h3 {
         font-size: 16px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        line-height: 1.2;
+        /* Ensure text fits */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .task-info p {
         font-size: 14px;
-        margin: 5px 0;
+        margin: 4px 0;
+        font-weight: 600;
+        line-height: 1.3;
+        /* Ensure text fits */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .task-info #taskDescription {
+        font-size: 15px;
+        padding: 8px;
+        margin: 6px 0;
+        min-height: 40px;
+        /* Ensure text is fully visible */
+        line-height: 1.3;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        /* Ensure background is readable */
+        background: rgba(255, 255, 255, 0.25) !important;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .task-info .step-indicator {
+        font-size: 12px;
+        padding: 4px 8px;
+        margin-bottom: 4px;
+        /* Ensure text is readable */
+        background: rgba(255, 255, 255, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.4) !important;
     }
 
     .game-area {
-        padding: 15px;
-        margin: 15px 0;
+        padding: 12px;
+        margin: 2px 0;
         border-radius: 12px;
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 200px;
     }
 
     .cards-container {
-        margin: 15px 0;
-        flex-direction: column;
-        gap: 15px;
+        margin: 12px 0;
+        flex-direction: row;
+        gap: 12px;
+        justify-content: space-around;
+        flex: 1;
+        display: flex;
+        align-items: center;
     }
 
     .player-area,
     .house-area {
         margin: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
     
     .player-area h3,
     .house-area h3 {
-        font-size: 16px;
+        font-size: 18px;
         margin-bottom: 8px;
     }
 
     .cards {
-        gap: 5px;
+        gap: 6px;
         margin: 8px 0;
+        justify-content: center;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
     }
 
     .card {
@@ -113,10 +233,12 @@
     .score {
         font-size: 16px;
         margin: 8px 0;
+        font-weight: bold;
     }
 
     .buttons {
-        margin: 15px 0;
+        margin: 12px 0;
+        flex-shrink: 0;
     }
 
     button {
@@ -273,24 +395,34 @@
     }
 
     .zen-activities {
-        padding: 15px;
-        margin: 15px 0;
+        padding: 12px;
+        margin: 2px 0;
         border-radius: 12px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 120px;
     }
 
     .zen-activities h3 {
-        font-size: 16px;
-        margin-bottom: 8px;
+        font-size: 18px;
+        margin-bottom: 6px;
     }
 
     .zen-activities p {
-        font-size: 12px;
-        margin-bottom: 10px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        line-height: 1.3;
     }
 
     .activity-buttons {
-        gap: 8px;
+        gap: 6px;
         justify-content: center;
+        flex-wrap: wrap;
+        flex: 1;
+        display: flex;
+        align-items: center;
     }
 
     .activity-btn {
@@ -298,13 +430,167 @@
         font-size: 12px;
         min-width: 100px;
         max-width: 110px;
-        min-height: 44px;
+        min-height: 50px;
         border-radius: 10px;
+        line-height: 1.2;
+        flex: 1;
     }
 
     .activity-btn small {
         font-size: 10px;
         margin-top: 3px;
+    }
+
+    /* Help Modal Mobile Styles */
+    .help-modal {
+        padding: 10px;
+        /* Improve touch scrolling */
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .help-modal-content {
+        border-radius: 15px;
+        max-height: 95vh;
+        border: 2px solid #4169E1;
+        /* Ensure modal content is touch-friendly */
+        touch-action: pan-y;
+    }
+    
+    .help-modal-header {
+        padding: 15px;
+    }
+    
+    .help-modal-header h2 {
+        font-size: 18px;
+    }
+    
+    .help-close-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 20px;
+    }
+    
+    .help-modal-body {
+        padding: 15px;
+        max-height: calc(95vh - 80px);
+    }
+    
+    .help-section h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+    
+    .help-section p,
+    .help-section li {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    .help-section {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+    
+    /* Contextual Button Mobile Styles */
+    #hitBtn, #standBtn {
+        min-width: 130px;
+        font-size: 16px;
+        padding: 14px 18px;
+        margin: 6px 4px;
+        border-radius: 25px;
+        /* Ensure buttons are touch-friendly */
+        min-height: 50px;
+        /* Add visual feedback for touch */
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        font-weight: bold;
+    }
+    
+    #hitBtn:active, #standBtn:active {
+        transform: scale(0.95);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Flavor Text Mobile Styles */
+    .flavor-text {
+        padding: 6px 8px;
+        margin: 6px 0;
+        border-radius: 4px;
+    }
+    
+    .flavor-text p {
+        font-size: 11px;
+        line-height: 1.2;
+        margin: 0;
+    }
+    
+    /* Round result optimization */
+    #roundResult {
+        font-size: 12px;
+        line-height: 1.2;
+        position: relative;
+    }
+    
+    #roundResult p {
+        margin: 4px 0;
+        font-size: 12px;
+    }
+    
+    /* Popup notification styles for mobile */
+    .popup-notification {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+        z-index: 1000;
+        animation: popupFadeInOut 2s ease-in-out;
+        pointer-events: none;
+        text-align: center;
+        min-width: 200px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .popup-notification.zen-gain {
+        background: linear-gradient(135deg, #2ECC71, #27AE60);
+    }
+    
+    .popup-notification.stress-change {
+        background: linear-gradient(135deg, #E74C3C, #C0392B);
+    }
+    
+    .popup-notification.stress-decrease {
+        background: linear-gradient(135deg, #3498DB, #2980B9);
+    }
+    
+    @keyframes popupFadeInOut {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+        20%, 80% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+    }
+    
+    /* Mobile-specific animations */
+    @keyframes mobilePulse {
+        0%, 100% {
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+        50% {
+            box-shadow: 0 12px 25px rgba(255, 107, 107, 0.6);
+        }
     }
 
     /* Ensure touch targets meet accessibility guidelines */
@@ -328,6 +614,27 @@
     /* Prevent zoom on input focus */
     input, button, select, textarea {
         font-size: 16px;
+    }
+    
+    /* Optimize for single-screen experience - remove wasted whitespace */
+    .game-container > * {
+        flex-shrink: 0;
+    }
+    
+    /* Ensure game content fits in viewport without wasted space */
+    .game-container {
+        height: 100vh;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 4px;
+        padding: 6px;
+    }
+    
+    /* Make game area and zen activities compact */
+    .zen-activities, .game-area {
+        flex: 0 0 auto;
     }
 }
 
@@ -372,9 +679,38 @@
         margin-bottom: 5px;
     }
     
-    .survey, .task-info, .zen-activities, .game-area {
+    .survey, .zen-activities, .game-area {
         margin: 5px 0;
         padding: 6px;
+    }
+    
+    /* Keep task-info prominent even in landscape */
+    .task-info {
+        margin: 6px 0;
+        padding: 10px 8px;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        /* Maintain prominence in landscape */
+        position: relative;
+        z-index: 20;
+        /* Reduce animation frequency in landscape for better UX */
+        animation: mobilePulse 5s ease-in-out infinite;
+        /* Ensure full width and readability */
+        width: calc(100% - 2px);
+        box-sizing: border-box;
+    }
+    
+    .task-info h3 {
+        font-size: 14px;
+        margin-bottom: 4px;
+        line-height: 1.2;
+    }
+    
+    .task-info #taskDescription {
+        font-size: 13px;
+        padding: 6px;
+        margin: 6px 0;
+        line-height: 1.2;
+        background: rgba(255, 255, 255, 0.25) !important;
     }
     
     .survey-question {
@@ -433,5 +769,47 @@
         padding: 3px 0;
         font-size: 11px;
         margin: 2px 0;
+    }
+    
+    /* Ultra-compact help button for very small screens */
+    .help-btn {
+        padding: 2px 4px;
+        font-size: 8px;
+        min-height: 20px;
+        border-radius: 12px;
+        /* Make it just a small circle with ? */
+        width: 24px;
+        height: 24px;
+        top: 3px;
+        right: 3px;
+    }
+    
+    .help-icon {
+        width: 12px;
+        height: 12px;
+        font-size: 9px;
+    }
+    
+    /* Reduce header padding for very small screens */
+    .game-header {
+        padding-right: 30px;
+    }
+    
+    /* Ensure task info remains prominent even on very small screens */
+    .task-info {
+        padding: 15px 10px;
+        margin: 15px 0;
+        /* Stronger prominence on small screens */
+        box-shadow: 0 10px 25px rgba(255, 107, 107, 0.5);
+        border: 3px solid #FF4757;
+    }
+    
+    .task-info h3 {
+        font-size: 16px;
+    }
+    
+    .task-info #taskDescription {
+        font-size: 15px;
+        padding: 10px;
     }
 }

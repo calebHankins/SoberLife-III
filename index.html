@@ -14,7 +14,13 @@
 
 <body>
     <div class="game-container">
-        <h1>🧘 SoberLife - III 🧘</h1>
+        <div class="game-header">
+            <h1>🧘 SoberLife - III 🧘</h1>
+            <button class="help-btn" id="helpBtn" onclick="showHelp()" aria-label="Show game help and instructions" tabindex="0">
+                <span class="help-icon">?</span>
+                <span class="help-text">Help</span>
+            </button>
+        </div>
 
         <!-- Avatar and Stress Meter -->
         <div class="avatar-container">
@@ -65,9 +71,9 @@
 
         <!-- Task Info -->
         <div class="task-info hidden" id="taskInfo">
+            <div class="step-indicator" id="stepIndicator">Step 1 of 5</div>
             <h3>🏛️ Task: DMV License Renewal & Real ID</h3>
             <p id="taskDescription">Step 1: Check in at the front desk</p>
-            <p>Complete each step by getting closer to 21 than the house without going over!</p>
         </div>
 
         <!-- Zen Activities Panel -->
@@ -146,6 +152,78 @@
                 </div>
                 
                 <button id="playAgainBtn" onclick="restartGame()">Play Again</button>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div class="help-modal hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
+            <div class="help-modal-backdrop" id="helpModalBackdrop"></div>
+            <div class="help-modal-content">
+                <div class="help-modal-header">
+                    <h2 id="helpModalTitle">🎮 How to Play SoberLife III</h2>
+                    <button class="help-close-btn" id="helpCloseBtn" aria-label="Close help modal">×</button>
+                </div>
+                <div class="help-modal-body" id="helpModalBody">
+                    <div class="help-section">
+                        <h3>🎯 Game Objective</h3>
+                        <p>Successfully complete your DMV visit by managing stress and winning blackjack rounds for each step.</p>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>🃏 Blackjack Rules</h3>
+                        <ul>
+                            <li>Get as close to 21 as possible without going over</li>
+                            <li>Number cards = face value, Face cards = 10, Aces = 1 or 11</li>
+                            <li>Click "Hit" to draw another card</li>
+                            <li>Click "Stand" to keep your current total</li>
+                            <li>Beat the house to advance to the next DMV step</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>😰 Stress Management</h3>
+                        <ul>
+                            <li>Your stress level increases when you lose rounds</li>
+                            <li>Reaching 100% stress = game over</li>
+                            <li>Use zen activities to reduce stress:</li>
+                            <li class="zen-activity">🌬️ Deep Breath: 10 zen points • -10% stress</li>
+                            <li class="zen-activity">🤸 Quick Stretch: 25 zen points • -20% stress</li>
+                            <li class="zen-activity">🧘 Mini Meditation: 50 zen points • -35% stress</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>🏛️ DMV Steps</h3>
+                        <ol>
+                            <li>Check in at the front desk</li>
+                            <li>Wait in line for your number to be called</li>
+                            <li>Submit your paperwork and documents</li>
+                            <li>Take your photo and eye exam</li>
+                            <li>Pay fees and receive your new license</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>⌨️ Keyboard Shortcuts</h3>
+                        <ul>
+                            <li><strong>H</strong> - Hit (take another card)</li>
+                            <li><strong>S</strong> - Stand (keep current total)</li>
+                            <li><strong>N</strong> - Next Step (when available)</li>
+                            <li><strong>?</strong> or <strong>/</strong> - Show/hide this help</li>
+                            <li><strong>ESC</strong> - Close help modal</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>💡 Tips for Success</h3>
+                        <ul>
+                            <li>Use zen activities strategically - don't wait until stress is too high</li>
+                            <li>Remember basic blackjack strategy: stand on 17+, be careful with 12-16</li>
+                            <li>Your initial survey affects starting stress level</li>
+                            <li>Complete all 5 DMV steps to win the game</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

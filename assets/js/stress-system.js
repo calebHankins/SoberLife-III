@@ -55,46 +55,17 @@ export function useZenActivity(activity) {
 
 // Show feedback when zen activity is used
 function showZenActivityFeedback(activityName, stressReduction) {
-    // Create temporary feedback element
-    const feedback = document.createElement('div');
-    feedback.textContent = `${activityName}: -${stressReduction}% stress!`;
-    feedback.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: linear-gradient(135deg, #2ECC71, #27AE60);
-        color: white;
-        padding: 15px 25px;
-        border-radius: 25px;
-        font-weight: bold;
-        font-size: 18px;
-        z-index: 2000;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        animation: zenFeedback 2s ease-out forwards;
-    `;
-
-    // Add animation keyframes if not already present
-    if (!document.querySelector('#zenFeedbackStyle')) {
-        const style = document.createElement('style');
-        style.id = 'zenFeedbackStyle';
-        style.textContent = `
-            @keyframes zenFeedback {
-                0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-                20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-                40% { transform: translate(-50%, -50%) scale(1); }
-                100% { opacity: 0; transform: translate(-50%, -60%) scale(1); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    document.body.appendChild(feedback);
-
-    // Remove feedback after animation
+    // Create popup notification using the same system as game results
+    const popup = document.createElement('div');
+    popup.className = 'popup-notification stress-decrease';
+    popup.textContent = `${activityName}: -${stressReduction}% stress!`;
+    
+    document.body.appendChild(popup);
+    
+    // Remove popup after animation completes
     setTimeout(() => {
-        if (feedback.parentNode) {
-            feedback.parentNode.removeChild(feedback);
+        if (popup.parentNode) {
+            popup.parentNode.removeChild(popup);
         }
     }, 2000);
 }

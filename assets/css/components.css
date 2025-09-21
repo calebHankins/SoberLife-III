@@ -69,13 +69,108 @@
     font-weight: bold;
 }
 
-/* Task Info */
+/* Task Info - Prominent Display */
 .task-info {
-    background: #F0F8FF;
-    border: 2px solid #4169E1;
-    border-radius: 15px;
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    color: white;
+    border: 3px solid #FF4757;
+    border-radius: 20px;
+    padding: 25px;
+    margin: 25px 0;
+    box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: taskHighlight 0.8s ease-out;
+    z-index: 10;
+    transform: translateZ(0); /* Create stacking context */
+}
+
+.task-info::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #FF6B6B, #FF8E53, #FF6B6B, #FF8E53);
+    background-size: 400% 400%;
+    border-radius: 22px;
+    z-index: -1;
+    animation: borderGlow 3s ease-in-out infinite;
+}
+
+.task-info h3 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 1px;
+}
+
+.task-info p {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 12px 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    line-height: 1.4;
+}
+
+.task-info #taskDescription {
+    font-size: 24px;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.2);
     padding: 15px;
+    border-radius: 12px;
     margin: 20px 0;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    animation: taskPulse 2s ease-in-out infinite;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Task change animation trigger class */
+.task-info.task-changing {
+    animation: taskChange 1.2s ease-out;
+}
+
+/* Step indicator styling */
+.task-info .step-indicator {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Visual hierarchy adjustments - make other elements less prominent */
+.zen-activities {
+    opacity: 0.9;
+    z-index: 5;
+    transition: all 0.3s ease;
+}
+
+.game-area {
+    opacity: 0.95;
+    z-index: 5;
+    transition: all 0.3s ease;
+}
+
+.survey {
+    opacity: 0.9;
+    z-index: 5;
+    transition: all 0.3s ease;
+}
+
+.avatar-container {
+    transition: all 0.3s ease;
 }
 
 /* Game Area */
@@ -357,4 +452,176 @@
 #playAgainBtn:hover {
     background: #E67E22;
     transform: translateY(-2px);
+}
+
+/* Help Modal */
+.help-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.help-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.help-modal-content {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 3px solid #4169E1;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.help-modal-header {
+    background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1E90FF;
+}
+
+.help-modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.help-close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+.help-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+}
+
+.help-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(90vh - 100px);
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.help-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #E8E8E8;
+}
+
+.help-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.help-section h3 {
+    color: #4169E1;
+    font-size: 20px;
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+
+.help-section p {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.help-section ul,
+.help-section ol {
+    color: #333;
+    line-height: 1.6;
+    padding-left: 20px;
+}
+
+.help-section li {
+    margin-bottom: 8px;
+}
+
+.help-section li.zen-activity {
+    background: linear-gradient(135deg, #E8F5E8 0%, #D4F1D4 100%);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-left: 4px solid #2ECC71;
+    margin: 8px 0;
+    font-weight: bold;
+    list-style: none;
+    margin-left: -20px;
+    padding-left: 16px;
+}
+
+@keyframes modalSlideIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Flavor Text */
+.flavor-text {
+    background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+    border-left: 4px solid #6C757D;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 15px 0;
+    animation: flavorFadeIn 0.5s ease-out;
+}
+
+.flavor-text p {
+    margin: 0;
+    font-style: italic;
+    color: #495057;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+@keyframes flavorFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

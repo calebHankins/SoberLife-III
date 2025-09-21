@@ -3,7 +3,7 @@
 
 import { gameState, updateGameState, resetGameState, steps } from './game-state.js';
 import { createDeck, shuffleDeck, calculateScore } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription } from './ui-manager.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel } from './stress-system.js';
 
 // Initialize the game when page loads
@@ -18,9 +18,156 @@ export function initializeGame() {
         });
     }
 
+    // Set up help modal event listeners
+    setupHelpModal();
+
     // Initial display update
     updateDisplay();
     updateZenActivities();
+}
+
+// Set up help modal functionality
+function setupHelpModal() {
+    const helpBtn = document.getElementById('helpBtn');
+    const helpCloseBtn = document.getElementById('helpCloseBtn');
+    const helpModalBackdrop = document.getElementById('helpModalBackdrop');
+    const helpModal = document.getElementById('helpModal');
+
+    // Help button click
+    if (helpBtn) {
+        helpBtn.addEventListener('click', showHelp);
+        
+        // Keyboard navigation for help button
+        helpBtn.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                showHelp();
+            }
+        });
+    }
+
+    // Close button click
+    if (helpCloseBtn) {
+        helpCloseBtn.addEventListener('click', hideHelp);
+        
+        // Keyboard navigation for close button
+        helpCloseBtn.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                hideHelp();
+            }
+        });
+    }
+
+    // Backdrop click to close
+    if (helpModalBackdrop) {
+        helpModalBackdrop.addEventListener('click', hideHelp);
+    }
+
+    // Enhanced keyboard navigation
+    document.addEventListener('keydown', (event) => {
+        if (helpModal && !helpModal.classList.contains('hidden')) {
+            if (event.key === 'Escape') {
+                hideHelp();
+            } else if (event.key === 'Tab') {
+                // Trap focus within modal
+                trapFocusInModal(event, helpModal);
+            }
+        } else {
+            // Game keyboard shortcuts (only when modal is not open)
+            handleGameKeyboardShortcuts(event);
+        }
+    });
+}
+
+// Handle keyboard shortcuts for game actions
+function handleGameKeyboardShortcuts(event) {
+    // Prevent shortcuts when user is typing in form fields
+    if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+        return;
+    }
+
+    switch (event.key.toLowerCase()) {
+        case 'h':
+            if (!event.ctrlKey && !event.altKey) {
+                event.preventDefault();
+                if (gameState.gameInProgress) {
+                    hit();
+                }
+            }
+            break;
+        case 's':
+            if (!event.ctrlKey && !event.altKey) {
+                event.preventDefault();
+                if (gameState.gameInProgress) {
+                    stand();
+                }
+            }
+            break;
+        case '?':
+        case '/':
+            event.preventDefault();
+            showHelp();
+            break;
+        case 'n':
+            if (!event.ctrlKey && !event.altKey) {
+                event.preventDefault();
+                const nextStepBtn = document.getElementById('nextStepBtn');
+                if (nextStepBtn && !nextStepBtn.classList.contains('hidden')) {
+                    nextStep();
+                }
+            }
+            break;
+    }
+}
+
+// Trap focus within modal for accessibility
+function trapFocusInModal(event, modal) {
+    const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    if (event.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstFocusable) {
+            event.preventDefault();
+            lastFocusable.focus();
+        }
+    } else {
+        // Tab
+        if (document.activeElement === lastFocusable) {
+            event.preventDefault();
+            firstFocusable.focus();
+        }
+    }
+}
+
+// Show help modal
+export function showHelp() {
+    showHelpModal();
+}
+
+// Hide help modal
+export function hideHelp() {
+    hideHelpModal();
+}
+
+// Show popup notification for stress/zen changes
+function showPopupNotification(message, type = 'default') {
+    const popup = document.createElement('div');
+    popup.className = `popup-notification ${type}`;
+    popup.textContent = message;
+    
+    document.body.appendChild(popup);
+    
+    // Remove popup after animation completes
+    setTimeout(() => {
+        if (popup.parentNode) {
+            popup.parentNode.removeChild(popup);
+        }
+    }, 2000);
 }
 
 // Validate survey completion
@@ -96,6 +243,10 @@ export function startNewRound() {
     updateCards();
     updateDisplay();
     updateZenActivities();
+    updateContextualButtons();
+    
+    // Emphasize task info for new rounds
+    emphasizeTaskInfo();
 
     // Enable game buttons
     const hitBtn = document.getElementById('hitBtn');
@@ -115,6 +266,9 @@ export function startNewRound() {
 export function hit() {
     if (!gameState.gameInProgress || gameState.deck.length === 0) return;
 
+    // Show contextual flavor text
+    showFlavorText('hit');
+
     gameState.playerCards.push(gameState.deck.pop());
     updateCards();
 
@@ -128,6 +282,9 @@ export function hit() {
 // Player stands (ends their turn)
 export function stand() {
     if (!gameState.gameInProgress) return;
+
+    // Show contextual flavor text
+    showFlavorText('stand');
 
     // House plays according to standard rules
     while (calculateScore(gameState.houseCards) < 17 && gameState.deck.length > 0) {
@@ -201,14 +358,22 @@ export function endRound(result) {
     updateDisplay();
     updateZenActivities();
 
-    // Show result
+    // Show result with just the main message
     const roundResult = document.getElementById('roundResult');
     if (roundResult) {
         roundResult.innerHTML = `
-            <p style="font-size: 18px; font-weight: bold; margin: 15px 0;">${resultText}</p>
-            ${zenChange > 0 ? `<p style="color: #2ECC71;">+${zenChange} Zen Points!</p>` : ''}
-            ${stressChange !== 0 ? `<p style="color: ${stressChange > 0 ? '#E74C3C' : '#2ECC71'};">${stressChange > 0 ? '+' : ''}${stressChange}% Stress</p>` : ''}
+            <p style="font-size: 14px; font-weight: bold; margin: 8px 0;">${resultText}</p>
         `;
+    }
+
+    // Show popup notifications for changes
+    if (zenChange > 0) {
+        showPopupNotification(`+${zenChange} Zen Points!`, 'zen-gain');
+    }
+    if (stressChange !== 0) {
+        const stressType = stressChange > 0 ? 'stress-change' : 'stress-decrease';
+        const stressText = stressChange > 0 ? `+${stressChange}% Stress` : `${stressChange}% Stress`;
+        showPopupNotification(stressText, stressType);
     }
 
     // Check for game over conditions
@@ -235,8 +400,13 @@ export function nextStep() {
         return;
     }
     
-    // Start new round for next step
+    // Start new round for next step with extra emphasis
     startNewRound();
+    
+    // Add extra emphasis when advancing steps
+    setTimeout(() => {
+        emphasizeTaskInfo();
+    }, 500);
 }
 
 // Restart the game
@@ -271,6 +441,7 @@ window.hit = hit;
 window.stand = stand;
 window.nextStep = nextStep;
 window.restartGame = restartGame;
+window.showHelp = showHelp;
 
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {
