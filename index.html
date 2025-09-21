@@ -561,6 +561,164 @@
             background: #27AE60;
         }
 
+        .game-success {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .game-success-content {
+            background: linear-gradient(135deg, #2ECC71 0%, #F39C12 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 4px solid #27AE60;
+        }
+
+        @media (max-width: 767px) {
+            .game-success-content {
+                padding: 20px;
+                border-radius: 15px;
+                width: 95%;
+                max-width: 350px;
+                max-height: 90vh;
+                overflow-y: auto;
+                border: 3px solid #27AE60;
+            }
+        }
+
+        .game-success-avatar {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        @media (max-width: 767px) {
+            .game-success-avatar {
+                font-size: 60px;
+                margin-bottom: 15px;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .game-success h2 {
+            color: white;
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 767px) {
+            .game-success h2 {
+                font-size: 24px;
+                margin-bottom: 12px;
+            }
+        }
+
+        .game-success-message {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 767px) {
+            .game-success-message {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+        }
+
+        .game-success-subtext {
+            color: #E8F8F5;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 767px) {
+            .game-success-subtext {
+                font-size: 12px;
+                margin-bottom: 15px;
+            }
+        }
+
+        .game-success-stats {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 767px) {
+            .game-success-stats {
+                padding: 12px;
+                margin: 15px 0;
+                border-radius: 8px;
+            }
+        }
+
+        .game-success-stats p {
+            color: white;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 767px) {
+            .game-success-stats p {
+                font-size: 14px;
+                margin: 4px 0;
+            }
+        }
+
+        #playAgainBtn {
+            background: #F39C12;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 767px) {
+            #playAgainBtn {
+                font-size: 16px;
+                padding: 12px 24px;
+                margin-top: 15px;
+                min-height: 44px;
+            }
+        }
+
+        #playAgainBtn:hover {
+            background: #E67E22;
+            transform: translateY(-2px);
+        }
+
         .zen-activities {
             background: linear-gradient(135deg, #E8F5E8 0%, #D4F1D4 100%);
             border: 2px solid #2ECC71;
@@ -945,6 +1103,22 @@
                 <button id="tryAgainBtn" onclick="restartGame()">Try Again (And Maybe Meditate First)</button>
             </div>
         </div>
+
+        <!-- Success Screen -->
+        <div class="game-success hidden" id="gameSuccessScreen">
+            <div class="game-success-content">
+                <div class="game-success-avatar">🎉</div>
+                <h2>DMV CHAMPION!</h2>
+                <p class="game-success-message" id="successMessage">You did it! You actually survived the DMV!</p>
+                <p class="game-success-subtext" id="successSubtext">Legend says only 3% of people complete their DMV visit without a mental breakdown. You're basically a superhero now.</p>
+                <div class="game-success-stats">
+                    <p>Final Stress Level: <span id="successStressLevel">0%</span></p>
+                    <p>Zen Points Remaining: <span id="successZenPoints">100</span></p>
+                    <p>Steps Completed: <span id="successStepsCompleted">5/5</span></p>
+                </div>
+                <button id="playAgainBtn" onclick="restartGame()">Play Again!</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -970,6 +1144,38 @@
 
         const suits = ['♠', '♥', '♦', '♣'];
         const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+        const successMessages = [
+            {
+                main: "You did it! You actually survived the DMV!",
+                sub: "Legend says only 3% of people complete their DMV visit without a mental breakdown. You're basically a superhero now."
+            },
+            {
+                main: "IMPOSSIBLE! You finished at the DMV AND kept your sanity!",
+                sub: "The clerks are confused, the computers are working, and you still have zen points left. This is unprecedented."
+            },
+            {
+                main: "DMV MASTER ACHIEVED!",
+                sub: "You've done what many thought impossible - navigated government bureaucracy without losing your mind. The DMV should give you a medal!"
+            },
+            {
+                main: "Breaking News: Local Person Completes DMV Visit Successfully!",
+                sub: "Scientists are baffled. How did you manage to keep your stress under control while dealing with forms, lines, and that one clerk who moves like molasses?"
+            },
+            {
+                main: "Congratulations! You're now qualified to teach DMV Survival 101!",
+                sub: "Your zen-like patience and stress management skills have conquered the final boss of bureaucracy. Time to celebrate with a victory dance!"
+            },
+            {
+                main: "Achievement Unlocked: DMV Whisperer!",
+                sub: "You've mastered the ancient art of government office navigation. Your stress levels remained stable despite encountering the dreaded 'take a number' system."
+            }
+        ];
+
+        function generateSuccessMessage() {
+            const randomIndex = Math.floor(Math.random() * successMessages.length);
+            return successMessages[randomIndex];
+        }
 
         function createDeck() {
             const deck = [];
@@ -1163,9 +1369,8 @@
             if (gameState.currentStep < gameState.totalSteps) {
                 document.getElementById('nextStepBtn').classList.remove('hidden');
             } else {
-                // Game complete
-                document.getElementById('roundResult').innerHTML +=
-                    '<p style="color: white; font-weight: bold;">🎊 Congratulations! You successfully completed your DMV visit!</p>';
+                // Game complete - show success screen
+                showSuccessScreen();
             }
         }
 
@@ -1341,6 +1546,21 @@
             document.getElementById('gameOverScreen').classList.remove('hidden');
         }
 
+        function showSuccessScreen() {
+            // Generate random success message
+            const message = generateSuccessMessage();
+            document.getElementById('successMessage').textContent = message.main;
+            document.getElementById('successSubtext').textContent = message.sub;
+
+            // Update success screen stats
+            document.getElementById('successStressLevel').textContent = `${gameState.stressLevel}%`;
+            document.getElementById('successZenPoints').textContent = gameState.zenPoints;
+            document.getElementById('successStepsCompleted').textContent = `${gameState.currentStep}/${gameState.totalSteps}`;
+
+            // Show success screen
+            document.getElementById('gameSuccessScreen').classList.remove('hidden');
+        }
+
         function restartGame() {
             // Reset game state
             gameState = {
@@ -1356,6 +1576,9 @@
 
             // Hide game over screen
             document.getElementById('gameOverScreen').classList.add('hidden');
+
+            // Hide success screen
+            document.getElementById('gameSuccessScreen').classList.add('hidden');
 
             // Show survey section again
             document.getElementById('surveySection').classList.remove('hidden');
