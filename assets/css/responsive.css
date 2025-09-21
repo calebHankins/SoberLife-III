@@ -669,115 +669,396 @@
 /* Tablet-specific optimizations */
 @media (min-width: 768px) and (max-width: 1023px) {
     body {
-        height: 100vh;
-        overflow: hidden;
         padding: 10px;
+        overflow: hidden;
     }
 
     .game-container {
         max-width: 600px;
+        width: 95%;
         padding: 15px;
         max-height: calc(100vh - 20px);
-        height: calc(100vh - 20px);
-        overflow-y: hidden;
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
+        gap: 10px;
+    }
+
+    .game-header {
+        flex-shrink: 0;
+        margin-bottom: 8px;
+    }
+
+    .game-header h1 {
+        font-size: 20px;
+        margin: 0;
+    }
+
+    .help-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-height: 32px;
+    }
+
+    .avatar-container {
+        flex-shrink: 0;
+        margin-bottom: 8px;
+        gap: 10px;
     }
 
     .avatar {
-        width: 80px;
-        height: 80px;
-        font-size: 32px;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
     }
 
     .stress-meter {
-        width: 180px;
+        width: 160px;
+        height: 16px;
     }
 
-    /* Force task info to display properly on tablet with maximum specificity */
-    .game-container .task-info,
+    .zen-points {
+        font-size: 16px;
+    }
+
+    .survey {
+        flex-shrink: 0;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 12px;
+    }
+
+    .survey h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    .survey-question strong {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    .survey-question label {
+        font-size: 14px;
+        margin: 3px 0;
+        min-height: 32px;
+    }
+
     .task-info {
-        background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%) !important;
-        color: white !important;
-        border: 3px solid #FF4757 !important;
-        border-radius: 20px !important;
-        padding: 18px !important;
-        margin: 15px 0 !important;
-        box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4) !important;
-        text-align: center !important;
-        position: relative !important;
-        overflow: hidden !important;
-        z-index: 10 !important;
-        animation: taskHighlight 0.8s ease-out !important;
-        transform: translateZ(0) !important;
-        flex-shrink: 0 !important;
+        flex-shrink: 0;
+        padding: 15px;
+        margin: 8px 0;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+        color: white;
+        border: 2px solid #FF4757;
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        text-align: center;
+        position: relative;
     }
 
-    .game-container .task-info::before,
-    .task-info::before {
-        content: '' !important;
-        position: absolute !important;
-        top: -2px !important;
-        left: -2px !important;
-        right: -2px !important;
-        bottom: -2px !important;
-        background: linear-gradient(45deg, #FF6B6B, #FF8E53, #FF6B6B, #FF8E53) !important;
-        background-size: 400% 400% !important;
-        border-radius: 22px !important;
-        z-index: -1 !important;
-        animation: borderGlow 3s ease-in-out infinite !important;
-    }
-
-    .game-container .task-info h3,
     .task-info h3 {
-        font-size: 22px !important;
-        margin-bottom: 10px !important;
-        color: white !important;
-        font-weight: bold !important;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3) !important;
-        letter-spacing: 1px !important;
+        font-size: 18px;
+        margin-bottom: 8px;
+        color: white;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     }
 
-    .game-container .task-info p,
     .task-info p {
-        font-size: 17px !important;
-        margin: 9px 0 !important;
-        color: white !important;
-        font-weight: 600 !important;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
-        line-height: 1.4 !important;
+        font-size: 15px;
+        margin: 6px 0;
+        color: white;
+        font-weight: 600;
+        line-height: 1.3;
     }
 
-    .game-container .task-info #taskDescription,
     .task-info #taskDescription {
-        font-size: 19px !important;
-        padding: 11px !important;
-        margin: 12px 0 !important;
-        min-height: 45px !important;
-        background: rgba(255, 255, 255, 0.2) !important;
-        border-radius: 12px !important;
-        border: 2px solid rgba(255, 255, 255, 0.3) !important;
-        color: white !important;
-        font-weight: bold !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        animation: taskPulse 2s ease-in-out infinite !important;
+        font-size: 16px;
+        padding: 10px;
+        margin: 8px 0;
+        min-height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
 
-    .game-container .task-info .step-indicator,
     .task-info .step-indicator {
-        font-size: 14px !important;
-        padding: 7px 12px !important;
-        margin-bottom: 9px !important;
-        background: rgba(255, 255, 255, 0.3) !important;
-        border-radius: 20px !important;
-        border: 2px solid rgba(255, 255, 255, 0.4) !important;
-        color: white !important;
-        font-weight: bold !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        display: inline-block !important;
+        font-size: 12px;
+        padding: 4px 8px;
+        margin-bottom: 6px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+
+    .zen-activities {
+        flex-shrink: 0;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 12px;
+    }
+
+    .zen-activities h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .zen-activities p {
+        font-size: 13px;
+        margin-bottom: 8px;
+        line-height: 1.3;
+    }
+
+    .activity-buttons {
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .activity-btn {
+        padding: 10px 8px;
+        font-size: 11px;
+        min-width: 90px;
+        max-width: 120px;
+        min-height: 45px;
+        border-radius: 8px;
+        line-height: 1.2;
+        flex: 0 1 auto;
+    }
+
+    .activity-btn small {
+        font-size: 9px;
+        margin-top: 2px;
+    }
+
+    .game-area {
+        flex: 1;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        min-height: 200px;
+    }
+
+    .game-area h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .cards-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        margin: 10px 0;
+        gap: 15px;
+    }
+
+    .player-area,
+    .house-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cards {
+        gap: 4px;
+        margin: 6px 0;
+        justify-content: center;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        width: 40px;
+        height: 55px;
+        font-size: 12px;
+        border-radius: 4px;
+        margin: 1px;
+    }
+
+    .score {
+        font-size: 14px;
+        margin: 6px 0;
+        font-weight: bold;
+    }
+
+    .buttons {
+        flex-shrink: 0;
+        margin: 10px 0;
+    }
+
+    button {
+        padding: 10px 16px;
+        font-size: 14px;
+        margin: 3px;
+        min-height: 40px;
+        border-radius: 20px;
+    }
+
+    #roundResult {
+        flex-shrink: 0;
+        margin: 8px 0;
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    .flavor-text {
+        padding: 6px 8px;
+        margin: 6px 0;
+        border-radius: 6px;
+    }
+
+    .flavor-text p {
+        font-size: 12px;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    /* Game Over and Success Modals */
+    .game-over,
+    .game-success {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+    }
+
+    .game-over-content,
+    .game-success-content {
+        padding: 20px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .game-over-avatar,
+    .game-success-avatar {
+        font-size: 50px;
+        margin-bottom: 12px;
+    }
+
+    .game-over h2,
+    .game-success h2 {
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .game-over-message,
+    .game-success-message {
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+
+    .game-over-subtext,
+    .game-success-subtext {
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .game-over-stats,
+    .game-success-stats {
+        padding: 10px;
+        margin: 12px 0;
+        border-radius: 8px;
+    }
+
+    .game-over-stats p,
+    .game-success-stats p {
+        font-size: 13px;
+        margin: 3px 0;
+    }
+
+    #tryAgainBtn,
+    #playAgainBtn {
+        font-size: 15px;
+        padding: 12px 20px;
+        margin-top: 12px;
+        min-height: 40px;
+    }
+
+    /* Help Modal */
+    .help-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1001;
+        padding: 10px;
+    }
+
+    .help-modal-content {
+        border-radius: 12px;
+        max-height: 90vh;
+        max-width: 500px;
+        width: 95%;
+        overflow-y: auto;
+        border: 2px solid #4169E1;
+    }
+
+    .help-modal-header {
+        padding: 12px;
+    }
+
+    .help-modal-header h2 {
+        font-size: 18px;
+    }
+
+    .help-close-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    .help-modal-body {
+        padding: 12px;
+        max-height: calc(90vh - 60px);
+    }
+
+    .help-section h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .help-section p,
+    .help-section li {
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .help-section {
+        margin-bottom: 15px;
+        padding-bottom: 12px;
     }
 
     /* Popup notification styles for tablet */
@@ -788,15 +1069,15 @@
         transform: translate(-50%, -50%);
         background: rgba(0, 0, 0, 0.9);
         color: white;
-        padding: 14px 22px;
-        border-radius: 25px;
-        font-size: 15px;
+        padding: 12px 18px;
+        border-radius: 20px;
+        font-size: 14px;
         font-weight: bold;
         z-index: 1000;
         animation: popupFadeInOut 2s ease-in-out;
         pointer-events: none;
         text-align: center;
-        min-width: 180px;
+        min-width: 160px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
@@ -812,44 +1093,29 @@
         background: linear-gradient(135deg, #3498DB, #2980B9);
     }
 
-    @keyframes popupFadeInOut {
-        0% {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.8);
-        }
-        20%, 80% {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-        100% {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.8);
-        }
-    }
-
     /* Stress Management Tip Tablet Styles */
     .stress-tip {
-        position: fixed !important;
-        top: 15px !important;
-        right: 15px !important;
-        max-width: 280px !important;
-        width: auto !important;
-        font-size: 13px !important;
-        padding: 10px 14px !important;
-        border-radius: 8px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
-        z-index: 1001 !important;
-        line-height: 1.4 !important;
-        background: linear-gradient(135deg, #E3F2FD, #BBDEFB) !important;
-        border: 2px solid #2196F3 !important;
-        color: #0D47A1 !important;
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        max-width: 250px;
+        width: auto;
+        font-size: 12px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 1001;
+        line-height: 1.3;
+        background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+        border: 2px solid #2196F3;
+        color: #0D47A1;
     }
 
     .stress-tip strong {
-        font-size: 14px !important;
-        margin-bottom: 5px !important;
+        font-size: 13px;
+        margin-bottom: 4px;
         display: block;
-        color: #0D47A1 !important;
+        color: #0D47A1;
     }
 }
 
@@ -900,10 +1166,13 @@
             opacity: 0;
             transform: translate(-50%, -50%) scale(0.8);
         }
-        20%, 80% {
+
+        20%,
+        80% {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
         }
+
         100% {
             opacity: 0;
             transform: translate(-50%, -50%) scale(0.8);
@@ -1671,5 +1940,66 @@ e styles for new messaging components */
     .outcome-message.dmv-themed,
     .stress-tip {
         animation-duration: 0.2s !important;
+    }
+}
+
+/* Keyfra
+me animations for tablet and all viewports */
+@keyframes popupFadeInOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    20%,
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+}
+
+@keyframes taskHighlight {
+    0% {
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 12px 25px rgba(255, 107, 107, 0.5);
+        transform: scale(1.02);
+    }
+
+    100% {
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        transform: scale(1);
+    }
+}
+
+@keyframes borderGlow {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes taskPulse {
+
+    0%,
+    100% {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    50% {
+        background: rgba(255, 255, 255, 0.3);
     }
 }
