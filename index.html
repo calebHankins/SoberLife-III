@@ -683,12 +683,6 @@
                 <p>Zen Points: ${zenChange > 0 ? '+' : ''}${zenChange} | Stress: ${stressChange > 0 ? '+' : ''}${stressChange}</p>
             `;
 
-            if (gameState.zenPoints <= 0) {
-                document.getElementById('roundResult').innerHTML +=
-                    '<p style="color: red; font-weight: bold;">💔 You ran out of zen points! The DMV visit was too overwhelming.</p>';
-                return;
-            }
-
             if (gameState.currentStep < gameState.totalSteps) {
                 document.getElementById('nextStepBtn').classList.remove('hidden');
             } else {
