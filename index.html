@@ -257,7 +257,7 @@
                     <div class="score" id="playerScore">Score: 0</div>
                 </div>
                 <div class="house-area">
-                    <h3>DMV Stress</h3>
+                    <h3>House</h3>
                     <div class="cards" id="houseCards"></div>
                     <div class="score" id="houseScore">Score: ?</div>
                 </div>
@@ -413,8 +413,6 @@
                 gameState.houseCards.push(gameState.deck.pop());
             }
             
-            updateCards();
-            
             const playerScore = calculateScore(gameState.playerCards);
             const houseScore = calculateScore(gameState.houseCards);
             
@@ -433,6 +431,9 @@
             gameState.gameInProgress = false;
             document.getElementById('hitBtn').disabled = true;
             document.getElementById('standBtn').disabled = true;
+            
+            // Update cards display now that game is over
+            updateCards();
             
             let resultText = '';
             let zenChange = 0;
@@ -510,20 +511,24 @@
                 playerCardsEl.appendChild(cardEl);
             });
             
-            // House cards (hide second card if game in progress)
+            // House cards (hide hole card only if game is still in progress)
             gameState.houseCards.forEach((card, index) => {
                 const cardEl = document.createElement('div');
                 cardEl.className = 'card';
                 
+                // Hide the hole card (second card) only while game is in progress
                 if (gameState.gameInProgress && index === 1) {
                     cardEl.textContent = '?';
                     cardEl.style.background = '#333';
                     cardEl.style.color = 'white';
                 } else {
+                    // Show all cards when game is over
                     if (card.suit === '♥' || card.suit === '♦') {
                         cardEl.classList.add('red');
                     }
                     cardEl.textContent = card.value + card.suit;
+                    cardEl.style.background = 'white';
+                    cardEl.style.color = card.suit === '♥' || card.suit === '♦' ? '#DC143C' : '#333';
                 }
                 houseCardsEl.appendChild(cardEl);
             });
@@ -532,6 +537,7 @@
             const playerScore = calculateScore(gameState.playerCards);
             document.getElementById('playerScore').textContent = `Score: ${playerScore}`;
             
+            // Show house score when game is over
             if (gameState.gameInProgress) {
                 document.getElementById('houseScore').textContent = 'Score: ?';
             } else {
