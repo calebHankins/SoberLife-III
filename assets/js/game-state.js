@@ -10,7 +10,8 @@ export let gameState = {
     deck: [],
     playerCards: [],
     houseCards: [],
-    surveyCompleted: false
+    surveyCompleted: false,
+    initialFlavorTextShown: false
 };
 
 // Track hit count per hand for progressive flavor text
@@ -206,6 +207,40 @@ export const progressiveFlavorText = {
     }
 };
 
+// Initial flavor text for each DMV step
+export const initialFlavorText = {
+    0: {
+        title: "Entering the DMV",
+        text: "You walk through the heavy glass doors into the familiar fluorescent-lit world of the Department of Motor Vehicles. The air conditioning hums overhead as you take in the scene: numbered tickets, waiting areas filled with plastic chairs, and that distinctive government building atmosphere. Your heart rate picks up slightly as you approach the front desk, knowing this is just the beginning of your Real ID renewal journey.",
+        stressTriggers: ["bureaucracy", "waiting", "paperwork"],
+        tips: "Take a deep breath and remember - you've prepared for this. Everyone here is just trying to help you get what you need."
+    },
+    1: {
+        title: "The Waiting Game",
+        text: "You've got your number: B47. The digital display shows they're currently serving B23. The math isn't encouraging. Around you, other people shift in their seats, check their phones, and occasionally glance at the display with varying degrees of patience. Some look zen-like in their acceptance, others tap their feet anxiously. The clock on the wall seems to be moving in slow motion.",
+        stressTriggers: ["waiting", "uncertainty", "time pressure"],
+        tips: "This is perfect time to practice mindfulness. Use this waiting period as an opportunity to center yourself."
+    },
+    2: {
+        title: "Document Showdown",
+        text: "Your number is finally called! You approach the clerk's window with your carefully organized folder of documents. The clerk looks up with the practiced efficiency of someone who's seen thousands of Real ID applications. They gesture to the document slot and wait expectantly. This is the moment of truth - do you have everything they need? Your preparation is about to be put to the test.",
+        stressTriggers: ["scrutiny", "preparation anxiety", "authority figures"],
+        tips: "Trust your preparation. You've double-checked everything. Stay calm and present your documents confidently."
+    },
+    3: {
+        title: "Picture Perfect Pressure",
+        text: "The clerk reviews your documents with practiced eyes, occasionally making notes or stamps. Everything seems to be in order - relief! Now comes the photo station. The camera setup looks intimidating, and you know this picture will be on your ID for years to come. The photographer adjusts the height and asks you to step forward. The bright lights make you squint slightly. 'Look here and try to relax,' they say, which somehow makes relaxing feel impossible.",
+        stressTriggers: ["performance anxiety", "appearance concerns", "bright lights"],
+        tips: "Remember, everyone looks a bit awkward in DMV photos. Just be yourself and breathe naturally."
+    },
+    4: {
+        title: "The Final Stretch",
+        text: "Photo taken, documents approved - you're in the home stretch! The clerk hands you a receipt and explains the next steps. Your temporary license is printing, and your Real ID will arrive by mail in 7-10 business days. There's a sense of accomplishment building as you realize you've successfully navigated the entire process. The end is in sight, but there are still a few final details to confirm before you can walk out those doors as a DMV victor.",
+        stressTriggers: ["final details", "completion anxiety", "information overload"],
+        tips: "You've made it this far! Take a moment to appreciate your persistence and patience throughout this process."
+    }
+};
+
 // Success messages for game completion
 export const successMessages = [
     {
@@ -244,6 +279,7 @@ export function resetGameState() {
     gameState.playerCards = [];
     gameState.houseCards = [];
     gameState.surveyCompleted = false;
+    gameState.initialFlavorTextShown = false;
     resetHandState();
 }
 
@@ -509,4 +545,72 @@ function getFallbackStressManagementInsight(outcome) {
     };
     
     return fallbackInsights[outcome] || "Each experience helps you develop better stress management skills.";
+}
+
+// Initial flavor text system
+export function getInitialFlavorText(stepIndex) {
+    try {
+        if (typeof stepIndex !== 'number' || stepIndex < 0 || stepIndex >= steps.length) {
+            console.warn(`Invalid step index: ${stepIndex}, using fallback`);
+            return getFallbackInitialFlavorText(stepIndex);
+        }
+        
+        if (!initialFlavorText[stepIndex] || typeof initialFlavorText[stepIndex] !== 'object') {
+            console.warn(`No initial flavor text found for step ${stepIndex}, using fallback`);
+            return getFallbackInitialFlavorText(stepIndex);
+        }
+        
+        return initialFlavorText[stepIndex];
+        
+    } catch (error) {
+        console.error('Error getting initial flavor text:', error);
+        return getFallbackInitialFlavorText(stepIndex);
+    }
+}
+
+// Fallback initial flavor text for error handling
+function getFallbackInitialFlavorText(stepIndex) {
+    const fallbackTexts = {
+        0: {
+            title: "Starting Your DMV Visit",
+            text: "You're starting your DMV visit. Take a deep breath and remember your preparation.",
+            stressTriggers: ["bureaucracy"],
+            tips: "Stay calm and remember that you're prepared for this."
+        },
+        1: {
+            title: "Waiting Your Turn",
+            text: "Time to wait for your number to be called. This is a good opportunity to practice patience.",
+            stressTriggers: ["waiting"],
+            tips: "Use this time to practice mindfulness and stay centered."
+        },
+        2: {
+            title: "Document Submission",
+            text: "It's time to present your documents. Trust in your preparation.",
+            stressTriggers: ["scrutiny"],
+            tips: "You've prepared well. Present your documents with confidence."
+        },
+        3: {
+            title: "Photo Time",
+            text: "Photo time! Just be yourself and stay relaxed.",
+            stressTriggers: ["performance anxiety"],
+            tips: "Take a deep breath and be natural. Everyone looks fine in their DMV photo."
+        },
+        4: {
+            title: "Final Steps",
+            text: "You're almost done! Just a few more steps to complete your visit.",
+            stressTriggers: ["completion anxiety"],
+            tips: "You're in the final stretch. Stay focused and finish strong."
+        }
+    };
+    
+    if (stepIndex >= 0 && stepIndex < Object.keys(fallbackTexts).length) {
+        return fallbackTexts[stepIndex];
+    }
+    
+    return {
+        title: "DMV Visit",
+        text: "You're making progress through your DMV visit.",
+        stressTriggers: ["general stress"],
+        tips: "Stay calm and remember your stress management techniques."
+    };
 }

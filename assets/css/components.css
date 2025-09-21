@@ -719,3 +719,160 @@ ive Flavor Text Animations */
     margin-bottom: 6px;
     color: #0d47a1;
 }
+
+/* Initial Flavor Text Modal */
+.initial-flavor-modal-overlay {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.initial-flavor-modal-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.initial-flavor-modal-content::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #007bff, #0056b3, #007bff, #0056b3);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: modalBorderGlow 3s ease-in-out infinite;
+}
+
+/* Continue button hover effects */
+.initial-flavor-modal-content button {
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.initial-flavor-modal-content button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+}
+
+.initial-flavor-modal-content button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.initial-flavor-modal-content button:active {
+    transform: scale(0.98);
+}
+
+/* Animations for Initial Flavor Text Modal */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes modalBorderGlow {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Responsive adjustments for initial flavor text modal */
+@media (max-width: 767px) {
+    .initial-flavor-modal-overlay {
+        padding: 15px;
+    }
+    
+    .initial-flavor-modal-content {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .initial-flavor-modal-content h2 {
+        font-size: 16px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .initial-flavor-modal-content p {
+        font-size: 12px !important;
+        line-height: 1.3 !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .initial-flavor-modal-content button {
+        font-size: 13px !important;
+        padding: 8px 16px !important;
+        min-width: 100px !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .initial-flavor-modal-content {
+        border: 4px solid #000;
+        background: #fff;
+    }
+    
+    .initial-flavor-modal-content h2 {
+        color: #000 !important;
+    }
+    
+    .initial-flavor-modal-content p {
+        color: #000 !important;
+    }
+    
+    .initial-flavor-modal-content button {
+        background: #000 !important;
+        color: #fff !important;
+        border: 2px solid #000 !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .initial-flavor-modal-overlay {
+        animation: none;
+    }
+    
+    .initial-flavor-modal-content {
+        animation: none;
+    }
+    
+    .initial-flavor-modal-content::before {
+        animation: none;
+    }
+    
+    .initial-flavor-modal-content button {
+        transition: none;
+    }
+    
+    .initial-flavor-modal-content button::before {
+        transition: none;
+    }
+}

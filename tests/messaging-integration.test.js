@@ -4,6 +4,7 @@ import { runDMVOutcomeMessagingTests } from './dmv-outcome-messaging.test.js';
 import { runUIOutcomeMessagingTests } from './ui-outcome-messaging.test.js';
 import { runContextualButtonTests } from './contextual-buttons.test.js';
 import { runErrorHandlingTests } from './error-handling.test.js';
+import { runInitialFlavorTextTests } from './initial-flavor-text.test.js';
 
 // Integration test for complete game flow with new messaging
 function testCompleteGameFlowMessaging() {
@@ -71,6 +72,7 @@ export function runAllMessagingTests() {
         testResults.push(runUIOutcomeMessagingTests());
         testResults.push(runContextualButtonTests());
         testResults.push(runErrorHandlingTests());
+        runInitialFlavorTextTests(); // This function handles its own logging
         
         testCompleteGameFlowMessaging();
         testMessageVariety();

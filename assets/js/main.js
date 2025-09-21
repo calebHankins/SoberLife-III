@@ -3,7 +3,7 @@
 
 import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction } from './game-state.js';
 import { createDeck, shuffleDeck, calculateScore } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip } from './ui-manager.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel } from './stress-system.js';
 
 // Initialize the game when page loads
@@ -252,13 +252,29 @@ export function startNewRound() {
         // Emphasize task info for new rounds
         emphasizeTaskInfo();
 
-        // Enable game buttons
+        // Check if initial flavor text should be shown
+        const shouldShowFlavorText = !gameState.initialFlavorTextShown;
+        
+        // Enable/disable game buttons based on flavor text state
         const hitBtn = document.getElementById('hitBtn');
         const standBtn = document.getElementById('standBtn');
         const nextStepBtn = document.getElementById('nextStepBtn');
         
-        if (hitBtn) hitBtn.disabled = false;
-        if (standBtn) standBtn.disabled = false;
+        if (shouldShowFlavorText) {
+            // Disable game buttons until flavor text is acknowledged
+            if (hitBtn) hitBtn.disabled = true;
+            if (standBtn) standBtn.disabled = true;
+            
+            // Show initial flavor text modal
+            setTimeout(() => {
+                showInitialFlavorText(gameState.currentStep);
+            }, 500); // Small delay to let UI settle
+        } else {
+            // Enable game buttons normally
+            if (hitBtn) hitBtn.disabled = false;
+            if (standBtn) standBtn.disabled = false;
+        }
+        
         if (nextStepBtn) nextStepBtn.classList.add('hidden');
 
         // Clear previous round result
@@ -498,7 +514,10 @@ export function endRound(result) {
 // Move to next DMV step
 export function nextStep() {
     // Always advance to next step
-    updateGameState({ currentStep: gameState.currentStep + 1 });
+    updateGameState({ 
+        currentStep: gameState.currentStep + 1,
+        initialFlavorTextShown: false // Reset for new step
+    });
     
     if (gameState.currentStep >= steps.length) {
         // Game completed successfully!
@@ -541,6 +560,21 @@ export function restartGame() {
     updateZenActivities();
 }
 
+// Enable game controls after initial flavor text is acknowledged
+export function enableGameControls() {
+    try {
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        
+        if (hitBtn) hitBtn.disabled = false;
+        if (standBtn) standBtn.disabled = false;
+        
+        console.log('Game controls enabled after flavor text acknowledgment');
+    } catch (error) {
+        console.error('Error enabling game controls:', error);
+    }
+}
+
 // Make functions available globally for onclick handlers
 window.startGame = startGame;
 window.hit = hit;
@@ -548,6 +582,7 @@ window.stand = stand;
 window.nextStep = nextStep;
 window.restartGame = restartGame;
 window.showHelp = showHelp;
+window.enableGameControls = enableGameControls;
 
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {

@@ -1,7 +1,7 @@
 // SoberLife III - UI Manager
 // DOM manipulation and visual updates
 
-import { gameState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight } from './game-state.js';
+import { gameState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText } from './game-state.js';
 import { calculateScore } from './card-system.js';
 
 // Utility functions for showing/hiding elements
@@ -710,5 +710,333 @@ export function showStressManagementTip(outcome) {
         
     } catch (error) {
         console.error('Error showing stress management tip:', error);
+    }
+}
+
+// Store the element that had focus before initial flavor text modal opened
+let previouslyFocusedElementForFlavorText = null;
+
+// Show initial flavor text modal
+export function showInitialFlavorText(stepIndex) {
+    try {
+        // Get flavor text data
+        const flavorData = getInitialFlavorText(stepIndex);
+        if (!flavorData) {
+            console.warn('No flavor text data available for step', stepIndex);
+            return;
+        }
+        
+        // Store currently focused element
+        previouslyFocusedElementForFlavorText = document.activeElement;
+        
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.id = 'initialFlavorTextModal';
+        modalOverlay.className = 'initial-flavor-modal-overlay';
+        
+        // Check if mobile viewport for responsive styling
+        const isMobile = window.innerWidth <= 767;
+        
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.className = 'initial-flavor-modal-content';
+        
+        if (isMobile) {
+            modalOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2000;
+                padding: 10px;
+                box-sizing: border-box;
+                animation: fadeIn 0.3s ease-out;
+            `;
+            
+            modalContent.style.cssText = `
+                background: linear-gradient(135deg, #fff, #f8f9fa);
+                border-radius: 12px;
+                padding: 16px;
+                max-width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                border: 2px solid #007bff;
+                animation: slideInUp 0.3s ease-out;
+                font-family: 'Comic Sans MS', cursive, sans-serif;
+                box-sizing: border-box;
+            `;
+        } else {
+            modalOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2000;
+                animation: fadeIn 0.3s ease-out;
+            `;
+            
+            modalContent.style.cssText = `
+                background: linear-gradient(135deg, #fff, #f8f9fa);
+                border-radius: 16px;
+                padding: 24px;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                border: 3px solid #007bff;
+                animation: slideInUp 0.3s ease-out;
+                font-family: 'Comic Sans MS', cursive, sans-serif;
+            `;
+        }
+        
+        // Sanitize text content to prevent XSS
+        const sanitizedTitle = flavorData.title.replace(/[<>]/g, '');
+        const sanitizedText = flavorData.text.replace(/[<>]/g, '');
+        const sanitizedTips = flavorData.tips.replace(/[<>]/g, '');
+        
+        // Create modal HTML content
+        if (isMobile) {
+            modalContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 12px;">
+                    <h2 style="
+                        color: #007bff; 
+                        margin: 0 0 8px 0; 
+                        font-size: 18px;
+                        font-weight: bold;
+                    ">${sanitizedTitle}</h2>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <p style="
+                        font-size: 13px; 
+                        line-height: 1.4; 
+                        color: #333; 
+                        margin: 0 0 12px 0;
+                        text-align: left;
+                    ">${sanitizedText}</p>
+                    <div style="
+                        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+                        border-left: 3px solid #2196f3;
+                        padding: 8px 10px;
+                        border-radius: 4px;
+                        margin: 8px 0;
+                    ">
+                        <p style="
+                            font-size: 11px;
+                            color: #1565c0;
+                            margin: 0;
+                            font-style: italic;
+                            line-height: 1.3;
+                        "><strong>💡 Tip:</strong> ${sanitizedTips}</p>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <button id="continueFlavorTextBtn" style="
+                        background: linear-gradient(135deg, #007bff, #0056b3);
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        font-family: 'Comic Sans MS', cursive, sans-serif;
+                        min-width: 120px;
+                    ">Continue</button>
+                </div>
+            `;
+        } else {
+            modalContent.innerHTML = `
+                <div style="text-align: center; margin-bottom: 16px;">
+                    <h2 style="
+                        color: #007bff; 
+                        margin: 0 0 12px 0; 
+                        font-size: 24px;
+                        font-weight: bold;
+                    ">${sanitizedTitle}</h2>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <p style="
+                        font-size: 16px; 
+                        line-height: 1.6; 
+                        color: #333; 
+                        margin: 0 0 16px 0;
+                        text-align: left;
+                    ">${sanitizedText}</p>
+                    <div style="
+                        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+                        border-left: 4px solid #2196f3;
+                        padding: 12px 16px;
+                        border-radius: 6px;
+                        margin: 12px 0;
+                    ">
+                        <p style="
+                            font-size: 14px;
+                            color: #1565c0;
+                            margin: 0;
+                            font-style: italic;
+                        "><strong>💡 Tip:</strong> ${sanitizedTips}</p>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <button id="continueFlavorTextBtn" style="
+                        background: linear-gradient(135deg, #007bff, #0056b3);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                        font-family: 'Comic Sans MS', cursive, sans-serif;
+                        min-width: 140px;
+                        transition: all 0.2s ease;
+                    ">Continue</button>
+                </div>
+            `;
+        }
+        
+        // Add hover effect for continue button (desktop only)
+        if (!isMobile) {
+            const continueBtn = modalContent.querySelector('#continueFlavorTextBtn');
+            if (continueBtn) {
+                continueBtn.addEventListener('mouseenter', () => {
+                    continueBtn.style.transform = 'translateY(-2px)';
+                    continueBtn.style.boxShadow = '0 6px 12px rgba(0,0,0,0.3)';
+                });
+                continueBtn.addEventListener('mouseleave', () => {
+                    continueBtn.style.transform = '';
+                    continueBtn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                });
+            }
+        }
+        
+        // Append modal to overlay and overlay to body
+        modalOverlay.appendChild(modalContent);
+        document.body.appendChild(modalOverlay);
+        
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
+        
+        // Set up event listeners
+        const continueBtn = document.getElementById('continueFlavorTextBtn');
+        if (continueBtn) {
+            continueBtn.addEventListener('click', hideInitialFlavorText);
+            
+            // Focus the continue button for accessibility
+            setTimeout(() => {
+                try {
+                    continueBtn.focus();
+                } catch (focusError) {
+                    console.warn('Could not focus continue button:', focusError);
+                }
+            }, 100);
+        }
+        
+        // Close on backdrop click
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                hideInitialFlavorText();
+            }
+        });
+        
+        // Keyboard navigation
+        modalOverlay.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                hideInitialFlavorText();
+            } else if (event.key === 'Enter' || event.key === ' ') {
+                if (event.target === continueBtn) {
+                    event.preventDefault();
+                    hideInitialFlavorText();
+                }
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error showing initial flavor text modal:', error);
+        // Fallback: try to show a simple alert
+        try {
+            const flavorData = getInitialFlavorText(stepIndex);
+            if (flavorData) {
+                alert(`${flavorData.title}\n\n${flavorData.text}\n\nTip: ${flavorData.tips}`);
+            }
+        } catch (fallbackError) {
+            console.error('Error showing fallback flavor text:', fallbackError);
+        }
+    }
+}
+
+// Hide initial flavor text modal
+export function hideInitialFlavorText() {
+    try {
+        const modal = document.getElementById('initialFlavorTextModal');
+        if (!modal) {
+            return;
+        }
+        
+        // Fade out animation
+        modal.style.opacity = '0';
+        modal.style.transition = 'opacity 0.3s ease-out';
+        
+        setTimeout(() => {
+            try {
+                if (modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            } catch (removeError) {
+                console.warn('Error removing initial flavor text modal:', removeError);
+            }
+        }, 300);
+        
+        // Restore focus to previously focused element
+        if (previouslyFocusedElementForFlavorText) {
+            try {
+                previouslyFocusedElementForFlavorText.focus();
+            } catch (focusError) {
+                console.warn('Could not restore focus:', focusError);
+            }
+            previouslyFocusedElementForFlavorText = null;
+        }
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+        
+        // Mark that initial flavor text has been shown for this step
+        gameState.initialFlavorTextShown = true;
+        
+        // Enable game controls
+        if (window.enableGameControls) {
+            window.enableGameControls();
+        }
+        
+    } catch (error) {
+        console.error('Error hiding initial flavor text modal:', error);
+        
+        // Fallback: try to remove modal directly
+        const modal = document.getElementById('initialFlavorTextModal');
+        if (modal && modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+        gameState.initialFlavorTextShown = true;
+        
+        // Enable game controls
+        if (window.enableGameControls) {
+            window.enableGameControls();
+        }
     }
 }
