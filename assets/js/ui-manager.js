@@ -768,7 +768,7 @@ export function showInitialFlavorText(stepIndex) {
                 box-shadow: 0 4px 20px rgba(0,0,0,0.3);
                 border: 2px solid #007bff;
                 animation: slideInUp 0.3s ease-out;
-                font-family: 'Comic Sans MS', cursive, sans-serif;
+                font-family: 'Comic Sans MS', sans-serif;
                 box-sizing: border-box;
             `;
         } else {
@@ -796,7 +796,7 @@ export function showInitialFlavorText(stepIndex) {
                 box-shadow: 0 8px 32px rgba(0,0,0,0.3);
                 border: 3px solid #007bff;
                 animation: slideInUp 0.3s ease-out;
-                font-family: 'Comic Sans MS', cursive, sans-serif;
+                font-family: 'Comic Sans MS', sans-serif;
             `;
         }
         
@@ -851,7 +851,7 @@ export function showInitialFlavorText(stepIndex) {
                         font-weight: bold;
                         cursor: pointer;
                         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                        font-family: 'Comic Sans MS', cursive, sans-serif;
+                        font-family: 'Comic Sans MS', sans-serif;
                         min-width: 120px;
                     ">Continue</button>
                 </div>
@@ -900,7 +900,7 @@ export function showInitialFlavorText(stepIndex) {
                         font-weight: bold;
                         cursor: pointer;
                         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                        font-family: 'Comic Sans MS', cursive, sans-serif;
+                        font-family: 'Comic Sans MS', sans-serif;
                         min-width: 140px;
                         transition: all 0.2s ease;
                     ">Continue</button>
