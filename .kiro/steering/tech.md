@@ -28,7 +28,7 @@ assets/
     ├── stress-system.js   # Zen activities and stress management
     ├── campaign-manager.js # Campaign progression and navigation
     ├── shop-system.js     # Deck upgrade purchasing system
-    ├── task-definitions.js # Modular task configurations
+    ├── task-definitions.js # Modular task configurations (all tasks must define bustMessages and hand loss messages)
     └── main.js            # Game controller and initialization
 ```
 

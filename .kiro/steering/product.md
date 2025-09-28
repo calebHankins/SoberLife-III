@@ -29,7 +29,7 @@
 - **Zen Activities**: Deep breathing, stretching, and meditation for stress reduction
 - **Deck Progression**: Rogue-like upgrade system where players add Aces to improve future performance
 - **Multiple Scenarios**: DMV visits, job interviews, with more planned
-- **Task-Specific Content**: Each scenario has unique contextual actions, flavor text, and success messages
+- **Task-Specific Content**: Each scenario has unique contextual actions, flavor text, success messages, and **must** define its own bustMessages and hand loss messages for loss outcomes. This is required for proper thematic feedback and stress management learning.
 - **Progress Persistence**: Campaign state saves automatically with error recovery
 - **Educational Value**: Teaches real-world stress management techniques through varied scenarios
 

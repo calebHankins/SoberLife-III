@@ -391,7 +391,34 @@ export const jobInterviewTaskDefinition = {
             sub: "Outstanding interview performance! You demonstrated both competence and character.",
             stats: "You've successfully showcased your potential and professionalism!"
         }
-    ]
+    ],
+    bustMessages: [
+        {
+            main: "Interview nerves got the best of you this time. Take a breath and regroup—next time you'll be even stronger!",
+            sub: "Everyone has tough interviews. Use this as a learning experience for your next opportunity.",
+            stats: "Stress level: HIGH • Confidence: SHAKEN • Growth: IN PROGRESS"
+        },
+        {
+            main: "You blanked on a key question, but that's okay—interviews are tough!",
+            sub: "Remember, even the best candidates have off days. Reflect and prepare for the next one.",
+            stats: "Stress level: ELEVATED • Interview skills: IMPROVING"
+        },
+        {
+            main: "The pressure was intense, but you showed up and gave it your best shot.",
+            sub: "Take time to recover and review what you can improve. Growth comes from challenge!",
+            stats: "Stress level: PEAKED • Resilience: BUILDING"
+        },
+        {
+            main: "You stumbled on a tough question, but that's part of the process.",
+            sub: "Every interview is a chance to learn. You'll be more prepared next time.",
+            stats: "Stress level: HIGH • Experience: GAINED"
+        },
+        {
+            main: "The interview didn't go as planned, but you kept your composure.",
+            sub: "Stay positive—every setback is a setup for a comeback.",
+            stats: "Stress level: MODERATE • Mindset: OPTIMISTIC"
+        }
+    ],
 };
 
 // Task registry for easy access
@@ -566,6 +593,28 @@ export const voterRegistrationTaskDefinition = {
             ]
         }
     },
+    bustMessages: [
+        {
+            main: "Registration Fiasco! 🗳️",
+            sub: "You got lost in the paperwork maze and missed a key section. Take a breath and try again!",
+            stats: "Stress level: HIGH • Zen points: LOW • Registration: INCOMPLETE"
+        },
+        {
+            main: "Stamp Catastrophe! 🐦",
+            sub: "You forgot to sign, the clerk is talking about birds, and your pet is now a witness. Time to regroup!",
+            stats: "Paperwork: MISTAKES • Stress: OVERLOAD"
+        },
+        {
+            main: "Form Fail! 📄",
+            sub: "You filled out Section 42B with your favorite snack, but missed the real question. Next time, double-check!",
+            stats: "Form: INCORRECT • Stress: MAXED"
+        },
+        {
+            main: "Clerk Confusion! 🧙‍♂️",
+            sub: "The clerk is baffled, the line is growing, and you’re not registered yet. Take a moment to reset!",
+            stats: "Stress management: NEEDS WORK"
+        }
+    ],
     successMessages: [
         {
             main: "Voter Victory! 🗳️",
