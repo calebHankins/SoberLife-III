@@ -165,7 +165,29 @@ export const dmvTaskDefinition = {
             stressTriggers: ["final details", "completion anxiety", "information overload"],
             tips: "You've made it this far! Take a moment to appreciate your persistence and patience throughout this process."
         }
-    }
+    },
+    successMessages: [
+        {
+            main: "You did it! You actually survived the DMV!",
+            sub: "Your zen mastery has reached legendary status. You've conquered the ultimate bureaucratic challenge!",
+            stats: "Final stress level: LOW • Zen points remaining: HIGH • DMV steps completed: ALL 5!"
+        },
+        {
+            main: "DMV CHAMPION! 🏆",
+            sub: "You navigated the labyrinth of government bureaucracy with grace and wisdom. Truly impressive!",
+            stats: "You maintained your cool through every step and emerged victorious!"
+        },
+        {
+            main: "Zen Master Achievement Unlocked! 🧘‍♀️",
+            sub: "You've proven that even the most stressful situations can be handled with mindfulness and strategy.",
+            stats: "Your stress management skills are now at expert level!"
+        },
+        {
+            main: "Mission Accomplished! ✅",
+            sub: "Real ID obtained, license renewed, sanity intact. You're ready for anything life throws at you!",
+            stats: "You've successfully completed one of life's most challenging quests!"
+        }
+    ]
 };
 
 // Job Interview Task Definition (new scenario)
@@ -347,7 +369,29 @@ export const jobInterviewTaskDefinition = {
                 "You reaffirm your interest in the opportunity"
             ]
         }
-    }
+    },
+    successMessages: [
+        {
+            main: "Interview Ace! 🎯",
+            sub: "You nailed that interview! Your preparation and composure really paid off.",
+            stats: "Professional confidence: HIGH • Interview skills: MASTERED • Career prospects: EXCELLENT!"
+        },
+        {
+            main: "Confidence Champion! 💼",
+            sub: "You handled every question with poise and showed genuine interest in the role. Impressive performance!",
+            stats: "You turned interview anxiety into interview excellence!"
+        },
+        {
+            main: "Professional Zen Master! 🧘‍♂️",
+            sub: "Your calm, thoughtful approach made a lasting impression. You've mastered the art of the interview!",
+            stats: "Your stress management skills translated perfectly to professional success!"
+        },
+        {
+            main: "Career Catalyst! 🚀",
+            sub: "Outstanding interview performance! You demonstrated both competence and character.",
+            stats: "You've successfully showcased your potential and professionalism!"
+        }
+    ]
 };
 
 // Task registry for easy access

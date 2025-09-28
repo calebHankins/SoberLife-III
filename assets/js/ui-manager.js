@@ -128,6 +128,58 @@ export function updateCards() {
     }
 }
 
+// Generate task-specific success message
+function generateTaskSpecificSuccessMessage() {
+    try {
+        // Check if we're in campaign mode and get task-specific messages
+        if (isCampaignMode()) {
+            const currentTask = getCurrentTask();
+            if (currentTask && currentTask.successMessages && currentTask.successMessages.length > 0) {
+                const randomIndex = Math.floor(Math.random() * currentTask.successMessages.length);
+                return currentTask.successMessages[randomIndex];
+            }
+        }
+        
+        // Fall back to default DMV messages
+        return generateSuccessMessage();
+        
+    } catch (error) {
+        console.error('Error generating task-specific success message:', error);
+        return generateSuccessMessage();
+    }
+}
+
+// Generate task-specific stats
+function generateTaskSpecificStats() {
+    try {
+        // Get current task info
+        let taskName = 'DMV';
+        let totalSteps = 5;
+        
+        if (isCampaignMode()) {
+            const currentTask = getCurrentTask();
+            if (currentTask) {
+                taskName = currentTask.name;
+                totalSteps = currentTask.steps.length;
+            }
+        }
+        
+        return `
+            <p>Final Stress Level: ${gameState.stressLevel}%</p>
+            <p>Zen Points Remaining: ${gameState.zenPoints}</p>
+            <p>${taskName} Steps Completed: ${gameState.currentStep}/${totalSteps}</p>
+        `;
+        
+    } catch (error) {
+        console.error('Error generating task-specific stats:', error);
+        return `
+            <p>Final Stress Level: ${gameState.stressLevel}%</p>
+            <p>Zen Points Remaining: ${gameState.zenPoints}</p>
+            <p>Steps Completed: ${gameState.currentStep}/5</p>
+        `;
+    }
+}
+
 // Update zen activities button states
 export function updateZenActivities() {
     const breathBtn = document.getElementById('breathBtn');
@@ -175,8 +227,8 @@ export function showGameSuccess() {
     if (gameSuccessScreen) {
         gameSuccessScreen.classList.remove('hidden');
         
-        // Generate and display success message
-        const message = generateSuccessMessage();
+        // Generate task-specific success message
+        const message = generateTaskSpecificSuccessMessage();
         
         const successMessageEl = document.getElementById('successMessage');
         if (successMessageEl) {
@@ -190,11 +242,9 @@ export function showGameSuccess() {
         
         const successStatsEl = document.getElementById('successStats');
         if (successStatsEl) {
-            successStatsEl.innerHTML = `
-                <p>Final Stress Level: ${gameState.stressLevel}%</p>
-                <p>Zen Points Remaining: ${gameState.zenPoints}</p>
-                <p>DMV Steps Completed: ${gameState.currentStep}/5</p>
-            `;
+            // Generate task-specific stats
+            const statsHtml = generateTaskSpecificStats();
+            successStatsEl.innerHTML = statsHtml;
         }
     }
 }
