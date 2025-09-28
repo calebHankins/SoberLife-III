@@ -1,7 +1,7 @@
 // SoberLife III - Campaign Manager
 // Campaign state coordination and navigation flow
 
-import { campaignState, updateCampaignState, loadCampaignProgress, resetCampaignState } from './game-state.js';
+import { campaignState, updateCampaignState, loadCampaignProgress, resetCampaignState, resetGameState } from './game-state.js';
 import { taskDefinitions, getTaskDefinition, isTaskUnlocked, getNextAvailableTask } from './task-definitions.js';
 import { openShop, updateShopUI, validateShopState } from './shop-system.js';
 import { hideElement, showElement } from './ui-manager.js';
@@ -163,8 +163,9 @@ export function startCampaignTask(taskId) {
             return false;
         }
         
-        // Set current task
+        // Set current task and reset game state for fresh start
         updateCampaignState({ currentTask: taskId });
+        resetGameState(); // Reset game state for new task
         
         // Hide campaign overview
         hideElement('campaignOverview');
@@ -312,6 +313,8 @@ function replayCurrentTask() {
     try {
         const currentTaskId = campaignState.currentTask;
         if (currentTaskId) {
+            // Reset game state before replaying
+            resetGameState();
             startCampaignTask(currentTaskId);
         }
     } catch (error) {
@@ -371,6 +374,7 @@ function showCampaignComplete() {
 export function startNewCampaign() {
     try {
         resetCampaignState();
+        resetGameState(); // Also reset the game state
         showCampaignOverview();
         console.log('New campaign started');
     } catch (error) {
@@ -385,6 +389,7 @@ export function resetCampaign() {
         
         if (confirmed) {
             resetCampaignState();
+            resetGameState(); // Also reset the game state
             updateCampaignUI();
             console.log('Campaign progress reset');
         }

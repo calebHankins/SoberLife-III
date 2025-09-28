@@ -247,9 +247,11 @@ export function startTask() {
     // Calculate initial stress and zen points from survey
     const surveyResults = calculateSurveyStress();
     updateGameState({
+        currentStep: 0, // Reset to step 0 for new task
         stressLevel: surveyResults.stressLevel,
         zenPoints: surveyResults.zenPoints,
-        surveyCompleted: true
+        surveyCompleted: true,
+        initialFlavorTextShown: false // Reset flavor text for new task
     });
 
     // Hide survey and show game elements
@@ -695,6 +697,10 @@ window.returnToCampaign = returnToCampaign;
 // Make campaign functions available for game-state.js
 window.isCampaignMode = isCampaignMode;
 window.getCurrentTask = getCurrentTask;
+
+// Import and expose additional campaign functions
+import { startNewCampaign } from './campaign-manager.js';
+window.startNewCampaign = startNewCampaign;
 
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {
