@@ -318,6 +318,10 @@
                             <li>Beat the house to advance to the next step</li>
                         </ul>
                     </div>
+                        <!-- Button to show Nirvana Mode -->
+                        <div class="help-section">
+                            <button id="showNirvanaBtn" class="secondary-btn" style="margin-bottom:10px;">Show Nirvana Mode</button>
+                        </div>
                         <!-- Nirvana Mode (hidden debug zone) -->
                         <div class="help-section nirvana-zone" style="display:none;">
                             <h3>🧘 Nirvana Mode</h3>
@@ -439,6 +443,17 @@
                 console.log('startCampaignMode:', typeof window.startCampaignMode);
                 console.log('startSingleTaskMode:', typeof window.startSingleTaskMode);
                 
+                // Add event listener for Show Nirvana Mode button
+                const showNirvanaBtn = document.getElementById('showNirvanaBtn');
+                if (showNirvanaBtn) {
+                    showNirvanaBtn.addEventListener('click', function() {
+                        const nirvanaZone = document.querySelector('.nirvana-zone');
+                        if (nirvanaZone) {
+                            nirvanaZone.style.display = 'block';
+                            showNirvanaBtn.style.display = 'none';
+                        }
+                    });
+                }
             } catch (error) {
                 console.error('❌ Error loading functions:', error);
                 
