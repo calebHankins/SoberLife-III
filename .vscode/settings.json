@@ -1,9 +1,19 @@
 {
     "kiroAgent.configureMCP": "Disabled",
+    "chat.tools.edits.autoApprove":{
+        "**/*": true,
+        "**/.vscode/*.json": false,
+        "**/.git/**": false,
+        "**/{package.json,package-lock.json,server.xml,build.rs,web.config,.gitattributes,.env}": false,
+        "**/*.{csproj,fsproj,vbproj}": false
+    },
+    "chat.agent.maxRequests": 100,
     "cSpell.words": [
         "flexbox",
         "gamified",
+        "insightfully",
         "kiro",
+        "LIFX",
         "Noticeability",
         "playtesting",
         "playthrough",
