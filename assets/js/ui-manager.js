@@ -6,6 +6,11 @@ import { calculateScore } from './card-system.js';
 import { isCampaignMode, getCurrentTask } from './campaign-manager.js';
 
 // Utility functions for showing/hiding elements
+// Debug: Add 1000 zen points instantly
+export function addZenPointsDebug() {
+    gameState.zenPoints += 1000;
+    updateDisplay();
+}
 export function hideElement(id) {
     const element = document.getElementById(id);
     if (element) {
@@ -670,6 +675,15 @@ export function hideHelpModal() {
         }
         
         helpModal.classList.add('hidden');
+            // Show Nirvana zone if debug mode (or always for now)
+            const nirvanaZone = helpModal.querySelector('.nirvana-zone');
+            if (nirvanaZone) {
+                nirvanaZone.style.display = '';
+                const nirvanaBtn = document.getElementById('nirvanaZenBtn');
+                if (nirvanaBtn) {
+                    nirvanaBtn.onclick = addZenPointsDebug;
+                }
+            }
         
         // Restore focus to previously focused element
         if (previouslyFocusedElement) {
