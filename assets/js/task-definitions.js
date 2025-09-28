@@ -761,6 +761,28 @@ export const workShopperTaskDefinition = {
             ]
         }
     },
+    bustMessages: [
+        {
+            main: "Shopping Meltdown! 🛒",
+            sub: "The stress of blue chips, keto desserts, and coupon chaos was too much. Take a breather and try again!",
+            stats: "Stress level: HIGH • Zen points: LOW • Party prep: INCOMPLETE"
+        },
+        {
+            main: "Snack Attack! 🍪",
+            sub: "You grabbed the wrong snacks and Brenda is not amused. Time for some mindfulness before round two.",
+            stats: "Dietary restrictions: NOT MET • Stress: OVERLOAD"
+        },
+        {
+            main: "Coupon Catastrophe! 💸",
+            sub: "Expired coupons, missing blue hummus, and a fire drill—sometimes you just need to regroup.",
+            stats: "Zen points: SPENT • Stress: MAXED"
+        },
+        {
+            main: "Party Panic! 🎈",
+            sub: "The break room is in chaos and you’re out of zen. Next time, double-check those labels!",
+            stats: "Stress management: NEEDS WORK"
+        }
+    ],
     successMessages: [
         {
             main: "Party Hero! 🎉",

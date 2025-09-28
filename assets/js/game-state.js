@@ -576,20 +576,34 @@ export function getProgressiveFlavorText(action, step, hitCount) {
 // DMV outcome message system
 export function getDMVOutcomeMessage(outcome) {
     try {
+        // If in campaign mode, use the current task's successMessages if available
+        if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
+            const currentTask = window.getCurrentTask && window.getCurrentTask();
+            if (currentTask) {
+                // For bust, use bustMessages if available
+                if (outcome === 'bust' && currentTask.bustMessages && Array.isArray(currentTask.bustMessages) && currentTask.bustMessages.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * currentTask.bustMessages.length);
+                    return currentTask.bustMessages[randomIndex].main;
+                }
+                // For win, use successMessages if available
+                if (outcome === 'win' && currentTask.successMessages && Array.isArray(currentTask.successMessages) && currentTask.successMessages.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * currentTask.successMessages.length);
+                    return currentTask.successMessages[randomIndex].main;
+                }
+            }
+        }
+        // Fallback to DMV outcome messages
         if (!dmvOutcomeMessages[outcome] || !Array.isArray(dmvOutcomeMessages[outcome])) {
             console.warn(`No DMV outcome messages found for: ${outcome}`);
             return getFallbackDMVOutcomeMessage(outcome);
         }
-        
         const messages = dmvOutcomeMessages[outcome];
         if (messages.length === 0) {
             return getFallbackDMVOutcomeMessage(outcome);
         }
-        
         // Return random message for variety
         const randomIndex = Math.floor(Math.random() * messages.length);
         return messages[randomIndex];
-        
     } catch (error) {
         console.error('Error getting DMV outcome message:', error);
         return getFallbackDMVOutcomeMessage(outcome);
