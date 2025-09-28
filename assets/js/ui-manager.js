@@ -476,18 +476,42 @@ export function showGameOver() {
     const gameOverScreen = document.getElementById('gameOverScreen');
     if (gameOverScreen) {
         gameOverScreen.classList.remove('hidden');
-        
+
+        // Update game over message and subtext dynamically
+        let mainMsg = "You've reached maximum stress levels and had a complete meltdown!";
+        let subMsg = "Don't worry, it happens to the best of us.";
+
+        // Try to get task-specific bust message
+        if (isCampaignMode()) {
+            const currentTask = getCurrentTask();
+            if (currentTask && currentTask.bustMessages && currentTask.bustMessages.length > 0) {
+                const bustMsg = currentTask.bustMessages[Math.floor(Math.random() * currentTask.bustMessages.length)];
+                mainMsg = bustMsg.main || mainMsg;
+                subMsg = bustMsg.sub || subMsg;
+            }
+        }
+
+        // Set the message in the DOM
+        const gameOverMsgEl = document.getElementById('gameOverMessage');
+        if (gameOverMsgEl) {
+            gameOverMsgEl.textContent = mainMsg;
+        }
+        const gameOverSubEl = document.getElementById('gameOverSubtext');
+        if (gameOverSubEl) {
+            gameOverSubEl.textContent = subMsg;
+        }
+
         // Update game over stats
         const finalStressEl = document.getElementById('finalStressLevel');
         if (finalStressEl) {
             finalStressEl.textContent = `${gameState.stressLevel}%`;
         }
-        
+
         const finalZenEl = document.getElementById('finalZenPoints');
         if (finalZenEl) {
             finalZenEl.textContent = gameState.zenPoints;
         }
-        
+
         const stepsCompletedEl = document.getElementById('stepsCompleted');
         if (stepsCompletedEl) {
             stepsCompletedEl.textContent = gameState.currentStep;

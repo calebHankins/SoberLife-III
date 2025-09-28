@@ -590,10 +590,228 @@ export const voterRegistrationTaskDefinition = {
     ]
 };
 
+
+// Work Shopper Task Definition (quirky office party shopping)
+export const workShopperTaskDefinition = {
+    id: 'workShopper',
+    name: 'Work Shopper: The Office Party Gauntlet',
+    description: 'Shop for a stressful work party, navigating a minefield of quirky co-worker food requests.',
+    difficulty: 4,
+    unlockRequirement: 'voterRegistration',
+    steps: [
+        "Get the party shopping list from your manager",
+        "Enter the grocery store and grab a cart",
+        "Track down special items for each quirky co-worker",
+        "Survive the checkout lane chaos",
+        "Deliver the goods to the break room and face the final judgment"
+    ],
+    contextualActions: {
+        0: {
+            hit: {
+                text: "Ask for Clarification",
+                description: "Ask your manager to explain the weirdest requests on the list",
+                flavorText: "You try to decode the dietary restrictions and get a story about Brenda's blue-food obsession."
+            },
+            stand: {
+                text: "Accept the Challenge",
+                description: "Take the list and head out, no questions asked",
+                flavorText: "You bravely accept your fate as the office party hero."
+            }
+        },
+        1: {
+            hit: {
+                text: "Grab a Wobbly Cart",
+                description: "Pick the first cart you see, even though it has a squeaky wheel",
+                flavorText: "You roll with the chaos, literally."
+            },
+            stand: {
+                text: "Inspect for Perfection",
+                description: "Test several carts until you find one that rolls straight",
+                flavorText: "You seek order in a world of grocery store entropy."
+            }
+        },
+        2: {
+            hit: {
+                text: "Improvise",
+                description: "Grab items that seem close enough to the requests",
+                flavorText: "You hope blue corn chips count as a vegetable for Brenda."
+            },
+            stand: {
+                text: "Double-Check Labels",
+                description: "Meticulously verify every dietary restriction",
+                flavorText: "You spend 10 minutes in the gluten-free aisle, just to be sure."
+            }
+        },
+        3: {
+            hit: {
+                text: "Coupon Chaos",
+                description: "Try to use every coupon you have, even expired ones",
+                flavorText: "You create a price check traffic jam and earn the cashier’s eternal confusion."
+            },
+            stand: {
+                text: "Stay Calm",
+                description: "Let the chaos unfold and focus on breathing",
+                flavorText: "You practice zen as the fire alarm blares and Brenda asks for blue napkins."
+            }
+        },
+        4: {
+            hit: {
+                text: "Present with Flair",
+                description: "Make a dramatic entrance with the snacks",
+                flavorText: "You announce each item like a game show host."
+            },
+            stand: {
+                text: "Sneak Away",
+                description: "Quietly leave the break room before anyone can complain",
+                flavorText: "You hope no one notices the lack of blue hummus."
+            }
+        }
+    },
+    initialFlavorText: {
+        0: {
+            title: "The List of Doom",
+            text: "Your manager hands you a list with more dietary restrictions than a medical textbook. The fate of the office party rests on your shoulders.",
+            stressTriggers: ["confusing requests", "manager pressure", "responsibility"],
+            tips: "Take a deep breath. Remember, you can’t please everyone—but you can try!"
+        },
+        1: {
+            title: "Cart Catastrophe",
+            text: "You enter the store, greeted by fluorescent lights and a wall of snack options. Your cart wobbles suspiciously.",
+            stressTriggers: ["store chaos", "decision fatigue", "equipment failure"],
+            tips: "Pick your battles. Sometimes a wobbly cart is the least of your worries."
+        },
+        2: {
+            title: "The Quirk Quest",
+            text: "You hunt for gluten-free, vegan, keto, and blue foods, dodging Uma’s utensil allergy. The store staff look at you like you’re on a scavenger hunt.",
+            stressTriggers: ["quirky requests", "label confusion", "social awkwardness"],
+            tips: "Stay focused. Double-check labels and don’t be afraid to ask for help."
+        },
+        3: {
+            title: "Checkout Chaos",
+            text: "The checkout lane is a battlefield: coupons fly, prices are questioned, and the fire alarm blares. Can you keep your cool?",
+            stressTriggers: ["checkout drama", "unexpected events", "time pressure"],
+            tips: "Breathe deeply. You’re almost done!"
+        },
+        4: {
+            title: "Judgment Day",
+            text: "You deliver the goods. The co-workers gather, inspecting every item. Will you be hailed as a hero or shunned for bringing non-blue chips?",
+            stressTriggers: ["peer review", "final judgment", "party pressure"],
+            tips: "Celebrate your effort, no matter the outcome. You did your best!"
+        }
+    },
+    progressiveFlavorText: {
+        0: {
+            hit: [
+                "You get a story about Brenda’s blue-food obsession.",
+                "Greg explains the difference between gluten and gluttony.",
+                "Vanessa hands you a pamphlet on vegan cheese alternatives."
+            ],
+            stand: [
+                "You bravely accept your fate as the office party hero.",
+                "You nod and pretend you understand every restriction.",
+                "You mentally prepare for the shopping gauntlet."
+            ]
+        },
+        1: {
+            hit: [
+                "You roll with the chaos, literally.",
+                "Your cart makes a noise like a jazz band warming up.",
+                "You dodge a pyramid of canned beans."
+            ],
+            stand: [
+                "You seek order in a world of grocery store entropy.",
+                "You test every cart until you find one that’s almost perfect.",
+                "You channel your inner zen and ignore the squeaks."
+            ]
+        },
+        2: {
+            hit: [
+                "You hope blue corn chips count as a vegetable for Brenda.",
+                "You grab vegan cheese and hope it’s not secretly made of cashews.",
+                "You improvise a keto dessert with pork rinds and stevia."
+            ],
+            stand: [
+                "You spend 10 minutes in the gluten-free aisle, just to be sure.",
+                "You check every label twice and ask the staff for help.",
+                "You avoid the utensil aisle entirely for Uma’s sake."
+            ]
+        },
+        3: {
+            hit: [
+                "You create a price check traffic jam and earn the cashier’s eternal confusion.",
+                "You try to use a coupon for blue hummus that doesn’t exist.",
+                "You get a surprise discount for surviving the chaos."
+            ],
+            stand: [
+                "You practice zen as the fire alarm blares and Brenda asks for blue napkins.",
+                "You let the chaos unfold and focus on breathing.",
+                "You smile politely as the manager apologizes for the delay."
+            ]
+        },
+        4: {
+            hit: [
+                "You announce each item like a game show host.",
+                "You get a round of applause for the blue snacks.",
+                "Greg gives you a gluten-free high five."
+            ],
+            stand: [
+                "You hope no one notices the lack of blue hummus.",
+                "You slip out before anyone can complain about the keto dessert.",
+                "You quietly celebrate your victory in the hallway."
+            ]
+        }
+    },
+    bustMessages: [
+        {
+            main: "Shopping Meltdown! 🛒",
+            sub: "The stress of blue chips, keto desserts, and coupon chaos was too much. Take a breather and try again!",
+            stats: "Stress level: HIGH • Zen points: LOW • Party prep: INCOMPLETE"
+        },
+        {
+            main: "Snack Attack! 🍪",
+            sub: "You grabbed the wrong snacks and Brenda is not amused. Time for some mindfulness before round two.",
+            stats: "Dietary restrictions: NOT MET • Stress: OVERLOAD"
+        },
+        {
+            main: "Coupon Catastrophe! 💸",
+            sub: "Expired coupons, missing blue hummus, and a fire drill—sometimes you just need to regroup.",
+            stats: "Zen points: SPENT • Stress: MAXED"
+        },
+        {
+            main: "Party Panic! 🎈",
+            sub: "The break room is in chaos and you’re out of zen. Next time, double-check those labels!",
+            stats: "Stress management: NEEDS WORK"
+        }
+    ],
+    successMessages: [
+        {
+            main: "Party Hero! 🎉",
+            sub: "You survived the quirks and chaos. The office celebrates your shopping mastery!",
+            stats: "Stress level: MODERATE • Zen points: EARNED • Dietary restrictions: ALL MET!"
+        },
+        {
+            main: "Dietary Dynamo! 🥗",
+            sub: "You navigated every restriction and delivered a feast fit for weirdos.",
+            stats: "You’re officially the MVP of the break room."
+        },
+        {
+            main: "Zen Shopper Achievement Unlocked! 🧘‍♂️",
+            sub: "You kept your cool and conquered the party prep.",
+            stats: "Your stress management skills are now certified by Brenda’s blue chips."
+        },
+        {
+            main: "Mission Accomplished! ✅",
+            sub: "The snacks are a hit, and you’re the talk of the break room.",
+            stats: "You’ve completed one of life’s most unexpectedly quirky quests!"
+        }
+    ]
+};
+
 export const taskDefinitions = {
     dmv: dmvTaskDefinition,
     jobInterview: jobInterviewTaskDefinition,
-    voterRegistration: voterRegistrationTaskDefinition
+    voterRegistration: voterRegistrationTaskDefinition,
+    workShopper: workShopperTaskDefinition
 };
 
 // Get task definition by ID

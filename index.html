@@ -125,7 +125,7 @@
         <!-- Zen Activities Panel -->
         <div class="zen-activities hidden" id="zenActivities">
             <h3>🧘 Stress Relief Activities</h3>
-            <p>Use your zen points to manage stress during your DMV visit:</p>
+            <p>Use your zen points to manage stress during your task:</p>
             <div class="activity-buttons">
                 <button class="activity-btn" onclick="useZenActivity('breath')" id="breathBtn">
                     🌬️ Deep Breath<br>
@@ -171,13 +171,13 @@
             <div class="game-over-content">
                 <div class="game-over-avatar">🤯</div>
                 <h2>STRESS OVERLOAD!</h2>
-                <p class="game-over-message">You've reached maximum stress levels and had a complete meltdown at the DMV!</p>
-                <p class="game-over-subtext">Don't worry, it happens to the best of us. The DMV is basically designed to test human patience limits.</p>
+                <p class="game-over-message" id="gameOverMessage">You've reached maximum stress levels and had a complete meltdown!</p>
+                <p class="game-over-subtext" id="gameOverSubtext">Don't worry, it happens to the best of us.</p>
                 
                 <div class="game-over-stats">
                     <p>Final Stress Level: <span id="finalStressLevel">100%</span></p>
                     <p>Zen Points Remaining: <span id="finalZenPoints">0</span></p>
-                    <p>DMV Steps Completed: <span id="stepsCompleted">0</span>/5</p>
+                    <p>Steps Completed: <span id="stepsCompleted">0</span>/5</p>
                 </div>
                 
                 <button id="tryAgainBtn" onclick="restartGame()">Try Again</button>
