@@ -9,7 +9,7 @@ export const shopConfig = {
     jokerUpgrade: {
         baseCost: 75,        // Higher cost than Aces due to superior functionality
         costIncrease: 50,    // Steeper cost increase
-        maxJokers: 8         // Reasonable limit to maintain game balance
+        maxJokers: 52         // Reasonable limit to maintain game balance
     },
     // Legacy ace upgrade (for backward compatibility)
     aceUpgrade: {

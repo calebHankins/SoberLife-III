@@ -1,3 +1,76 @@
+/* Joker Card Visuals */
+.card.joker {
+    box-shadow: 0 0 16px 6px #FFD700, 0 0 32px 12px #8e44ad;
+    border: 3px solid gold;
+    background: linear-gradient(135deg, #fffbe6, #e0c3fc);
+    position: relative;
+    animation: joker-glow 1.2s infinite alternate;
+}
+
+.joker-value-indicator {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #8e44ad;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 2;
+}
+
+.card.joker .joker-label {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #FFD700, #8e44ad);
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 2;
+}
+
+@keyframes joker-glow {
+    0% {
+        box-shadow: 0 0 16px 6px #FFD700, 0 0 32px 12px #8e44ad;
+    }
+    100% {
+        box-shadow: 0 0 32px 16px #FFD700, 0 0 48px 24px #8e44ad;
+    }
+}
+
+/* Joker Celebration Particles */
+.joker-celebration-particle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #FFD700 60%, #8e44ad 100%);
+    opacity: 0.85;
+    pointer-events: none;
+    animation: joker-particle-burst 1s ease-out forwards;
+}
+
+@keyframes joker-particle-burst {
+    0% {
+        transform: scale(1) translate(0, 0);
+        opacity: 1;
+    }
+    80% {
+        transform: scale(1.2) translate(var(--final-x, 0), var(--final-y, 0));
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0.8) translate(var(--final-x, 0), var(--final-y, 0));
+        opacity: 0;
+    }
+}
 /* SoberLife III - Main Styles */
 /* Base styles, layout, and core visual design */
 

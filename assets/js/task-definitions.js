@@ -395,9 +395,205 @@ export const jobInterviewTaskDefinition = {
 };
 
 // Task registry for easy access
+
+// Voter Registration Update Task Definition (quirky, humorous)
+export const voterRegistrationTaskDefinition = {
+    id: 'voterRegistration',
+    name: 'Voter Registration Update',
+    description: 'Survive the county clerk’s office and update your voter registration while encountering some truly quirky weirdos.',
+    difficulty: 3,
+    unlockRequirement: 'jobInterview',
+    steps: [
+        "Enter the county clerk’s office",
+        "Fill out the confusing registration form",
+        "Interact with the eccentric clerk",
+        "Correct a bizarre paperwork error",
+        "Submit and get your new voter card"
+    ],
+    contextualActions: {
+        0: {
+            hit: {
+                text: "Ask for Directions",
+                description: "Try to get help from the mysterious guy in the wizard hat",
+                flavorText: "You approach the local 'expert' who offers advice in riddles."
+            },
+            stand: {
+                text: "Brave the Chaos",
+                description: "March in confidently, ignoring the chaos",
+                flavorText: "You stride past the guy juggling rubber stamps and the lady with 17 cats."
+            }
+        },
+        1: {
+            hit: {
+                text: "Clarify Instructions",
+                description: "Ask the clerk what 'Section 42B' means",
+                flavorText: "The clerk responds with a monologue about the history of pens."
+            },
+            stand: {
+                text: "Guess and Fill",
+                description: "Just fill out the form using your best guess",
+                flavorText: "You invent a new abbreviation for 'favorite snack'."
+            }
+        },
+        2: {
+            hit: {
+                text: "Make Small Talk",
+                description: "Chat with the eccentric clerk about their stamp collection",
+                flavorText: "You learn more about rare stamps than you ever wanted."
+            },
+            stand: {
+                text: "Stay Focused",
+                description: "Politely decline conversation and focus on your paperwork",
+                flavorText: "You avoid being recruited for the local stamp club."
+            }
+        },
+        3: {
+            hit: {
+                text: "Double-Check Everything",
+                description: "Review your paperwork for errors (like listing your pet as a witness)",
+                flavorText: "You discover you accidentally signed as 'Lord of Snacks'."
+            },
+            stand: {
+                text: "Trust the Process",
+                description: "Assume the clerk will catch any mistakes",
+                flavorText: "You hope the system is robust against snack-related fraud."
+            }
+        },
+        4: {
+            hit: {
+                text: "Celebrate",
+                description: "Do a little victory dance as you get your new voter card",
+                flavorText: "The clerk joins in with a kazoo solo."
+            },
+            stand: {
+                text: "Exit Quietly",
+                description: "Leave before anything else can go wrong",
+                flavorText: "You escape just as a parade of costumed mascots enters."
+            }
+        }
+    },
+    initialFlavorText: {
+        0: {
+            title: "Welcome to the County Clerk’s Office",
+            text: "You step into a room that smells faintly of old paper and mystery. The waiting area is filled with characters: a wizard hat guy, a lady with a dozen cats, and a clerk who seems to be running a stamp museum from behind the counter.",
+            stressTriggers: ["confusion", "quirky people", "bureaucracy"],
+            tips: "Remember, everyone here is just trying to get through the day. Embrace the weirdness and keep your zen."
+        },
+        1: {
+            title: "Form Follies",
+            text: "The registration form is a maze of boxes, arrows, and cryptic instructions. Section 42B asks for your 'favorite snack' and 'spirit animal.' You’re not sure if this is a joke or a test.",
+            stressTriggers: ["confusing paperwork", "uncertainty"],
+            tips: "Take your time. If in doubt, ask for help—or just make something up."
+        },
+        2: {
+            title: "Clerk Quirks",
+            text: "The clerk greets you with a story about their rare stamp collection and a challenge to name all 50 state birds. You just want to update your address, but you’re learning a lot about stamps.",
+            stressTriggers: ["eccentric people", "unexpected conversations"],
+            tips: "Stay polite, but don’t get sucked into a stamp trivia contest."
+        },
+        3: {
+            title: "Paperwork Pandemonium",
+            text: "You notice a bizarre error: your pet’s name is listed as a witness, and your birthdate is written in crayon. The clerk assures you this happens all the time.",
+            stressTriggers: ["mistakes", "embarrassment"],
+            tips: "Double-check everything. The system may be weird, but you can still be thorough."
+        },
+        4: {
+            title: "Victory Lap",
+            text: "You hand in your paperwork and receive a shiny new voter card. The clerk plays a celebratory kazoo solo, and the wizard hat guy gives you a thumbs up.",
+            stressTriggers: ["completion anxiety", "unexpected celebrations"],
+            tips: "Celebrate your success! You survived the quirks and got registered."
+        }
+    },
+    progressiveFlavorText: {
+        0: {
+            hit: [
+                "You approach the local 'expert' who offers advice in riddles.",
+                "You get directions that involve three lefts and a riddle about snacks.",
+                "You receive a map drawn on a napkin."
+            ],
+            stand: [
+                "You stride past the guy juggling rubber stamps and the lady with 17 cats.",
+                "You ignore the chaos and focus on your mission.",
+                "You channel your inner zen and walk in with purpose."
+            ]
+        },
+        1: {
+            hit: [
+                "The clerk responds with a monologue about the history of pens.",
+                "You get a 10-minute explanation about Section 42B’s origins.",
+                "You learn more about snack preferences than you ever wanted."
+            ],
+            stand: [
+                "You invent a new abbreviation for 'favorite snack'.",
+                "You fill in the form with your best guess and a doodle.",
+                "You decide your spirit animal is 'Zen Squirrel'."
+            ]
+        },
+        2: {
+            hit: [
+                "You learn more about rare stamps than you ever wanted.",
+                "You get invited to the annual stamp trivia night.",
+                "You discover the clerk’s favorite bird is the blue-footed booby."
+            ],
+            stand: [
+                "You avoid being recruited for the local stamp club.",
+                "You focus on your paperwork and tune out the stamp talk.",
+                "You politely nod and keep writing."
+            ]
+        },
+        3: {
+            hit: [
+                "You discover you accidentally signed as 'Lord of Snacks'.",
+                "You catch a typo that would have made you a registered unicorn.",
+                "You fix the crayon birthdate with a pen."
+            ],
+            stand: [
+                "You hope the system is robust against snack-related fraud.",
+                "You trust the clerk to catch any mistakes.",
+                "You accept that weird things happen here."
+            ]
+        },
+        4: {
+            hit: [
+                "The clerk joins in with a kazoo solo.",
+                "You get a sticker that says 'I Survived the Clerk’s Office'.",
+                "The wizard hat guy gives you a high five."
+            ],
+            stand: [
+                "You escape just as a parade of costumed mascots enters.",
+                "You leave quietly, grateful for your new voter card.",
+                "You slip out before the next trivia contest starts."
+            ]
+        }
+    },
+    successMessages: [
+        {
+            main: "Voter Victory! 🗳️",
+            sub: "You survived the quirks, the chaos, and the kazoo solo. Democracy thanks you!",
+            stats: "Stress level: MODERATE • Zen points: EARNED • Weird encounters: PLENTY!"
+        },
+        {
+            main: "Clerk’s Office Conqueror! 🏆",
+            sub: "You navigated the maze of paperwork and personalities with style.",
+            stats: "You’re officially registered and officially a legend."
+        },
+        {
+            main: "Zen Squirrel Achievement Unlocked! 🐿️",
+            sub: "You kept your cool even when things got weird. That’s true stress mastery!",
+            stats: "Your stress management skills are now certified by the county clerk."
+        },
+        {
+            main: "Mission Accomplished! ✅",
+            sub: "Voter card in hand, sanity (mostly) intact. You’re ready for the next adventure!",
+            stats: "You’ve completed one of life’s most unexpectedly quirky quests!"
+        }
+    ]
+};
+
 export const taskDefinitions = {
     dmv: dmvTaskDefinition,
-    jobInterview: jobInterviewTaskDefinition
+    jobInterview: jobInterviewTaskDefinition,
+    voterRegistration: voterRegistrationTaskDefinition
 };
 
 // Get task definition by ID
