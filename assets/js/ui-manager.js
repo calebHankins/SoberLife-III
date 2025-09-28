@@ -1,7 +1,7 @@
 // SoberLife III - UI Manager
 // DOM manipulation and visual updates
 
-import { gameState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText } from './game-state.js';
+import { gameState, campaignState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText } from './game-state.js';
 import { calculateScore } from './card-system.js';
 import { isCampaignMode, getCurrentTask } from './campaign-manager.js';
 
@@ -77,12 +77,7 @@ export function updateCards() {
         
         // Player cards
         gameState.playerCards.forEach(card => {
-            const cardEl = document.createElement('div');
-            cardEl.textContent = card.display;
-            cardEl.className = 'card';
-            if (card.suit === '♥' || card.suit === '♦') {
-                cardEl.classList.add('red');
-            }
+            const cardEl = createCardElement(card);
             playerCardsEl.appendChild(cardEl);
         });
     }
@@ -101,20 +96,75 @@ export function updateCards() {
                 cardEl.style.background = 'linear-gradient(135deg, #34495E, #2C3E50)';
                 cardEl.style.color = 'white';
             } else {
-                cardEl.textContent = card.display;
-                if (card.suit === '♥' || card.suit === '♦') {
-                    cardEl.classList.add('red');
-                }
+                const fullCardEl = createCardElement(card);
+                cardEl.className = fullCardEl.className;
+                cardEl.innerHTML = fullCardEl.innerHTML;
+                cardEl.style.cssText = fullCardEl.style.cssText;
             }
             houseCardsEl.appendChild(cardEl);
         });
     }
 
-    // Update scores
+    // Update scores with Joker value indicators
+    updateScoreDisplays();
+}
+
+// Create a card element with proper styling and effects
+function createCardElement(card) {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card';
+    
+    if (card.isJoker) {
+        // Handle Joker cards
+        cardEl.classList.add('joker');
+        cardEl.textContent = card.display;
+        
+        // Add value indicator if Joker has calculated a value
+        if (card.calculatedValue !== null) {
+            const valueIndicator = document.createElement('div');
+            valueIndicator.className = 'joker-value-indicator';
+            valueIndicator.textContent = card.calculatedValue;
+            cardEl.appendChild(valueIndicator);
+            
+            // Add special effects based on value
+            if (card.calculatedValue === 11) {
+                cardEl.classList.add('calculating');
+            }
+            
+            // Check if this Joker helped achieve 21
+            const currentScore = calculateScore(gameState.playerCards);
+            if (currentScore === 21) {
+                cardEl.classList.add('perfect-score');
+                // Add celebration particles
+                setTimeout(() => createJokerCelebrationParticles(cardEl), 100);
+            }
+        }
+    } else {
+        // Handle regular cards
+        cardEl.textContent = card.display;
+        if (card.suit === '♥' || card.suit === '♦') {
+            cardEl.classList.add('red');
+        }
+    }
+    
+    return cardEl;
+}
+
+// Update score displays with Joker information
+function updateScoreDisplays() {
     const playerScore = calculateScore(gameState.playerCards);
     const playerScoreEl = document.getElementById('playerScore');
     if (playerScoreEl) {
-        playerScoreEl.textContent = `Score: ${playerScore}`;
+        let scoreText = `Score: ${playerScore}`;
+        
+        // Add Joker contribution info
+        const jokers = gameState.playerCards.filter(card => card.isJoker);
+        if (jokers.length > 0) {
+            const jokerValues = jokers.map(j => j.getCurrentValue()).join(', ');
+            scoreText += ` (Jokers: ${jokerValues})`;
+        }
+        
+        playerScoreEl.textContent = scoreText;
     }
 
     const houseScoreEl = document.getElementById('houseScore');
@@ -123,8 +173,194 @@ export function updateCards() {
             houseScoreEl.textContent = 'Score: ?';
         } else {
             const houseScore = calculateScore(gameState.houseCards);
-            houseScoreEl.textContent = `Score: ${houseScore}`;
+            let scoreText = `Score: ${houseScore}`;
+            
+            // Add Joker contribution info for house
+            const houseJokers = gameState.houseCards.filter(card => card.isJoker);
+            if (houseJokers.length > 0) {
+                const jokerValues = houseJokers.map(j => j.getCurrentValue()).join(', ');
+                scoreText += ` (Jokers: ${jokerValues})`;
+            }
+            
+            houseScoreEl.textContent = scoreText;
         }
+    }
+}
+
+// Create celebration particles for perfect Joker plays
+function createJokerCelebrationParticles(cardElement) {
+    try {
+        // Validate card element
+        if (!cardElement || !cardElement.getBoundingClientRect) {
+            console.warn('Invalid card element for celebration particles');
+            return;
+        }
+        
+        const rect = cardElement.getBoundingClientRect();
+        
+        // Validate rect dimensions
+        if (rect.width === 0 || rect.height === 0) {
+            console.warn('Card element has no dimensions for particles');
+            return;
+        }
+        
+        const particleCount = 8;
+        
+        for (let i = 0; i < particleCount; i++) {
+            try {
+                const particle = document.createElement('div');
+                particle.className = 'joker-celebration-particle';
+                
+                // Position particle at card location
+                particle.style.position = 'fixed';
+                particle.style.left = `${rect.left + rect.width / 2}px`;
+                particle.style.top = `${rect.top + rect.height / 2}px`;
+                particle.style.zIndex = '1001';
+                
+                // Random direction and distance
+                const angle = (i / particleCount) * 2 * Math.PI;
+                const distance = 30 + Math.random() * 20;
+                const finalX = rect.left + rect.width / 2 + Math.cos(angle) * distance;
+                const finalY = rect.top + rect.height / 2 + Math.sin(angle) * distance;
+                
+                particle.style.setProperty('--final-x', `${finalX}px`);
+                particle.style.setProperty('--final-y', `${finalY}px`);
+                
+                document.body.appendChild(particle);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    try {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    } catch (removeError) {
+                        console.warn('Error removing celebration particle:', removeError);
+                    }
+                }, 1000);
+                
+            } catch (particleError) {
+                console.warn('Error creating individual particle:', particleError);
+                // Continue with other particles
+            }
+        }
+    } catch (error) {
+        console.error('Error creating celebration particles:', error);
+    }
+}
+
+// Show Joker value calculation feedback
+export function showJokerCalculationFeedback(joker, calculatedValue, isOptimal) {
+    try {
+        const roundResult = document.getElementById('roundResult');
+        if (!roundResult) return;
+        
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'joker-feedback';
+        
+        let message = `🃏 Wild Joker calculated value: ${calculatedValue}`;
+        let emoji = '✨';
+        
+        if (isOptimal) {
+            if (calculatedValue === 11) {
+                message += ' (Perfect for 21!)';
+                emoji = '🎯';
+            } else if (calculatedValue === 1) {
+                message += ' (Avoiding bust!)';
+                emoji = '🛡️';
+            } else {
+                message += ' (Optimal choice!)';
+                emoji = '⭐';
+            }
+        }
+        
+        feedbackDiv.innerHTML = `
+            <p style="
+                font-weight: bold;
+                color: #ffd700;
+                margin: 10px 0;
+                padding: 8px 12px;
+                background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 237, 78, 0.2));
+                border: 2px solid #ffd700;
+                border-radius: 8px;
+                text-align: center;
+                animation: jokerFeedbackPulse 0.5s ease-out;
+                box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+            ">${emoji} ${message}</p>
+        `;
+        
+        roundResult.appendChild(feedbackDiv);
+        
+        // Remove feedback after 4 seconds (longer for Joker feedback)
+        setTimeout(() => {
+            if (feedbackDiv.parentNode) {
+                feedbackDiv.style.opacity = '0';
+                feedbackDiv.style.transform = 'translateY(-10px)';
+                feedbackDiv.style.transition = 'all 0.3s ease-out';
+                
+                setTimeout(() => {
+                    if (feedbackDiv.parentNode) {
+                        feedbackDiv.parentNode.removeChild(feedbackDiv);
+                    }
+                }, 300);
+            }
+        }, 4000);
+        
+    } catch (error) {
+        console.error('Error showing Joker calculation feedback:', error);
+    }
+}
+
+// Show special feedback when Jokers help achieve perfect scores
+export function showJokerPerfectScoreFeedback() {
+    try {
+        const roundResult = document.getElementById('roundResult');
+        if (!roundResult) return;
+        
+        const celebrationDiv = document.createElement('div');
+        celebrationDiv.className = 'joker-perfect-celebration';
+        
+        celebrationDiv.innerHTML = `
+            <div style="
+                background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+                background-size: 400% 400%;
+                animation: rainbow-shift 2s ease infinite, jokerCelebrationBounce 1s ease-out;
+                color: white;
+                font-weight: bold;
+                font-size: 18px;
+                padding: 15px 20px;
+                border-radius: 15px;
+                text-align: center;
+                margin: 15px 0;
+                border: 3px solid gold;
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            ">
+                🎉 JOKER MAGIC! Perfect 21! 🎉
+                <br>
+                <small style="font-size: 14px; opacity: 0.9;">Your Wild Joker made the perfect play!</small>
+            </div>
+        `;
+        
+        roundResult.appendChild(celebrationDiv);
+        
+        // Remove celebration after 5 seconds
+        setTimeout(() => {
+            if (celebrationDiv.parentNode) {
+                celebrationDiv.style.opacity = '0';
+                celebrationDiv.style.transform = 'scale(0.8)';
+                celebrationDiv.style.transition = 'all 0.5s ease-out';
+                
+                setTimeout(() => {
+                    if (celebrationDiv.parentNode) {
+                        celebrationDiv.parentNode.removeChild(celebrationDiv);
+                    }
+                }, 500);
+            }
+        }, 5000);
+        
+    } catch (error) {
+        console.error('Error showing Joker perfect score feedback:', error);
     }
 }
 
@@ -785,6 +1021,9 @@ export function showStressManagementTip(outcome) {
 // Store the element that had focus before initial flavor text modal opened
 let previouslyFocusedElementForFlavorText = null;
 
+// Store the element that had focus before deck viewer modal opened
+let previouslyFocusedElementForDeckViewer = null;
+
 // Show initial flavor text modal
 export function showInitialFlavorText(stepIndex) {
     try {
@@ -1107,5 +1346,199 @@ export function hideInitialFlavorText() {
         if (window.enableGameControls) {
             window.enableGameControls();
         }
+    }
+}
+
+// Deck Viewer Modal Functions
+export function showDeckViewer() {
+    try {
+        const deckViewerModal = document.getElementById('deckViewerModal');
+        if (!deckViewerModal) {
+            console.error('Deck viewer modal element not found');
+            return;
+        }
+        
+        // Store currently focused element
+        previouslyFocusedElementForDeckViewer = document.activeElement;
+        
+        // Update deck composition data
+        updateDeckViewerContent();
+        
+        deckViewerModal.classList.remove('hidden');
+        
+        // Focus management for accessibility
+        const closeBtn = document.getElementById('deckViewerCloseBtn');
+        if (closeBtn) {
+            setTimeout(() => {
+                try {
+                    closeBtn.focus();
+                } catch (focusError) {
+                    console.warn('Could not focus deck viewer close button:', focusError);
+                }
+            }, 100);
+        }
+        
+        // Prevent body scroll when modal is open
+        if (document.body) {
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Set up event listeners
+        setupDeckViewerEventListeners();
+        
+    } catch (error) {
+        console.error('Error showing deck viewer:', error);
+    }
+}
+
+export function hideDeckViewer() {
+    try {
+        const deckViewerModal = document.getElementById('deckViewerModal');
+        if (!deckViewerModal) {
+            console.error('Deck viewer modal element not found');
+            return;
+        }
+        
+        deckViewerModal.classList.add('hidden');
+        
+        // Restore focus to previously focused element
+        if (previouslyFocusedElementForDeckViewer) {
+            try {
+                previouslyFocusedElementForDeckViewer.focus();
+            } catch (focusError) {
+                console.warn('Could not restore focus:', focusError);
+            }
+            previouslyFocusedElementForDeckViewer = null;
+        }
+        
+        // Restore body scroll
+        if (document.body) {
+            document.body.style.overflow = '';
+        }
+        
+        // Clean up event listeners
+        cleanupDeckViewerEventListeners();
+        
+    } catch (error) {
+        console.error('Error hiding deck viewer:', error);
+    }
+}
+
+function updateDeckViewerContent() {
+    try {
+        const { deckComposition, shopUpgrades } = campaignState;
+        const { aces, jokers, totalCards } = deckComposition;
+        const { acesAdded, jokersAdded, totalSpent } = shopUpgrades;
+        
+        // Debug logging
+        console.log('Updating deck viewer with:', {
+            aces,
+            jokers,
+            totalCards,
+            jokersAdded,
+            campaignState: campaignState
+        });
+        
+        // Update card counts
+        const jokerCountEl = document.getElementById('jokerCount');
+        if (jokerCountEl) {
+            jokerCountEl.textContent = jokers;
+            console.log('Set joker count to:', jokers);
+        } else {
+            console.error('jokerCount element not found');
+        }
+        
+        const aceCountEl = document.getElementById('aceCount');
+        if (aceCountEl) {
+            aceCountEl.textContent = aces;
+        }
+        
+        const regularCountEl = document.getElementById('regularCount');
+        if (regularCountEl) {
+            regularCountEl.textContent = totalCards - aces - jokers;
+        }
+        
+        // Update deck power level
+        const specialCards = aces + jokers;
+        const powerPercentage = Math.round((specialCards / totalCards) * 100);
+        
+        const deckPowerFill = document.getElementById('deckPowerFill');
+        if (deckPowerFill) {
+            deckPowerFill.style.width = `${powerPercentage}%`;
+        }
+        
+        const deckPowerText = document.getElementById('deckPowerText');
+        if (deckPowerText) {
+            deckPowerText.textContent = `Power Level: ${powerPercentage}% (${specialCards} special cards out of ${totalCards})`;
+        }
+        
+        // Update upgrade history
+        const upgradeHistoryContent = document.getElementById('upgradeHistoryContent');
+        if (upgradeHistoryContent) {
+            let historyHtml = '<p>Base deck: 4 Aces + 48 Regular Cards</p>';
+            
+            if (jokersAdded > 0) {
+                historyHtml += `<p>✨ Added ${jokersAdded} Wild Joker${jokersAdded > 1 ? 's' : ''}</p>`;
+            }
+            
+            if (acesAdded > 0) {
+                historyHtml += `<p>🂡 Added ${acesAdded} extra Ace${acesAdded > 1 ? 's' : ''}</p>`;
+            }
+            
+            if (totalSpent > 0) {
+                historyHtml += `<p>💎 Total zen points invested: ${totalSpent}</p>`;
+            }
+            
+            if (jokersAdded === 0 && acesAdded === 0) {
+                historyHtml += '<p>No upgrades purchased yet. Visit the shop to enhance your deck!</p>';
+            }
+            
+            upgradeHistoryContent.innerHTML = historyHtml;
+        }
+        
+    } catch (error) {
+        console.error('Error updating deck viewer content:', error);
+    }
+}
+
+function setupDeckViewerEventListeners() {
+    const closeBtn = document.getElementById('deckViewerCloseBtn');
+    const backdrop = document.getElementById('deckViewerBackdrop');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', hideDeckViewer);
+    }
+    
+    if (backdrop) {
+        backdrop.addEventListener('click', hideDeckViewer);
+    }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', handleDeckViewerKeydown);
+}
+
+function cleanupDeckViewerEventListeners() {
+    const closeBtn = document.getElementById('deckViewerCloseBtn');
+    const backdrop = document.getElementById('deckViewerBackdrop');
+    
+    if (closeBtn) {
+        closeBtn.removeEventListener('click', hideDeckViewer);
+    }
+    
+    if (backdrop) {
+        backdrop.removeEventListener('click', hideDeckViewer);
+    }
+    
+    document.removeEventListener('keydown', handleDeckViewerKeydown);
+}
+
+function handleDeckViewerKeydown(event) {
+    const deckViewerModal = document.getElementById('deckViewerModal');
+    if (!deckViewerModal || deckViewerModal.classList.contains('hidden')) {
+        return;
+    }
+    
+    if (event.key === 'Escape') {
+        hideDeckViewer();
     }
 }

@@ -78,8 +78,12 @@ export function updateCampaignUI() {
         // Update deck composition display
         const deckCompositionElement = document.getElementById('deckComposition');
         if (deckCompositionElement) {
-            const { aces, totalCards } = campaignState.deckComposition;
-            deckCompositionElement.textContent = `Aces: ${aces} / ${totalCards} Cards`;
+            const { aces, jokers, totalCards } = campaignState.deckComposition;
+            if (jokers > 0) {
+                deckCompositionElement.textContent = `Aces: ${aces}, Jokers: ${jokers} / ${totalCards} Cards`;
+            } else {
+                deckCompositionElement.textContent = `Aces: ${aces} / ${totalCards} Cards`;
+            }
         }
         
         // Update campaign progress

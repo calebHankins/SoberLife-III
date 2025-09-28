@@ -2,11 +2,11 @@
 // Game initialization and coordination
 
 import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState } from './game-state.js';
-import { createDeck, createCustomDeck, shuffleDeck, calculateScore } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText } from './ui-manager.js';
+import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showDeckViewer, hideDeckViewer, showJokerCalculationFeedback, showJokerPerfectScoreFeedback } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel } from './stress-system.js';
-import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask } from './campaign-manager.js';
-import { openShop, closeShop, purchaseAceUpgrade, updateShopUI, showPurchaseFeedback } from './shop-system.js';
+import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
+import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback } from './shop-system.js';
 import { getTaskDefinition } from './task-definitions.js';
 
 // Initialize the game when page loads
@@ -296,6 +296,10 @@ export function startNewRound() {
         gameState.houseCards.push(gameState.deck.pop());
         gameState.playerCards.push(gameState.deck.pop());
         gameState.houseCards.push(gameState.deck.pop());
+        
+        // Reset Joker values for new hand
+        resetJokerValues(gameState.playerCards);
+        resetJokerValues(gameState.houseCards);
 
         // Update UI
         updateTaskDescription();
@@ -378,7 +382,27 @@ export function hit() {
         showFlavorText('hit');
 
         // Add card to player's hand
-        gameState.playerCards.push(gameState.deck.pop());
+        const newCard = gameState.deck.pop();
+        gameState.playerCards.push(newCard);
+        
+        // Show Joker feedback if the new card is a Joker
+        if (newCard.isJoker) {
+            const playerScore = calculateScore(gameState.playerCards);
+            const jokerValue = newCard.getCurrentValue();
+            const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
+            
+            setTimeout(() => {
+                showJokerCalculationFeedback(newCard, jokerValue, isOptimal);
+                
+                // Show special celebration for perfect 21
+                if (playerScore === 21) {
+                    setTimeout(() => {
+                        showJokerPerfectScoreFeedback();
+                    }, 1000);
+                }
+            }, 500);
+        }
+        
         updateCards();
 
         const playerScore = calculateScore(gameState.playerCards);
@@ -665,9 +689,87 @@ export function purchaseAce() {
     showPurchaseFeedback(result);
 }
 
+export function openCampaignShop() {
+    try {
+        // Validate campaign mode
+        if (!isCampaignMode()) {
+            console.warn('Cannot open campaign shop - not in campaign mode');
+            return;
+        }
+        
+        // Validate zen points
+        const zenPoints = gameState.zenPoints || 0;
+        if (zenPoints < 0) {
+            console.warn('Invalid zen points value, using 0');
+            updateGameState({ zenPoints: 0 });
+        }
+        
+        // Open shop with current zen points from game state
+        openShop(zenPoints);
+        
+    } catch (error) {
+        console.error('Error opening campaign shop:', error);
+        // Show user-friendly error message
+        showPopupNotification('Unable to open shop. Please try again.', 'error');
+    }
+}
+
+export function purchaseJoker() {
+    try {
+        // Validate campaign mode
+        if (!isCampaignMode()) {
+            console.warn('Cannot purchase Joker - not in campaign mode');
+            showPurchaseFeedback({
+                success: false,
+                message: 'Joker upgrades only available in campaign mode'
+            });
+            return;
+        }
+        
+        // Validate zen points
+        const zenPoints = gameState.zenPoints || 0;
+        if (zenPoints < 0) {
+            console.warn('Invalid zen points for purchase');
+            updateGameState({ zenPoints: 0 });
+            showPurchaseFeedback({
+                success: false,
+                message: 'Invalid zen points balance'
+            });
+            return;
+        }
+        
+        const result = purchaseJokerUpgrade(zenPoints);
+        
+        if (result.success) {
+            // Update game state
+            updateGameState({ zenPoints: result.zenPointsRemaining });
+            
+            // Update UI elements
+            try {
+                updateShopUI(result.zenPointsRemaining);
+                updateCampaignUI();
+            } catch (uiError) {
+                console.warn('Error updating UI after purchase:', uiError);
+                // Purchase was successful, so don't fail completely
+            }
+        }
+        
+        showPurchaseFeedback(result);
+        
+    } catch (error) {
+        console.error('Error purchasing Joker:', error);
+        showPurchaseFeedback({
+            success: false,
+            message: 'Purchase failed due to an error. Please try again.'
+        });
+    }
+}
+
 export function continueCampaign() {
     closeShop();
     returnToCampaign();
+    // Update campaign UI to reflect any purchases
+    updateCampaignUI();
 }
 
 export function skipShop() {
@@ -675,32 +777,71 @@ export function skipShop() {
     returnToCampaign();
 }
 
-// Make functions available globally for onclick handlers
-window.startSingleTaskMode = startSingleTaskMode;
-window.startCampaignMode = startCampaignMode;
-window.startTask = startTask;
-window.startGame = startGame; // Legacy compatibility
-window.hit = hit;
-window.stand = stand;
-window.nextStep = nextStep;
-window.restartGame = restartGame;
-window.showHelp = showHelp;
-window.enableGameControls = enableGameControls;
-window.startCampaignTask = startCampaignTask;
-window.resetCampaign = resetCampaign;
-window.openShop = openShopWithZen;
-window.purchaseAceUpgrade = purchaseAce;
-window.continueCampaign = continueCampaign;
-window.skipShop = skipShop;
-window.returnToCampaign = returnToCampaign;
+export function closeShopToCampaign() {
+    closeShop();
+    returnToCampaign();
+    // Update campaign UI to reflect any purchases
+    updateCampaignUI();
+}
 
-// Make campaign functions available for game-state.js
-window.isCampaignMode = isCampaignMode;
-window.getCurrentTask = getCurrentTask;
+export function viewDeckComposition() {
+    try {
+        console.log('viewDeckComposition called');
+        
+        // Validate campaign mode
+        if (!isCampaignMode()) {
+            console.warn('Deck viewer only available in campaign mode');
+            showPopupNotification('Deck viewer only available in campaign mode', 'error');
+            return;
+        }
+        
+        // Validate campaign state
+        if (!campaignState.deckComposition) {
+            console.error('Invalid campaign state - missing deck composition');
+            showPopupNotification('Unable to load deck information', 'error');
+            return;
+        }
+        
+        console.log('Current campaign state before showing deck viewer:', campaignState);
+        showDeckViewer();
+        
+    } catch (error) {
+        console.error('Error opening deck viewer:', error);
+        showPopupNotification('Unable to open deck viewer. Please try again.', 'error');
+    }
+}
 
-// Import and expose additional campaign functions
-import { startNewCampaign } from './campaign-manager.js';
-window.startNewCampaign = startNewCampaign;
+export function closeDeckViewer() {
+    hideDeckViewer();
+}
+
+// Make functions available globally for onclick handlers (backup approach)
+if (typeof window !== 'undefined') {
+    window.startSingleTaskMode = startSingleTaskMode;
+    window.startCampaignMode = startCampaignMode;
+    window.startTask = startTask;
+    window.startGame = startTask;
+    window.hit = hit;
+    window.stand = stand;
+    window.nextStep = nextStep;
+    window.restartGame = restartGame;
+    window.showHelp = showHelp;
+    window.enableGameControls = enableGameControls;
+    window.openCampaignShop = openCampaignShop;
+    window.openShop = openShopWithZen;
+    window.purchaseJokerUpgrade = purchaseJoker;
+    window.continueCampaign = continueCampaign;
+    window.closeShopToCampaign = closeShopToCampaign;
+    window.viewDeckComposition = viewDeckComposition;
+    window.closeDeckViewer = closeDeckViewer;
+    window.startCampaignTask = startCampaignTask;
+    window.resetCampaign = resetCampaign;
+    window.returnToCampaign = returnToCampaign;
+    
+    // Make campaign functions available for game-state.js (needed for internal module communication)
+    window.isCampaignMode = isCampaignMode;
+    window.getCurrentTask = getCurrentTask;
+}
 
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {

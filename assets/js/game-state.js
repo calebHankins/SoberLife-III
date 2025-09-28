@@ -22,10 +22,12 @@ export let campaignState = {
     campaignMode: false,
     deckComposition: {
         aces: 4,        // Starting aces
+        jokers: 0,      // Purchased jokers (wild cards)
         totalCards: 52  // Total deck size
     },
     shopUpgrades: {
-        acesAdded: 0,
+        acesAdded: 0,      // Legacy ace purchases (for migration)
+        jokersAdded: 0,    // Number of jokers purchased
         totalSpent: 0
     },
     taskProgress: {}
@@ -313,10 +315,12 @@ export function resetCampaignState() {
     campaignState.campaignMode = false;
     campaignState.deckComposition = {
         aces: 4,
+        jokers: 0,
         totalCards: 52
     };
     campaignState.shopUpgrades = {
-        acesAdded: 0,
+        acesAdded: 0,      // Legacy for migration
+        jokersAdded: 0,
         totalSpent: 0
     };
     campaignState.taskProgress = {};
@@ -340,6 +344,8 @@ export function loadCampaignProgress() {
             // Validate loaded state structure
             if (loadedState && typeof loadedState === 'object') {
                 Object.assign(campaignState, loadedState);
+                // Migrate legacy campaign state to support Jokers
+                migrateCampaignState();
                 return true;
             }
         }
@@ -347,6 +353,51 @@ export function loadCampaignProgress() {
         console.warn('Failed to load campaign progress:', error);
     }
     return false;
+}
+
+// Migrate legacy campaign state to support Joker system
+export function migrateCampaignState() {
+    try {
+        let needsSave = false;
+        
+        // Ensure deckComposition has jokers property
+        if (!campaignState.deckComposition) {
+            campaignState.deckComposition = { aces: 4, jokers: 0, totalCards: 52 };
+            needsSave = true;
+        } else {
+            if (typeof campaignState.deckComposition.jokers !== 'number') {
+                campaignState.deckComposition.jokers = 0;
+                needsSave = true;
+            }
+        }
+        
+        // Ensure shopUpgrades has jokersAdded property
+        if (!campaignState.shopUpgrades) {
+            campaignState.shopUpgrades = { acesAdded: 0, jokersAdded: 0, totalSpent: 0 };
+            needsSave = true;
+        } else {
+            if (typeof campaignState.shopUpgrades.jokersAdded !== 'number') {
+                campaignState.shopUpgrades.jokersAdded = 0;
+                needsSave = true;
+            }
+            // Ensure acesAdded exists for backward compatibility
+            if (typeof campaignState.shopUpgrades.acesAdded !== 'number') {
+                campaignState.shopUpgrades.acesAdded = 0;
+                needsSave = true;
+            }
+        }
+        
+        // Save migrated state if changes were made
+        if (needsSave) {
+            saveCampaignProgress();
+            console.log('Campaign state migrated to support Joker system');
+        }
+        
+    } catch (error) {
+        console.error('Error migrating campaign state:', error);
+        // Reset to safe defaults on migration failure
+        resetCampaignState();
+    }
 }
 
 export function clearCampaignProgress() {
