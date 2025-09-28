@@ -3,8 +3,10 @@
 ## Architecture
 - **Multi-file application**: Game organized into separate HTML, CSS, and JavaScript files
 - **Modular JavaScript**: ES6 modules for better code organization and maintainability
+- **Campaign system**: Rogue-like progression with persistent state management
 - **No external dependencies**: Self-contained with no frameworks or libraries
-- **Client-side only**: Pure frontend implementation with no backend requirements
+- **Client-side only**: Pure frontend implementation with localStorage persistence
+- **Dual-mode design**: Supports both single-task and campaign gameplay
 
 ## Technologies
 - **HTML5**: Semantic markup and structure with external resource references
@@ -17,13 +19,16 @@
 assets/
 ├── css/                    # Stylesheets
 │   ├── main.css           # Base styles, layout, typography
-│   ├── components.css     # UI component specific styles
+│   ├── components.css     # UI component styles (includes campaign UI)
 │   └── responsive.css     # Mobile and responsive design
 └── js/                    # JavaScript modules
-    ├── game-state.js      # Central state management
-    ├── card-system.js     # Blackjack game logic
-    ├── ui-manager.js      # DOM manipulation
+    ├── game-state.js      # Central state management (game + campaign)
+    ├── card-system.js     # Blackjack logic with custom deck support
+    ├── ui-manager.js      # DOM manipulation (task-aware)
     ├── stress-system.js   # Zen activities and stress management
+    ├── campaign-manager.js # Campaign progression and navigation
+    ├── shop-system.js     # Deck upgrade purchasing system
+    ├── task-definitions.js # Modular task configurations
     └── main.js            # Game controller and initialization
 ```
 
@@ -62,3 +67,23 @@ npx serve . -p 8000          # Node.js
 - **External stylesheets**: CSS organized in separate files by purpose
 - **ES6 modules**: Modern JavaScript with proper import/export structure
 - **Modular architecture**: Each file has single responsibility and clear interfaces
+- **Error handling**: Graceful fallbacks and validation throughout
+- **State management**: Centralized state with persistence and recovery mechanisms
+
+## Data Persistence
+- **localStorage**: Campaign progress and deck upgrades persist across sessions
+- **Error recovery**: Automatic state validation and repair mechanisms
+- **Backup system**: Campaign backup and restore functionality
+- **State validation**: Comprehensive validation to prevent corrupted data
+
+## Testing Strategy
+- **Unit tests**: Individual module functionality testing
+- **Integration tests**: Campaign flow and state management testing
+- **Manual testing**: User experience and edge case validation
+- **Error simulation**: Testing recovery mechanisms and fallbacks
+
+## Performance Considerations
+- **Lazy loading**: Task definitions loaded as needed
+- **Efficient rendering**: Minimal DOM manipulation and smart updates
+- **Memory management**: Proper cleanup and state reset mechanisms
+- **Responsive design**: Optimized for both desktop and mobile performance

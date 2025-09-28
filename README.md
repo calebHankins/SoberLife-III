@@ -80,7 +80,8 @@ The game is organized into separate modules for maintainability:
 ### Development Workflow
 1. Make changes to the appropriate files (HTML, CSS, or JavaScript modules)
 2. Refresh your browser to see changes
-3. No build process required - files are served directly
+3. Run tests in `tests/` directory to verify functionality
+4. No build process required - files are served directly
 
 ### Serving with a Local Server (Optional)
 For testing ES6 modules, you may want to serve the files through a local server:
@@ -91,6 +92,20 @@ npx serve . -p 8000
 ```
 
 Then visit `http://localhost:8000` in your browser.
+
+## 🔧 Recent Updates
+
+### Campaign System Implementation
+- **Rogue-like progression**: Complete tasks to unlock new challenges
+- **Deck upgrades**: Spend zen points to add Aces between tasks
+- **Task-specific content**: Each scenario has unique actions and success messages
+- **Progress persistence**: Campaign state saves automatically
+
+### Bug Fixes
+- **Step counter reset**: Tasks now properly start at step 1 instead of continuing from previous task
+- **Task-specific success screens**: Completion messages now match the completed task (DMV vs Job Interview)
+- **Campaign reset functionality**: Reset and New Campaign buttons properly clear all state
+- **Error recovery**: Robust state validation and repair mechanisms
 
 ## 📝 License
 
