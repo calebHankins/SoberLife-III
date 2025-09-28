@@ -141,3 +141,7 @@ Remember that todo lists must always be written in markdown format and must alwa
 If the user tells you to stage and commit, you may do so. 
 
 You are NEVER allowed to stage and commit files automatically.
+
+# Turn End Summary Message
+
+When your turn ends, summarize what you did in a concise manner. Print this summary in a code block wrapped in triple backticks so that it is formatted correctly and can be used as a commit message.
