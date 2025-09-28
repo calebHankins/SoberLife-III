@@ -23,9 +23,6 @@ Visit the[ live game on github pages](https://calebhankins.github.io/SoberLife-I
 
 ## 🚀 Local Development
 
-### Quick Start
-Simply open `index.html` in your web browser to play locally.
-
 ### File Structure
 The game is now organized into separate files for better maintainability:
 
@@ -56,12 +53,6 @@ The game is now organized into separate files for better maintainability:
 For testing ES6 modules, you may want to serve the files through a local server:
 
 ```bash
-# Python 3
-python -m http.server 8000
-
-# Python 2  
-python -m SimpleHTTPServer 8000
-
 # Node.js
 npx serve . -p 8000
 ```
