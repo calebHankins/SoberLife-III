@@ -34,10 +34,54 @@
             </div>
         </div>
 
+        <!-- Game Mode Selection -->
+        <div class="game-mode-selection" id="gameModeSelection">
+            <h3>Choose Your Experience</h3>
+            <p>How would you like to practice stress management?</p>
+            
+            <div class="mode-options">
+                <div class="mode-card">
+                    <h4>🏛️ Single Task Mode</h4>
+                    <p>Practice with just the DMV scenario</p>
+                    <button onclick="startSingleTaskMode()" class="mode-btn">Start DMV Challenge</button>
+                </div>
+                
+                <div class="mode-card">
+                    <h4>🎯 Campaign Mode</h4>
+                    <p>Progress through multiple scenarios and upgrade your deck</p>
+                    <button onclick="startCampaignMode()" class="mode-btn">Start Campaign</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaign Overview -->
+        <div class="campaign-overview hidden" id="campaignOverview">
+            <h2>🎯 Stress Management Campaign</h2>
+            
+            <div class="campaign-progress">
+                <div class="deck-status">
+                    <h4>🃏 Your Deck Power</h4>
+                    <p id="deckComposition">Aces: 4 / 52 Cards</p>
+                </div>
+                <div class="total-progress">
+                    <h4>📊 Campaign Progress</h4>
+                    <p id="campaignProgress">Tasks Completed: 0/2</p>
+                </div>
+            </div>
+            
+            <div class="task-list" id="taskList">
+                <!-- Task cards will be populated by JavaScript -->
+            </div>
+            
+            <div class="campaign-actions">
+                <button onclick="resetCampaign()" class="secondary-btn">Reset Campaign</button>
+            </div>
+        </div>
+
         <!-- Survey Section -->
-        <div class="survey" id="surveySection">
+        <div class="survey hidden" id="surveySection">
             <h3>Pre-Task Assessment</h3>
-            <p>Before we begin your DMV visit, let's assess your current stress level:</p>
+            <p id="surveyDescription">Before we begin your task, let's assess your current stress level:</p>
 
             <div class="survey-question">
                 <strong>How did you sleep last night?</strong>
@@ -48,8 +92,8 @@
             </div>
 
             <div class="survey-question">
-                <strong>How prepared do you feel for the DMV?</strong>
-                <label><input type="radio" name="prepared" value="0"> Very prepared, all documents ready</label>
+                <strong id="preparedQuestion">How prepared do you feel for this task?</strong>
+                <label><input type="radio" name="prepared" value="0"> Very prepared, ready to go</label>
                 <label><input type="radio" name="prepared" value="10"> Mostly prepared</label>
                 <label><input type="radio" name="prepared" value="20"> Somewhat prepared</label>
                 <label><input type="radio" name="prepared" value="30"> Not prepared at all</label>
@@ -64,9 +108,9 @@
             </div>
 
             <div id="surveyError" style="color: red; font-weight: bold; margin: 10px 0; display: none;">
-                Please answer all questions before beginning your DMV visit!
+                Please answer all questions before beginning your task!
             </div>
-            <button id="startGameBtn" onclick="startGame()" disabled>Begin DMV Visit</button>
+            <button id="startTaskBtn" onclick="startTask()" disabled>Begin Task</button>
         </div>
 
         <!-- Task Info -->
@@ -143,15 +187,49 @@
             <div class="game-success-content">
                 <div class="game-success-avatar">🎉</div>
                 <h2 id="successMessage">Congratulations!</h2>
-                <p class="game-success-message" id="successSubtext">You successfully completed your DMV visit!</p>
+                <p class="game-success-message" id="successSubtext">You successfully completed your task!</p>
                 
                 <div class="game-success-stats" id="successStats">
                     <p>Final Stress Level: 25%</p>
                     <p>Zen Points Remaining: 75</p>
-                    <p>DMV Steps Completed: 5/5</p>
+                    <p>Steps Completed: 5/5</p>
                 </div>
                 
-                <button id="playAgainBtn" onclick="restartGame()">Play Again</button>
+                <div class="success-actions">
+                    <button id="continueToShopBtn" onclick="openShop()" class="hidden">Visit Shop</button>
+                    <button id="continueCampaignBtn" onclick="returnToCampaign()" class="hidden">Continue Campaign</button>
+                    <button id="playAgainBtn" onclick="restartGame()">Play Again</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upgrade Shop -->
+        <div class="upgrade-shop hidden" id="upgradeShop">
+            <div class="shop-content">
+                <h2>🧘 Mindfulness Upgrades</h2>
+                <p>Spend your remaining zen points to upgrade your deck for future challenges!</p>
+                
+                <div class="zen-balance">
+                    <h3>💎 Zen Points: <span id="shopZenPoints">0</span></h3>
+                </div>
+                
+                <div class="upgrade-options">
+                    <div class="upgrade-card" id="aceUpgradeCard">
+                        <div class="upgrade-icon">🃏</div>
+                        <h3>Add Ace to Deck</h3>
+                        <p>Replace a random card with an Ace. Aces can be 1 or 11, making them incredibly valuable for any situation.</p>
+                        <div class="upgrade-stats">
+                            <div class="cost">Cost: <span id="aceUpgradeCost">50</span> Zen Points</div>
+                            <div class="benefit">Current Aces: <span id="currentAces">4</span></div>
+                        </div>
+                        <button onclick="purchaseAceUpgrade()" id="aceUpgradeBtn" class="upgrade-btn">Purchase Ace</button>
+                    </div>
+                </div>
+                
+                <div class="shop-actions">
+                    <button onclick="continueCampaign()" class="primary-btn">Continue Campaign</button>
+                    <button onclick="skipShop()" class="secondary-btn">Skip Upgrades</button>
+                </div>
             </div>
         </div>
 
@@ -166,7 +244,8 @@
                 <div class="help-modal-body" id="helpModalBody">
                     <div class="help-section">
                         <h3>🎯 Game Objective</h3>
-                        <p>Successfully complete your DMV visit by managing stress and winning blackjack rounds for each step.</p>
+                        <p><strong>Single Task Mode:</strong> Successfully complete your DMV visit by managing stress and winning blackjack rounds for each step.</p>
+                        <p><strong>Campaign Mode:</strong> Progress through multiple stress management scenarios, upgrading your deck between tasks to become more mindful and capable.</p>
                     </div>
                     
                     <div class="help-section">
@@ -193,14 +272,24 @@
                     </div>
                     
                     <div class="help-section">
-                        <h3>🏛️ DMV Steps</h3>
-                        <ol>
-                            <li>Check in at the front desk</li>
-                            <li>Wait in line for your number to be called</li>
-                            <li>Submit your paperwork and documents</li>
-                            <li>Take your photo and eye exam</li>
-                            <li>Pay fees and receive your new license</li>
-                        </ol>
+                        <h3>🎯 Campaign Mode</h3>
+                        <p>In Campaign Mode, you'll progress through multiple stress management scenarios:</p>
+                        <ul>
+                            <li><strong>DMV License Renewal:</strong> Navigate bureaucratic processes</li>
+                            <li><strong>Job Interview:</strong> Handle performance anxiety and professional pressure</li>
+                            <li><strong>Deck Upgrades:</strong> Spend zen points to add Aces to your deck</li>
+                            <li><strong>Progressive Difficulty:</strong> Later tasks unlock as you complete earlier ones</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>🛒 Upgrade Shop</h3>
+                        <ul>
+                            <li>After completing tasks, visit the shop to spend remaining zen points</li>
+                            <li><strong>Add Ace to Deck:</strong> Replace a random card with an Ace (cost increases with each purchase)</li>
+                            <li>Aces can be worth 1 or 11, making them extremely valuable</li>
+                            <li>Your upgraded deck carries over to all future tasks</li>
+                        </ul>
                     </div>
                     
                     <div class="help-section">
@@ -220,7 +309,9 @@
                             <li>Use zen activities strategically - don't wait until stress is too high</li>
                             <li>Remember basic blackjack strategy: stand on 17+, be careful with 12-16</li>
                             <li>Your initial survey affects starting stress level</li>
-                            <li>Complete all 5 DMV steps to win the game</li>
+                            <li><strong>Campaign Mode:</strong> Save zen points for deck upgrades between tasks</li>
+                            <li><strong>Campaign Mode:</strong> More Aces = better odds in future challenges</li>
+                            <li>Each task teaches different stress management techniques</li>
                         </ul>
                     </div>
                 </div>

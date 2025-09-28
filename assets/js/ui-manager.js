@@ -3,6 +3,7 @@
 
 import { gameState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText } from './game-state.js';
 import { calculateScore } from './card-system.js';
+import { isCampaignMode, getCurrentTask } from './campaign-manager.js';
 
 // Utility functions for showing/hiding elements
 export function hideElement(id) {
@@ -210,19 +211,37 @@ export function updateTaskDescription() {
             return;
         }
         
+        // Get current task steps and info
+        let currentSteps = steps;
+        let taskName = 'DMV License Renewal & Real ID';
+        
+        if (isCampaignMode()) {
+            const currentTask = getCurrentTask();
+            if (currentTask) {
+                currentSteps = currentTask.steps;
+                taskName = currentTask.name;
+            }
+        }
+        
         // Get step description with fallback
         let stepDescription = '';
-        if (gameState.currentStep < steps.length && steps[gameState.currentStep]) {
-            stepDescription = steps[gameState.currentStep];
+        if (gameState.currentStep < currentSteps.length && currentSteps[gameState.currentStep]) {
+            stepDescription = currentSteps[gameState.currentStep];
         } else {
             console.warn(`Step description not found for step ${gameState.currentStep}, using fallback`);
             stepDescription = getFallbackStepDescription(gameState.currentStep);
         }
         
+        // Update task title if in campaign mode
+        const taskTitleEl = taskInfoEl?.querySelector('h3');
+        if (taskTitleEl && isCampaignMode()) {
+            taskTitleEl.textContent = `🎯 Task: ${taskName}`;
+        }
+        
         // Update step indicator with error handling
         if (stepIndicatorEl) {
             try {
-                stepIndicatorEl.textContent = `Step ${gameState.currentStep + 1} of 5`;
+                stepIndicatorEl.textContent = `Step ${gameState.currentStep + 1} of ${currentSteps.length}`;
             } catch (error) {
                 console.warn('Error updating step indicator:', error);
             }

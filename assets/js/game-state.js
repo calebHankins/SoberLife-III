@@ -14,6 +14,23 @@ export let gameState = {
     initialFlavorTextShown: false
 };
 
+// Campaign state object for rogue-like progression
+export let campaignState = {
+    currentTask: 0,
+    completedTasks: [],
+    totalZenEarned: 0,
+    campaignMode: false,
+    deckComposition: {
+        aces: 4,        // Starting aces
+        totalCards: 52  // Total deck size
+    },
+    shopUpgrades: {
+        acesAdded: 0,
+        totalSpent: 0
+    },
+    taskProgress: {}
+};
+
 // Track hit count per hand for progressive flavor text
 export let handState = {
     hitCount: 0,
@@ -283,6 +300,64 @@ export function resetGameState() {
     resetHandState();
 }
 
+// Campaign state management functions
+export function updateCampaignState(updates) {
+    Object.assign(campaignState, updates);
+    saveCampaignProgress();
+}
+
+export function resetCampaignState() {
+    campaignState.currentTask = 0;
+    campaignState.completedTasks = [];
+    campaignState.totalZenEarned = 0;
+    campaignState.campaignMode = false;
+    campaignState.deckComposition = {
+        aces: 4,
+        totalCards: 52
+    };
+    campaignState.shopUpgrades = {
+        acesAdded: 0,
+        totalSpent: 0
+    };
+    campaignState.taskProgress = {};
+    saveCampaignProgress();
+}
+
+// Campaign progress persistence
+export function saveCampaignProgress() {
+    try {
+        localStorage.setItem('soberlife-campaign', JSON.stringify(campaignState));
+    } catch (error) {
+        console.warn('Failed to save campaign progress:', error);
+    }
+}
+
+export function loadCampaignProgress() {
+    try {
+        const saved = localStorage.getItem('soberlife-campaign');
+        if (saved) {
+            const loadedState = JSON.parse(saved);
+            // Validate loaded state structure
+            if (loadedState && typeof loadedState === 'object') {
+                Object.assign(campaignState, loadedState);
+                return true;
+            }
+        }
+    } catch (error) {
+        console.warn('Failed to load campaign progress:', error);
+    }
+    return false;
+}
+
+export function clearCampaignProgress() {
+    try {
+        localStorage.removeItem('soberlife-campaign');
+        resetCampaignState();
+    } catch (error) {
+        console.warn('Failed to clear campaign progress:', error);
+    }
+}
+
 export function generateSuccessMessage() {
     const randomIndex = Math.floor(Math.random() * successMessages.length);
     return successMessages[randomIndex];
@@ -291,7 +366,22 @@ export function generateSuccessMessage() {
 // Contextual action management functions with error handling
 export function getCurrentContextualActions() {
     try {
-        const currentStepActions = contextualActions[gameState.currentStep];
+        // Import campaign functions dynamically to avoid circular dependency
+        let currentStepActions;
+        
+        // Check if we're in campaign mode and get task-specific actions
+        if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
+            const currentTask = window.getCurrentTask && window.getCurrentTask();
+            if (currentTask && currentTask.contextualActions) {
+                currentStepActions = currentTask.contextualActions[gameState.currentStep];
+            }
+        }
+        
+        // Fall back to DMV actions if no task-specific actions found
+        if (!currentStepActions) {
+            currentStepActions = contextualActions[gameState.currentStep];
+        }
+        
         if (!currentStepActions || typeof currentStepActions !== 'object') {
             console.warn(`No contextual actions found for step ${gameState.currentStep}, using fallback`);
             return getFallbackActions();
@@ -390,18 +480,33 @@ export function setLastAction(action) {
 // Progressive flavor text system
 export function getProgressiveFlavorText(action, step, hitCount) {
     try {
+        // Get current task steps for validation
+        let currentSteps = steps;
+        let currentProgressiveFlavorText = progressiveFlavorText;
+        
+        // Check if we're in campaign mode and get task-specific content
+        if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
+            const currentTask = window.getCurrentTask && window.getCurrentTask();
+            if (currentTask) {
+                currentSteps = currentTask.steps;
+                if (currentTask.progressiveFlavorText) {
+                    currentProgressiveFlavorText = currentTask.progressiveFlavorText;
+                }
+            }
+        }
+        
         // Validate inputs
-        if (typeof step !== 'number' || step < 0 || step >= steps.length) {
+        if (typeof step !== 'number' || step < 0 || step >= currentSteps.length) {
             console.warn(`Invalid step index: ${step}, using fallback`);
             return getFallbackProgressiveFlavorText(action, hitCount);
         }
         
-        if (!progressiveFlavorText[step] || !progressiveFlavorText[step][action]) {
+        if (!currentProgressiveFlavorText[step] || !currentProgressiveFlavorText[step][action]) {
             console.warn(`No progressive flavor text found for step ${step}, action ${action}`);
             return getFallbackProgressiveFlavorText(action, hitCount);
         }
         
-        const flavorArray = progressiveFlavorText[step][action];
+        const flavorArray = currentProgressiveFlavorText[step][action];
         if (!Array.isArray(flavorArray) || flavorArray.length === 0) {
             console.warn(`Invalid flavor text array for step ${step}, action ${action}`);
             return getFallbackProgressiveFlavorText(action, hitCount);
@@ -550,17 +655,32 @@ function getFallbackStressManagementInsight(outcome) {
 // Initial flavor text system
 export function getInitialFlavorText(stepIndex) {
     try {
-        if (typeof stepIndex !== 'number' || stepIndex < 0 || stepIndex >= steps.length) {
+        // Get current task steps and initial flavor text
+        let currentSteps = steps;
+        let currentInitialFlavorText = initialFlavorText;
+        
+        // Check if we're in campaign mode and get task-specific content
+        if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
+            const currentTask = window.getCurrentTask && window.getCurrentTask();
+            if (currentTask) {
+                currentSteps = currentTask.steps;
+                if (currentTask.initialFlavorText) {
+                    currentInitialFlavorText = currentTask.initialFlavorText;
+                }
+            }
+        }
+        
+        if (typeof stepIndex !== 'number' || stepIndex < 0 || stepIndex >= currentSteps.length) {
             console.warn(`Invalid step index: ${stepIndex}, using fallback`);
             return getFallbackInitialFlavorText(stepIndex);
         }
         
-        if (!initialFlavorText[stepIndex] || typeof initialFlavorText[stepIndex] !== 'object') {
+        if (!currentInitialFlavorText[stepIndex] || typeof currentInitialFlavorText[stepIndex] !== 'object') {
             console.warn(`No initial flavor text found for step ${stepIndex}, using fallback`);
             return getFallbackInitialFlavorText(stepIndex);
         }
         
-        return initialFlavorText[stepIndex];
+        return currentInitialFlavorText[stepIndex];
         
     } catch (error) {
         console.error('Error getting initial flavor text:', error);

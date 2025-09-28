@@ -1,18 +1,21 @@
 // SoberLife III - Main Game Controller
 // Game initialization and coordination
 
-import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction } from './game-state.js';
-import { createDeck, shuffleDeck, calculateScore } from './card-system.js';
+import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState } from './game-state.js';
+import { createDeck, createCustomDeck, shuffleDeck, calculateScore } from './card-system.js';
 import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel } from './stress-system.js';
+import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask } from './campaign-manager.js';
+import { openShop, closeShop, purchaseAceUpgrade, updateShopUI, showPurchaseFeedback } from './shop-system.js';
+import { getTaskDefinition } from './task-definitions.js';
 
 // Initialize the game when page loads
 export function initializeGame() {
     // Set up survey validation
     const surveyInputs = document.querySelectorAll('input[type="radio"]');
-    const startGameBtn = document.getElementById('startGameBtn');
+    const startTaskBtn = document.getElementById('startTaskBtn');
     
-    if (surveyInputs && startGameBtn) {
+    if (surveyInputs && startTaskBtn) {
         surveyInputs.forEach(input => {
             input.addEventListener('change', validateSurvey);
         });
@@ -20,6 +23,17 @@ export function initializeGame() {
 
     // Set up help modal event listeners
     setupHelpModal();
+
+    // Initialize campaign system
+    initializeCampaign();
+
+    // Show game mode selection by default
+    showElement('gameModeSelection');
+    hideElement('campaignOverview');
+    hideElement('surveySection');
+    hideElement('taskInfo');
+    hideElement('zenActivities');
+    hideElement('gameArea');
 
     // Initial display update
     updateDisplay();
@@ -170,24 +184,53 @@ function showPopupNotification(message, type = 'default') {
     }, 2000);
 }
 
+// Start single task mode (original DMV-only experience)
+export function startSingleTaskMode() {
+    // Set up single task mode
+    updateGameState({ campaignMode: false });
+    
+    // Hide mode selection and show survey
+    hideElement('gameModeSelection');
+    hideElement('campaignOverview');
+    showElement('surveySection');
+    
+    // Update survey for DMV context
+    const surveyDescription = document.getElementById('surveyDescription');
+    if (surveyDescription) {
+        surveyDescription.textContent = 'Before we begin your DMV visit, let\'s assess your current stress level:';
+    }
+    
+    const preparedQuestion = document.getElementById('preparedQuestion');
+    if (preparedQuestion) {
+        preparedQuestion.textContent = 'How prepared do you feel for the DMV?';
+    }
+}
+
+// Start campaign mode
+export function startCampaignMode() {
+    // Initialize and show campaign
+    initializeCampaign();
+    showCampaignOverview();
+}
+
 // Validate survey completion
 function validateSurvey() {
     const sleepAnswer = document.querySelector('input[name="sleep"]:checked');
     const preparedAnswer = document.querySelector('input[name="prepared"]:checked');
     const dayAnswer = document.querySelector('input[name="day"]:checked');
-    const startGameBtn = document.getElementById('startGameBtn');
+    const startTaskBtn = document.getElementById('startTaskBtn');
     const errorMsg = document.getElementById('surveyError');
 
     if (sleepAnswer && preparedAnswer && dayAnswer) {
-        if (startGameBtn) startGameBtn.disabled = false;
+        if (startTaskBtn) startTaskBtn.disabled = false;
         if (errorMsg) errorMsg.style.display = 'none';
     } else {
-        if (startGameBtn) startGameBtn.disabled = true;
+        if (startTaskBtn) startTaskBtn.disabled = true;
     }
 }
 
-// Start the game after survey completion
-export function startGame() {
+// Start the task after survey completion
+export function startTask() {
     // Validate that all survey questions are answered
     const sleepAnswer = document.querySelector('input[name="sleep"]:checked');
     const preparedAnswer = document.querySelector('input[name="prepared"]:checked');
@@ -219,14 +262,24 @@ export function startGame() {
     startNewRound();
 }
 
+// Legacy function name for backward compatibility
+export function startGame() {
+    startTask();
+}
+
 // Start a new blackjack round
 export function startNewRound() {
     try {
         // Reset hand state for fresh progressive flavor text
         resetHandState();
         
-        // Create and shuffle new deck
-        const deck = createDeck();
+        // Create deck based on mode (custom for campaign, standard for single task)
+        let deck;
+        if (isCampaignMode()) {
+            deck = createCustomDeck(campaignState.deckComposition);
+        } else {
+            deck = createDeck();
+        }
         shuffleDeck(deck);
         
         updateGameState({
@@ -511,16 +564,29 @@ export function endRound(result) {
     }
 }
 
-// Move to next DMV step
+// Move to next step
 export function nextStep() {
+    // Get current task steps (campaign mode uses task-specific steps)
+    let currentSteps;
+    if (isCampaignMode()) {
+        const currentTask = getCurrentTask();
+        currentSteps = currentTask ? currentTask.steps : steps;
+    } else {
+        currentSteps = steps;
+    }
+    
     // Always advance to next step
     updateGameState({ 
         currentStep: gameState.currentStep + 1,
         initialFlavorTextShown: false // Reset for new step
     });
     
-    if (gameState.currentStep >= steps.length) {
-        // Game completed successfully!
+    if (gameState.currentStep >= currentSteps.length) {
+        // Task completed successfully!
+        if (isCampaignMode()) {
+            // Complete campaign task
+            completeCurrentTask(gameState.zenPoints);
+        }
         setTimeout(() => showGameSuccess(), 1000);
         return;
     }
@@ -541,19 +607,27 @@ export function restartGame() {
     // Hide game over/success screens
     hideElement('gameOverScreen');
     hideElement('gameSuccessScreen');
+    hideElement('upgradeShop');
     
-    // Show survey again
-    showElement('surveySection');
-    hideElement('taskInfo');
-    hideElement('zenActivities');
-    hideElement('gameArea');
+    if (isCampaignMode()) {
+        // Return to campaign overview
+        returnToCampaign();
+    } else {
+        // Return to mode selection
+        showElement('gameModeSelection');
+        hideElement('surveySection');
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        hideElement('campaignOverview');
+    }
     
     // Reset survey
     const surveyInputs = document.querySelectorAll('input[type="radio"]');
     surveyInputs.forEach(input => input.checked = false);
     
-    const startGameBtn = document.getElementById('startGameBtn');
-    if (startGameBtn) startGameBtn.disabled = true;
+    const startTaskBtn = document.getElementById('startTaskBtn');
+    if (startTaskBtn) startTaskBtn.disabled = true;
     
     // Update display
     updateDisplay();
@@ -575,14 +649,52 @@ export function enableGameControls() {
     }
 }
 
+// Shop functions
+export function openShopWithZen() {
+    openShop(gameState.zenPoints);
+}
+
+export function purchaseAce() {
+    const result = purchaseAceUpgrade(gameState.zenPoints);
+    if (result.success) {
+        updateGameState({ zenPoints: result.zenPointsRemaining });
+        updateShopUI(result.zenPointsRemaining);
+    }
+    showPurchaseFeedback(result);
+}
+
+export function continueCampaign() {
+    closeShop();
+    returnToCampaign();
+}
+
+export function skipShop() {
+    closeShop();
+    returnToCampaign();
+}
+
 // Make functions available globally for onclick handlers
-window.startGame = startGame;
+window.startSingleTaskMode = startSingleTaskMode;
+window.startCampaignMode = startCampaignMode;
+window.startTask = startTask;
+window.startGame = startGame; // Legacy compatibility
 window.hit = hit;
 window.stand = stand;
 window.nextStep = nextStep;
 window.restartGame = restartGame;
 window.showHelp = showHelp;
 window.enableGameControls = enableGameControls;
+window.startCampaignTask = startCampaignTask;
+window.resetCampaign = resetCampaign;
+window.openShop = openShopWithZen;
+window.purchaseAceUpgrade = purchaseAce;
+window.continueCampaign = continueCampaign;
+window.skipShop = skipShop;
+window.returnToCampaign = returnToCampaign;
+
+// Make campaign functions available for game-state.js
+window.isCampaignMode = isCampaignMode;
+window.getCurrentTask = getCurrentTask;
 
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {

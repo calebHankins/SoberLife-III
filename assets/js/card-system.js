@@ -20,6 +20,109 @@ export function createDeck() {
     return deck;
 }
 
+// Create a custom deck with specified Ace count
+export function createCustomDeck(deckComposition) {
+    try {
+        const { aces, totalCards } = deckComposition;
+        
+        // Validate input
+        if (aces < 4 || aces > totalCards || totalCards < 52) {
+            console.warn('Invalid deck composition, using standard deck');
+            return createDeck();
+        }
+        
+        const deck = [];
+        const extraAces = aces - 4; // Additional aces beyond standard 4
+        
+        // Create standard deck first
+        for (let suit of suits) {
+            for (let value of values) {
+                deck.push({
+                    suit: suit,
+                    value: value,
+                    display: value + suit
+                });
+            }
+        }
+        
+        // Add extra aces by replacing random non-ace cards
+        if (extraAces > 0) {
+            const nonAceCards = deck.filter(card => card.value !== 'A');
+            
+            for (let i = 0; i < extraAces && nonAceCards.length > 0; i++) {
+                // Find a random non-ace card to replace
+                const randomIndex = Math.floor(Math.random() * nonAceCards.length);
+                const cardToReplace = nonAceCards[randomIndex];
+                
+                // Find this card in the main deck and replace it
+                const deckIndex = deck.findIndex(card => 
+                    card.suit === cardToReplace.suit && card.value === cardToReplace.value
+                );
+                
+                if (deckIndex !== -1) {
+                    // Replace with an ace (cycle through suits)
+                    const suitIndex = i % suits.length;
+                    deck[deckIndex] = {
+                        suit: suits[suitIndex],
+                        value: 'A',
+                        display: 'A' + suits[suitIndex],
+                        upgraded: true // Mark as upgraded ace
+                    };
+                }
+                
+                // Remove from non-ace list
+                nonAceCards.splice(randomIndex, 1);
+            }
+        }
+        
+        return deck;
+        
+    } catch (error) {
+        console.error('Error creating custom deck:', error);
+        return createDeck();
+    }
+}
+
+// Get deck composition statistics
+export function getDeckComposition(deck) {
+    const composition = {
+        total: deck.length,
+        aces: 0,
+        faces: 0,
+        numbers: 0,
+        upgradedAces: 0
+    };
+    
+    deck.forEach(card => {
+        if (card.value === 'A') {
+            composition.aces++;
+            if (card.upgraded) {
+                composition.upgradedAces++;
+            }
+        } else if (['J', 'Q', 'K'].includes(card.value)) {
+            composition.faces++;
+        } else {
+            composition.numbers++;
+        }
+    });
+    
+    return composition;
+}
+
+// Validate deck composition for campaign mode
+export function validateDeckComposition(deckComposition) {
+    const { aces, totalCards } = deckComposition;
+    
+    return (
+        typeof aces === 'number' &&
+        typeof totalCards === 'number' &&
+        aces >= 4 &&
+        aces <= totalCards &&
+        totalCards >= 52 &&
+        totalCards <= 104 // Reasonable upper limit
+    );
+}
+
 // Shuffle deck using Fisher-Yates algorithm
 export function shuffleDeck(deck) {
     for (let i = deck.length - 1; i > 0; i--) {
