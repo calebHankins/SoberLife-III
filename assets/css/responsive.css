@@ -29,6 +29,50 @@
     .card.joker.perfect-score {
         box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.3);
     }
+    
+    /* Campaign Overview Mobile Fixes */
+    .campaign-overview {
+        /* Ensure campaign overview doesn't get cut off */
+        max-height: none;
+        overflow: visible;
+    }
+    
+    /* Modal Mobile Fixes */
+    .upgrade-shop,
+    .deck-viewer-modal {
+        /* Ensure modals are properly sized on mobile */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 5px;
+        box-sizing: border-box;
+        /* Prevent scrolling issues on mobile */
+        overflow: hidden;
+    }
+    
+    /* Deck Viewer Mobile Specific Fixes */
+    .deck-viewer-modal {
+        /* Ensure proper viewport handling on mobile */
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    }
+    
+    /* Game Mode Selection Mobile */
+    .game-mode-selection {
+        margin: 10px 0;
+        padding: 20px;
+        border-radius: 15px;
+    }
+    
+    .game-mode-selection h3 {
+        font-size: 22px;
+    }
+    
+    .game-mode-selection p {
+        font-size: 16px;
+    }
     body {
         align-items: flex-start;
         padding: 2px;
@@ -53,8 +97,9 @@
         flex-direction: column;
         justify-content: flex-start;
         min-height: -webkit-fill-available;
-        /* Optimize for no-scroll experience */
-        overflow-y: hidden;
+        /* Allow scrolling for campaign content */
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Game Header Mobile Styles */
