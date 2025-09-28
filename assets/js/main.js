@@ -1,7 +1,7 @@
 // SoberLife III - Main Game Controller
 // Game initialization and coordination
 
-import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState } from './game-state.js';
+import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState } from './game-state.js';
 import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
 import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showDeckViewer, hideDeckViewer, showJokerCalculationFeedback, showJokerPerfectScoreFeedback } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel } from './stress-system.js';
@@ -276,27 +276,44 @@ export function startNewRound() {
         resetHandState();
         
         // Create deck based on mode (custom for campaign, standard for single task)
-        let deck;
+        let playerDeck, houseDeck;
         if (isCampaignMode()) {
-            deck = createCustomDeck(campaignState.deckComposition);
+            playerDeck = createCustomDeck(campaignState.deckComposition);
+            houseDeck = createDeck();
+            console.log('[DEBUG] Custom player deck generated:', playerDeck);
+            console.log('[DEBUG] Standard house deck generated:', houseDeck);
         } else {
-            deck = createDeck();
+            playerDeck = createDeck();
+            houseDeck = createDeck();
+            console.log('[DEBUG] Standard player deck generated:', playerDeck);
+            console.log('[DEBUG] Standard house deck generated:', houseDeck);
         }
-        shuffleDeck(deck);
-        
+        shuffleDeck(playerDeck);
+        shuffleDeck(houseDeck);
+        console.log('[DEBUG] Shuffled player deck:', playerDeck);
+        console.log('[DEBUG] Shuffled house deck:', houseDeck);
+
         updateGameState({
-            deck: deck,
+            deck: playerDeck,
             playerCards: [],
             houseCards: [],
             gameInProgress: true
         });
 
         // Deal initial cards
-        gameState.playerCards.push(gameState.deck.pop());
-        gameState.houseCards.push(gameState.deck.pop());
-        gameState.playerCards.push(gameState.deck.pop());
-        gameState.houseCards.push(gameState.deck.pop());
-        
+        const playerCard1 = playerDeck.pop();
+        const houseCard1 = houseDeck.pop();
+        const playerCard2 = playerDeck.pop();
+        const houseCard2 = houseDeck.pop();
+        gameState.playerCards.push(playerCard1);
+        gameState.houseCards.push(houseCard1);
+        gameState.playerCards.push(playerCard2);
+        gameState.houseCards.push(houseCard2);
+        console.log('[DEBUG] Initial cards dealt:', {
+            playerCards: [playerCard1, playerCard2],
+            houseCards: [houseCard1, houseCard2]
+        });
+
         // Reset Joker values for new hand
         resetJokerValues(gameState.playerCards);
         resetJokerValues(gameState.houseCards);
@@ -307,13 +324,13 @@ export function startNewRound() {
         updateDisplay();
         updateZenActivities();
         updateContextualButtons();
-        
+
         // Emphasize task info for new rounds
         emphasizeTaskInfo();
 
         // Check if initial flavor text should be shown
         const shouldShowFlavorText = !gameState.initialFlavorTextShown;
-        
+
         // Enable/disable game buttons based on flavor text state
         const hitBtn = document.getElementById('hitBtn');
         const standBtn = document.getElementById('standBtn');
@@ -390,11 +407,8 @@ export function hit() {
             const playerScore = calculateScore(gameState.playerCards);
             const jokerValue = newCard.getCurrentValue();
             const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
-            
             setTimeout(() => {
                 showJokerCalculationFeedback(newCard, jokerValue, isOptimal);
-                
-                // Show special celebration for perfect 21
                 if (playerScore === 21) {
                     setTimeout(() => {
                         showJokerPerfectScoreFeedback();
@@ -417,7 +431,6 @@ export function hit() {
         if (gameState.deck.length > 0) {
             gameState.playerCards.push(gameState.deck.pop());
             updateCards();
-            
             const playerScore = calculateScore(gameState.playerCards);
             if (playerScore > 21) {
                 endRound('bust');
@@ -437,10 +450,20 @@ export function stand() {
         // Show contextual flavor text
         showFlavorText('stand');
 
-    // House plays according to standard rules
-    while (calculateScore(gameState.houseCards) < 17 && gameState.deck.length > 0) {
-        gameState.houseCards.push(gameState.deck.pop());
-    }
+        // House plays according to standard rules using its own deck
+        if (!gameState.houseDeck) {
+            // If houseDeck is not set, create and shuffle a new one
+            gameState.houseDeck = [];
+            if (isCampaignMode()) {
+                gameState.houseDeck = createDeck();
+            } else {
+                gameState.houseDeck = createDeck();
+            }
+            shuffleDeck(gameState.houseDeck);
+        }
+        while (calculateScore(gameState.houseCards) < 17 && gameState.houseDeck.length > 0) {
+            gameState.houseCards.push(gameState.houseDeck.pop());
+        }
 
         const playerScore = calculateScore(gameState.playerCards);
         const houseScore = calculateScore(gameState.houseCards);
@@ -458,13 +481,15 @@ export function stand() {
     } catch (error) {
         console.error('Error in stand action:', error);
         // Fallback behavior - still play house hand
-        while (calculateScore(gameState.houseCards) < 17 && gameState.deck.length > 0) {
-            gameState.houseCards.push(gameState.deck.pop());
+        if (!gameState.houseDeck) {
+            gameState.houseDeck = createDeck();
+            shuffleDeck(gameState.houseDeck);
         }
-        
+        while (calculateScore(gameState.houseCards) < 17 && gameState.houseDeck.length > 0) {
+            gameState.houseCards.push(gameState.houseDeck.pop());
+        }
         const playerScore = calculateScore(gameState.playerCards);
         const houseScore = calculateScore(gameState.houseCards);
-
         if (houseScore > 21) {
             endRound('house_bust');
         } else if (playerScore > houseScore) {

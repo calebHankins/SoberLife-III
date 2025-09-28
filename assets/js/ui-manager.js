@@ -118,40 +118,73 @@ export function updateCards() {
 function createCardElement(card) {
     const cardEl = document.createElement('div');
     cardEl.className = 'card';
-    
+
     if (card.isJoker) {
-        // Handle Joker cards
+        // Joker visual indicator
         cardEl.classList.add('joker');
         cardEl.textContent = card.display;
-        
+
+        // Add glowing border and label
+        cardEl.style.boxShadow = '0 0 16px 6px #FFD700, 0 0 32px 12px #8e44ad';
+        cardEl.style.border = '3px solid gold';
+        cardEl.style.background = 'linear-gradient(135deg, #fffbe6, #e0c3fc)';
+        cardEl.style.position = 'relative';
+
+        // Add "Wild Joker!" label
+        const jokerLabel = document.createElement('div');
+        jokerLabel.textContent = 'Wild Joker!';
+        jokerLabel.style.position = 'absolute';
+        jokerLabel.style.top = '-18px';
+        jokerLabel.style.left = '50%';
+        jokerLabel.style.transform = 'translateX(-50%)';
+        jokerLabel.style.background = 'linear-gradient(90deg, #FFD700, #8e44ad)';
+        jokerLabel.style.color = 'white';
+        jokerLabel.style.fontWeight = 'bold';
+        jokerLabel.style.fontSize = '12px';
+        jokerLabel.style.padding = '2px 8px';
+        jokerLabel.style.borderRadius = '8px';
+        jokerLabel.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        jokerLabel.style.zIndex = '2';
+        cardEl.appendChild(jokerLabel);
+
         // Add value indicator if Joker has calculated a value
         if (card.calculatedValue !== null) {
             const valueIndicator = document.createElement('div');
             valueIndicator.className = 'joker-value-indicator';
             valueIndicator.textContent = card.calculatedValue;
+            valueIndicator.style.position = 'absolute';
+            valueIndicator.style.bottom = '-18px';
+            valueIndicator.style.left = '50%';
+            valueIndicator.style.transform = 'translateX(-50%)';
+            valueIndicator.style.background = '#8e44ad';
+            valueIndicator.style.color = 'white';
+            valueIndicator.style.fontWeight = 'bold';
+            valueIndicator.style.fontSize = '12px';
+            valueIndicator.style.padding = '2px 8px';
+            valueIndicator.style.borderRadius = '8px';
+            valueIndicator.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+            valueIndicator.style.zIndex = '2';
             cardEl.appendChild(valueIndicator);
-            
+
             // Add special effects based on value
             if (card.calculatedValue === 11) {
                 cardEl.classList.add('calculating');
             }
-            
+
             // Check if this Joker helped achieve 21
             const currentScore = calculateScore(gameState.playerCards);
             if (currentScore === 21) {
                 cardEl.classList.add('perfect-score');
-                // Add celebration particles
                 setTimeout(() => createJokerCelebrationParticles(cardEl), 100);
             }
         }
     } else {
-        // Handle regular cards
+        // Regular card rendering
         cardEl.textContent = card.display;
         if (card.suit === '♥' || card.suit === '♦') {
             cardEl.classList.add('red');
         }
     }
-    
     return cardEl;
 }
 
