@@ -55,8 +55,7 @@ The game is now organized into separate files for better maintainability:
 - **responsive.css**: Mobile and tablet optimizations with media queries for all interfaces
 
 ### JavaScript Modules
-- **game-state.js**: Central state management with `gameState`, `campaignState`, and persistence
-- **card-system.js**: Blackjack logic with custom deck creation and composition tracking
+ **task-definitions.js**: Modular task configurations (all tasks must define bustMessages and hand loss messages for loss outcomes)
 - **ui-manager.js**: DOM manipulation and visual updates for all game elements (task-aware)
 - **stress-system.js**: Zen activities and stress management functionality
 - **campaign-manager.js**: Campaign progression, navigation, and state coordination

@@ -45,7 +45,14 @@ The game uses familiar blackjack rules as a metaphor for handling life's challen
 - **Mini Meditation**: 50 zen points → -35% stress
 - **Strategic Timing**: Can be used between rounds for stress management
 
-### Task Structure
+
+### Task Messaging Requirements
+
+- **Every task must define its own bustMessages and hand loss messages.**
+  - These are used for loss outcomes (bust, hand loss, etc.) and must be thematically appropriate for the scenario.
+  - This ensures players receive contextually relevant feedback and stress management advice for each scenario.
+
+#### Multi-Step Scenarios
 
 #### Multi-Step Scenarios
 

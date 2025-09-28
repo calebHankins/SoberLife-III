@@ -576,74 +576,49 @@ export function getProgressiveFlavorText(action, step, hitCount) {
 // DMV outcome message system
 export function getDMVOutcomeMessage(outcome) {
     try {
-        // If in campaign mode, use the current task's successMessages if available
-        if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
-            const currentTask = window.getCurrentTask && window.getCurrentTask();
-            if (currentTask) {
-                // For bust, use bustMessages if available
-                if (outcome === 'bust' && currentTask.bustMessages && Array.isArray(currentTask.bustMessages) && currentTask.bustMessages.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * currentTask.bustMessages.length);
-                    return currentTask.bustMessages[randomIndex].main;
-                }
-                // For win, use successMessages if available
-                if (outcome === 'win' && currentTask.successMessages && Array.isArray(currentTask.successMessages) && currentTask.successMessages.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * currentTask.successMessages.length);
-                    return currentTask.successMessages[randomIndex].main;
-                }
+        // Always use the active task's specific messages if available
+        let currentTask = null;
+        if (typeof window !== 'undefined' && window.getCurrentTask) {
+            currentTask = window.getCurrentTask();
+        }
+        if (currentTask) {
+            // For bust
+            if (outcome === 'bust' && currentTask.bustMessages && Array.isArray(currentTask.bustMessages) && currentTask.bustMessages.length > 0) {
+                const randomIndex = Math.floor(Math.random() * currentTask.bustMessages.length);
+                return currentTask.bustMessages[randomIndex].main;
+            }
+            // For win
+            if (outcome === 'win' && currentTask.successMessages && Array.isArray(currentTask.successMessages) && currentTask.successMessages.length > 0) {
+                const randomIndex = Math.floor(Math.random() * currentTask.successMessages.length);
+                return currentTask.successMessages[randomIndex].main;
+            }
+            // For lose
+            if (outcome === 'lose' && currentTask.loseMessages && Array.isArray(currentTask.loseMessages) && currentTask.loseMessages.length > 0) {
+                const randomIndex = Math.floor(Math.random() * currentTask.loseMessages.length);
+                return currentTask.loseMessages[randomIndex].main;
+            }
+            // For tie
+            if (outcome === 'tie' && currentTask.tieMessages && Array.isArray(currentTask.tieMessages) && currentTask.tieMessages.length > 0) {
+                const randomIndex = Math.floor(Math.random() * currentTask.tieMessages.length);
+                return currentTask.tieMessages[randomIndex].main;
+            }
+            // For house_bust
+            if (outcome === 'house_bust' && currentTask.houseBustMessages && Array.isArray(currentTask.houseBustMessages) && currentTask.houseBustMessages.length > 0) {
+                const randomIndex = Math.floor(Math.random() * currentTask.houseBustMessages.length);
+                return currentTask.houseBustMessages[randomIndex].main;
             }
         }
-        // Fallback to DMV outcome messages
-        if (!dmvOutcomeMessages[outcome] || !Array.isArray(dmvOutcomeMessages[outcome])) {
-            console.warn(`No DMV outcome messages found for: ${outcome}`);
-            return getFallbackDMVOutcomeMessage(outcome);
-        }
+        // Fallback to DMV outcome messages only if no task-specific messages exist
         const messages = dmvOutcomeMessages[outcome];
-        if (messages.length === 0) {
-            return getFallbackDMVOutcomeMessage(outcome);
+        if (messages && messages.length > 0) {
+            const randomIndex = Math.floor(Math.random() * messages.length);
+            return messages[randomIndex];
         }
-        // Return random message for variety
-        const randomIndex = Math.floor(Math.random() * messages.length);
-        return messages[randomIndex];
-    } catch (error) {
-        console.error('Error getting DMV outcome message:', error);
+        return getFallbackDMVOutcomeMessage(outcome);
+    } catch (err) {
         return getFallbackDMVOutcomeMessage(outcome);
     }
 }
-
-// Fallback functions for progressive flavor text and DMV outcomes
-function getFallbackProgressiveFlavorText(action, hitCount) {
-    const fallbackMessages = {
-        hit: [
-            "You decide to take another approach",
-            "You try a different strategy this time",
-            "You persist with your current approach",
-            "You continue working through the process",
-            "You stay focused on your goal"
-        ],
-        stand: [
-            "You choose to proceed as planned",
-            "You stick with your current approach",
-            "You maintain your steady course"
-        ]
-    };
-    
-    const messages = fallbackMessages[action] || fallbackMessages.hit;
-    const index = Math.min(hitCount, messages.length - 1);
-    return messages[index];
-}
-
-function getFallbackDMVOutcomeMessage(outcome) {
-    const fallbackMessages = {
-        win: "✅ You handled that step well! Your approach was effective.",
-        lose: "📋 That step was challenging. Take a moment to regroup and try again.",
-        tie: "⚖️ You're making steady progress. Keep up the good work!",
-        bust: "😰 The stress built up quickly. Remember to use your zen techniques!",
-        house_bust: "🎉 Things worked out in your favor this time!"
-    };
-    
-    return fallbackMessages[outcome] || "You're learning valuable lessons about managing stress in challenging situations.";
-}
-
 // Educational stress management insights for outcomes
 export const stressManagementInsights = {
     win: [
