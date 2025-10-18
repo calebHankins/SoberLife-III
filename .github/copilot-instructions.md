@@ -14,3 +14,7 @@ Files referenced below have paths relative to the project root (not this file).
 - Treat `.kiro/steering` as the source of truth for technical and process decisions.
 - Treat `model_spec.md` as the source of truth for game design, mechanics, and user experience.
 - Document any deviations from these sources in code comments or PR descriptions.
+
+## Documentation
+
+When your turn ends, summarize what you did in a concise manner. Print this summary in a code block wrapped in triple backticks so that it is formatted correctly and can be used as a commit message.
