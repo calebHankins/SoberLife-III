@@ -24,7 +24,7 @@ export const shopConfig = {
 export const premiumActivities = {
     mindfulBreathing: {
         name: 'Mindful Breathing',
-        cost: 150,
+        cost: 1000,
         description: 'Unlock advanced breathing techniques for 50% stress reduction',
         emoji: '🌸',
         category: 'stress-relief',
@@ -32,7 +32,7 @@ export const premiumActivities = {
     },
     compartmentalize: {
         name: 'Compartmentalize',
-        cost: 200,
+        cost: 2000,
         description: 'Learn to split overwhelming situations into manageable parts',
         emoji: '🧠',
         category: 'reactive',
@@ -358,6 +358,12 @@ function updatePremiumActivityUI(activityId, zenPoints) {
 
     const isUnlocked = campaignState.unlockedActivities && campaignState.unlockedActivities[activityId];
     const canPurchase = canPurchasePremiumActivity(activityId, zenPoints);
+
+    // Update cost display dynamically from JavaScript configuration
+    const costElement = document.getElementById(`${activityId}Cost`);
+    if (costElement) {
+        costElement.textContent = activity.cost;
+    }
 
     // Update status display
     const statusElement = document.getElementById(`${activityId}Status`);
