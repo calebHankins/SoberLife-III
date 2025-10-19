@@ -574,19 +574,43 @@
 .upgrade-card.premium-activity {
     border-color: #9B59B6;
     background: linear-gradient(135deg, #F8F9FA 0%, #E8E2F0 100%);
+    color: #2C3E50;
+    /* Ensure dark text on light background */
 }
 
 .upgrade-card.premium-activity .upgrade-icon {
     background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
 }
 
+.upgrade-card.premium-activity h3 {
+    color: #2C3E50;
+    /* Dark text for headings */
+}
+
+.upgrade-card.premium-activity p {
+    color: #34495E;
+    /* Slightly lighter dark text for descriptions */
+}
+
 .upgrade-card.unlocked {
     border-color: #28A745;
     background: linear-gradient(135deg, #F8F9FA 0%, #E8F5E8 100%);
+    color: #2C3E50;
+    /* Ensure dark text on light background */
 }
 
 .upgrade-card.unlocked .upgrade-icon {
     background: linear-gradient(135deg, #28A745 0%, #20A83A 100%);
+}
+
+.upgrade-card.unlocked h3 {
+    color: #2C3E50;
+    /* Dark text for headings */
+}
+
+.upgrade-card.unlocked p {
+    color: #34495E;
+    /* Slightly lighter dark text for descriptions */
 }
 
 .status-unlocked {
