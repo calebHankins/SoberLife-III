@@ -3,7 +3,7 @@
 
 import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity } from './game-state.js';
 import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showDeckViewer, hideDeckViewer, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI } from './ui-manager.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showDeckViewer, hideDeckViewer, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel, switchSplitHand, showZenActivityFeedback, useZenActivity, zenActivities, completeSplitHand, getActiveSplitHand } from './stress-system.js';
 import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
 import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback, purchasePremiumActivityWrapper } from './shop-system.js';
@@ -998,9 +998,12 @@ function finalizeSplitHandGame(result) {
     // Hide split hands UI
     hideSplitHandsUI();
 
-    // End round with overall outcome
+    // The split hands data is already stored in gameState by finalizeSplitHandResults
+    // Just use regular endRound - the updateCards function will handle the display
     endRound(result.overallOutcome);
 }
+
+
 
 export function switchSplitHandWrapper() {
     if (switchSplitHand()) {

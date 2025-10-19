@@ -301,7 +301,8 @@ function finalizeSplitHandResults() {
 
     // Determine overall outcome based on both hands
     let overallOutcome;
-    if (hand1Result === 'win' || hand2Result === 'win') {
+    if (hand1Result === 'win' || hand2Result === 'win' ||
+        hand1Result === 'house_bust' || hand2Result === 'house_bust') {
         overallOutcome = 'win'; // At least one hand won
     } else if (hand1Result === 'tie' && hand2Result === 'tie') {
         overallOutcome = 'tie'; // Both hands tied
@@ -312,20 +313,31 @@ function finalizeSplitHandResults() {
         overallOutcome = 'lose'; // Both hands lost or busted
     }
 
+    // Store split hands data for final display BEFORE clearing state
+    const splitHandsData = {
+        hand1Cards: splitHands.hand1.cards,
+        hand2Cards: splitHands.hand2.cards,
+        hand1Score: calculateScore(splitHands.hand1.cards),
+        hand2Score: calculateScore(splitHands.hand2.cards)
+    };
+
+    // Set flag for compartmentalized display
+    updateGameState({
+        showCompartmentalizedResult: true,
+        compartmentalizedHands: splitHandsData,
+        playerCards: [...splitHands.hand1.cards, ...splitHands.hand2.cards] // Restore original cards for display
+    });
+
     // Reset compartmentalize state
     activityState.compartmentalizeInProgress = false;
     activityState.splitHands = null;
-
-    // Update game state with combined result
-    updateGameState({
-        playerCards: [...splitHands.hand1.cards, ...splitHands.hand2.cards] // Restore original cards for display
-    });
 
     return {
         completed: true,
         overallOutcome: overallOutcome,
         hand1Result: hand1Result,
         hand2Result: hand2Result,
+        splitHandsData: splitHandsData,
         message: `Compartmentalization complete! Hand 1: ${hand1Result}, Hand 2: ${hand2Result} → Overall: ${overallOutcome}`
     };
 }

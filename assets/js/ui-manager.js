@@ -83,11 +83,16 @@ export function updateCards() {
     if (playerCardsEl) {
         playerCardsEl.innerHTML = '';
 
-        // Player cards
-        gameState.playerCards.forEach(card => {
-            const cardEl = createCardElement(card);
-            playerCardsEl.appendChild(cardEl);
-        });
+        // Check if we should show compartmentalized display
+        if (gameState.showCompartmentalizedResult && gameState.compartmentalizedHands) {
+            showCompartmentalizedFinalDisplay(gameState.compartmentalizedHands);
+        } else {
+            // Regular player cards display
+            gameState.playerCards.forEach(card => {
+                const cardEl = createCardElement(card);
+                playerCardsEl.appendChild(cardEl);
+            });
+        }
     }
 
     if (houseCardsEl) {
@@ -743,6 +748,214 @@ function updateSplitHouseCards() {
     } else {
         const houseScore = calculateScore(gameState.houseCards);
         scoreElement.textContent = `Score: ${houseScore}`;
+    }
+}
+
+// Show compartmentalized hands in the final display
+function showCompartmentalizedFinalDisplay(splitHandsData) {
+    const playerCardsEl = document.getElementById('playerCards');
+    const playerScoreEl = document.getElementById('playerScore');
+
+    if (!playerCardsEl || !splitHandsData) return;
+
+    // Create a container for separated hands
+    const handsContainer = document.createElement('div');
+    handsContainer.className = 'compartmentalized-final-display';
+    handsContainer.style.cssText = `
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+        margin: 10px 0;
+    `;
+
+    // Create Hand 1 display
+    const hand1Container = document.createElement('div');
+    hand1Container.style.cssText = `
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #81C784;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        min-width: 120px;
+    `;
+
+    const hand1Title = document.createElement('h4');
+    hand1Title.textContent = 'Hand 1';
+    hand1Title.style.cssText = 'margin: 0 0 8px 0; color: #2E7D32; font-size: 14px;';
+    hand1Container.appendChild(hand1Title);
+
+    const hand1Cards = document.createElement('div');
+    hand1Cards.style.cssText = 'display: flex; gap: 4px; justify-content: center; margin: 8px 0;';
+    splitHandsData.hand1Cards.forEach(card => {
+        const cardEl = createCardElement(card);
+        cardEl.style.width = '35px';
+        cardEl.style.height = '50px';
+        cardEl.style.fontSize = '11px';
+        hand1Cards.appendChild(cardEl);
+    });
+    hand1Container.appendChild(hand1Cards);
+
+    const hand1Score = document.createElement('div');
+    hand1Score.textContent = `Score: ${splitHandsData.hand1Score}`;
+    hand1Score.style.cssText = 'font-weight: bold; color: #2E7D32; font-size: 12px;';
+    hand1Container.appendChild(hand1Score);
+
+    // Create Hand 2 display
+    const hand2Container = document.createElement('div');
+    hand2Container.style.cssText = `
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #81C784;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        min-width: 120px;
+    `;
+
+    const hand2Title = document.createElement('h4');
+    hand2Title.textContent = 'Hand 2';
+    hand2Title.style.cssText = 'margin: 0 0 8px 0; color: #2E7D32; font-size: 14px;';
+    hand2Container.appendChild(hand2Title);
+
+    const hand2Cards = document.createElement('div');
+    hand2Cards.style.cssText = 'display: flex; gap: 4px; justify-content: center; margin: 8px 0;';
+    splitHandsData.hand2Cards.forEach(card => {
+        const cardEl = createCardElement(card);
+        cardEl.style.width = '35px';
+        cardEl.style.height = '50px';
+        cardEl.style.fontSize = '11px';
+        hand2Cards.appendChild(cardEl);
+    });
+    hand2Container.appendChild(hand2Cards);
+
+    const hand2Score = document.createElement('div');
+    hand2Score.textContent = `Score: ${splitHandsData.hand2Score}`;
+    hand2Score.style.cssText = 'font-weight: bold; color: #2E7D32; font-size: 12px;';
+    hand2Container.appendChild(hand2Score);
+
+    // Add both hands to the container
+    handsContainer.appendChild(hand1Container);
+    handsContainer.appendChild(hand2Container);
+
+    // Replace player cards with the separated hands display
+    playerCardsEl.appendChild(handsContainer);
+
+    // Update player score to show compartmentalized info
+    if (playerScoreEl) {
+        playerScoreEl.textContent = 'Compartmentalized Hands';
+        playerScoreEl.style.textAlign = 'center';
+    }
+}
+
+// Update card display after compartmentalization to show hands separately
+export function updateCompartmentalizedCardDisplay(splitHandsData) {
+    const playerCardsEl = document.getElementById('playerCards');
+    const houseCardsEl = document.getElementById('houseCards');
+    const playerScoreEl = document.getElementById('playerScore');
+
+    if (!playerCardsEl || !houseCardsEl || !playerScoreEl) return;
+
+    // Clear existing cards
+    playerCardsEl.innerHTML = '';
+    houseCardsEl.innerHTML = '';
+
+    // Create a container for separated hands
+    const handsContainer = document.createElement('div');
+    handsContainer.className = 'compartmentalized-final-display';
+    handsContainer.style.cssText = `
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+        margin: 10px 0;
+    `;
+
+    // Create Hand 1 display
+    const hand1Container = document.createElement('div');
+    hand1Container.style.cssText = `
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #81C784;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        min-width: 120px;
+    `;
+
+    const hand1Title = document.createElement('h4');
+    hand1Title.textContent = 'Hand 1';
+    hand1Title.style.cssText = 'margin: 0 0 8px 0; color: #2E7D32; font-size: 14px;';
+    hand1Container.appendChild(hand1Title);
+
+    const hand1Cards = document.createElement('div');
+    hand1Cards.style.cssText = 'display: flex; gap: 4px; justify-content: center; margin: 8px 0;';
+    splitHandsData.hand1Cards.forEach(card => {
+        const cardEl = createCardElement(card);
+        cardEl.style.width = '35px';
+        cardEl.style.height = '50px';
+        cardEl.style.fontSize = '11px';
+        hand1Cards.appendChild(cardEl);
+    });
+    hand1Container.appendChild(hand1Cards);
+
+    const hand1Score = document.createElement('div');
+    hand1Score.textContent = `Score: ${splitHandsData.hand1Score}`;
+    hand1Score.style.cssText = 'font-weight: bold; color: #2E7D32; font-size: 12px;';
+    hand1Container.appendChild(hand1Score);
+
+    // Create Hand 2 display
+    const hand2Container = document.createElement('div');
+    hand2Container.style.cssText = `
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #81C784;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        min-width: 120px;
+    `;
+
+    const hand2Title = document.createElement('h4');
+    hand2Title.textContent = 'Hand 2';
+    hand2Title.style.cssText = 'margin: 0 0 8px 0; color: #2E7D32; font-size: 14px;';
+    hand2Container.appendChild(hand2Title);
+
+    const hand2Cards = document.createElement('div');
+    hand2Cards.style.cssText = 'display: flex; gap: 4px; justify-content: center; margin: 8px 0;';
+    splitHandsData.hand2Cards.forEach(card => {
+        const cardEl = createCardElement(card);
+        cardEl.style.width = '35px';
+        cardEl.style.height = '50px';
+        cardEl.style.fontSize = '11px';
+        hand2Cards.appendChild(cardEl);
+    });
+    hand2Container.appendChild(hand2Cards);
+
+    const hand2Score = document.createElement('div');
+    hand2Score.textContent = `Score: ${splitHandsData.hand2Score}`;
+    hand2Score.style.cssText = 'font-weight: bold; color: #2E7D32; font-size: 12px;';
+    hand2Container.appendChild(hand2Score);
+
+    // Add both hands to the container
+    handsContainer.appendChild(hand1Container);
+    handsContainer.appendChild(hand2Container);
+
+    // Replace player cards with the separated hands display
+    playerCardsEl.appendChild(handsContainer);
+
+    // Update player score to show compartmentalized info
+    playerScoreEl.textContent = 'Compartmentalized Hands';
+    playerScoreEl.style.textAlign = 'center';
+
+    // Update house cards normally
+    gameState.houseCards.forEach(card => {
+        const cardEl = createCardElement(card);
+        houseCardsEl.appendChild(cardEl);
+    });
+
+    // Update house score
+    const houseScoreEl = document.getElementById('houseScore');
+    if (houseScoreEl) {
+        const houseScore = calculateScore(gameState.houseCards);
+        houseScoreEl.textContent = `Score: ${houseScore}`;
     }
 }
 
