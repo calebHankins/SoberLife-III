@@ -15,7 +15,7 @@ export class JokerCard {
         this.calculatedValue = null; // Determined dynamically
         this.upgraded = true;       // Mark as upgraded card
     }
-    
+
     // Calculate optimal value to reach 21 or get as close as possible
     calculateOptimalValue(currentHandTotal, otherCards = []) {
         try {
@@ -25,10 +25,10 @@ export class JokerCard {
                 this.calculatedValue = 1;
                 return 1;
             }
-            
+
             const targetScore = 21;
             const neededValue = targetScore - currentHandTotal;
-            
+
             // Clamp between 1 and 11 (Ace range)
             if (neededValue >= 1 && neededValue <= 11) {
                 this.calculatedValue = neededValue;
@@ -46,12 +46,12 @@ export class JokerCard {
             return 1;
         }
     }
-    
+
     // Get the current calculated value (for display purposes)
     getCurrentValue() {
         return this.calculatedValue || 1;
     }
-    
+
     // Reset calculated value (for new hands)
     resetValue() {
         this.calculatedValue = null;
@@ -81,25 +81,25 @@ export function createCustomDeck(deckComposition) {
             console.warn('Invalid deck composition object, using standard deck');
             return createDeck();
         }
-        
+
         const { aces, jokers, totalCards } = deckComposition;
-        
+
         // Validate numeric values
         if (typeof aces !== 'number' || typeof jokers !== 'number' || typeof totalCards !== 'number') {
             console.warn('Invalid deck composition values, using standard deck');
             return createDeck();
         }
-        
+
         // Validate ranges
         if (aces < 4 || jokers < 0 || (aces + jokers) > totalCards || totalCards < 52) {
             console.warn(`Invalid deck composition ranges (aces: ${aces}, jokers: ${jokers}, total: ${totalCards}), using standard deck`);
             return createDeck();
         }
-        
+
         const deck = [];
         const extraAces = aces - 4; // Additional aces beyond standard 4
         const totalUpgrades = extraAces + jokers;
-        
+
         // Create standard deck first
         for (let suit of suits) {
             for (let value of values) {
@@ -110,21 +110,21 @@ export function createCustomDeck(deckComposition) {
                 });
             }
         }
-        
+
         // Add upgrades (extra aces and jokers) by replacing random non-ace cards
         if (totalUpgrades > 0) {
             const nonAceCards = deck.filter(card => card.value !== 'A');
-            
+
             for (let i = 0; i < totalUpgrades && nonAceCards.length > 0; i++) {
                 // Find a random non-ace card to replace
                 const randomIndex = Math.floor(Math.random() * nonAceCards.length);
                 const cardToReplace = nonAceCards[randomIndex];
-                
+
                 // Find this card in the main deck and replace it
-                const deckIndex = deck.findIndex(card => 
+                const deckIndex = deck.findIndex(card =>
                     card.suit === cardToReplace.suit && card.value === cardToReplace.value
                 );
-                
+
                 if (deckIndex !== -1) {
                     if (i < jokers) {
                         // Add Joker card
@@ -140,14 +140,14 @@ export function createCustomDeck(deckComposition) {
                         };
                     }
                 }
-                
+
                 // Remove from non-ace list
                 nonAceCards.splice(randomIndex, 1);
             }
         }
-        
+
         return deck;
-        
+
     } catch (error) {
         console.error('Error creating custom deck:', error);
         return createDeck();
@@ -164,7 +164,7 @@ export function getDeckComposition(deck) {
         numbers: 0,
         upgradedAces: 0
     };
-    
+
     deck.forEach(card => {
         if (card.isJoker) {
             composition.jokers++;
@@ -179,14 +179,14 @@ export function getDeckComposition(deck) {
             composition.numbers++;
         }
     });
-    
+
     return composition;
 }
 
 // Validate deck composition for campaign mode
 export function validateDeckComposition(deckComposition) {
     const { aces, jokers, totalCards } = deckComposition;
-    
+
     return (
         typeof aces === 'number' &&
         typeof jokers === 'number' &&
@@ -202,7 +202,7 @@ export function validateDeckComposition(deckComposition) {
 // Reset all Joker values in a hand (for new hands)
 export function resetJokerValues(cards) {
     if (!cards || !Array.isArray(cards)) return;
-    
+
     cards.forEach(card => {
         if (card.isJoker && typeof card.resetValue === 'function') {
             card.resetValue();
@@ -237,7 +237,7 @@ export function getCardValue(card) {
     if (card.isJoker) {
         return card.getCurrentValue();
     }
-    
+
     const value = card.value || card;
     if (value === 'A') return 11;
     if (['J', 'Q', 'K'].includes(value)) return 10;
@@ -247,16 +247,16 @@ export function getCardValue(card) {
 // Calculate blackjack score for a hand of cards with Joker support
 export function calculateScore(cards) {
     if (!cards || cards.length === 0) return 0;
-    
+
     try {
         // First, calculate Joker values intelligently
         const jokers = cards.filter(card => card.isJoker);
         const nonJokers = cards.filter(card => !card.isJoker);
-        
+
         // Calculate base score from non-Joker cards
         let baseScore = 0;
         let aces = 0;
-        
+
         for (let card of nonJokers) {
             const value = getCardValue(card);
             if (card.value === 'A') {
@@ -264,22 +264,51 @@ export function calculateScore(cards) {
             }
             baseScore += value;
         }
-        
+
         // Adjust aces in base score
         while (baseScore > 21 && aces > 0) {
             baseScore -= 10;
             aces--;
         }
-        
+
         // Now calculate optimal values for Jokers
         let currentScore = baseScore;
         for (let joker of jokers) {
             const optimalValue = joker.calculateOptimalValue(currentScore);
             currentScore += optimalValue;
         }
-        
+
+        // CRITICAL FIX: Iterative adjustment of Aces and Jokers
+        // After adding jokers, we may need to adjust Aces, which may require joker recalculation
+        let previousScore = -1;
+        let iterations = 0;
+        const maxIterations = 5; // Prevent infinite loops
+
+        while (currentScore !== previousScore && iterations < maxIterations) {
+            previousScore = currentScore;
+            iterations++;
+
+            // Adjust Aces if over 21
+            while (currentScore > 21 && aces > 0) {
+                currentScore -= 10;
+                aces--;
+            }
+
+            // If we adjusted Aces, recalculate jokers with the new base score
+            if (currentScore !== previousScore && jokers.length > 0) {
+                const newBaseScore = currentScore - jokers.reduce((sum, joker) => sum + joker.getCurrentValue(), 0);
+                currentScore = newBaseScore;
+
+                // Recalculate joker values with adjusted base
+                for (let joker of jokers) {
+                    const optimalValue = joker.calculateOptimalValue(currentScore);
+                    currentScore += optimalValue;
+                }
+            }
+        }
+
         return currentScore;
-        
+
     } catch (error) {
         console.error('Error calculating score with Jokers:', error);
         // Fallback to basic calculation
@@ -297,7 +326,7 @@ function calculateScoreBasic(cards) {
             score += 1; // Safe fallback for Jokers
             continue;
         }
-        
+
         const value = getCardValue(card);
         if (card.value === 'A') {
             aces++;
