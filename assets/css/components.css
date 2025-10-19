@@ -1219,8 +1219,8 @@ ive Flavor Text Animations */
     }
 }
 
-/* Deck Viewer Modal */
-.deck-viewer-modal {
+/* Mind Palace Modal */
+.mind-palace-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -1234,7 +1234,7 @@ ive Flavor Text Animations */
     box-sizing: border-box;
 }
 
-.deck-viewer-backdrop {
+.mind-palace-backdrop {
     position: absolute;
     top: 0;
     left: 0;
@@ -1244,7 +1244,7 @@ ive Flavor Text Animations */
     backdrop-filter: blur(4px);
 }
 
-.deck-viewer-content {
+.mind-palace-content {
     position: relative;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 20px;
@@ -1258,7 +1258,7 @@ ive Flavor Text Animations */
     color: white;
 }
 
-.deck-viewer-header {
+.mind-palace-header {
     background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
     color: white;
     padding: 20px;
@@ -1268,13 +1268,13 @@ ive Flavor Text Animations */
     border-bottom: 2px solid #4c51bf;
 }
 
-.deck-viewer-header h2 {
+.mind-palace-header h2 {
     margin: 0;
     font-size: 24px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.deck-viewer-close-btn {
+.mind-palace-close-btn {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -1292,13 +1292,13 @@ ive Flavor Text Animations */
     line-height: 1;
 }
 
-.deck-viewer-close-btn:hover {
+.mind-palace-close-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     border-color: rgba(255, 255, 255, 0.5);
     transform: scale(1.1);
 }
 
-.deck-viewer-body {
+.mind-palace-body {
     padding: 25px;
     overflow-y: auto;
     max-height: calc(90vh - 140px);
@@ -1424,22 +1424,22 @@ ive Flavor Text Animations */
     opacity: 0.9;
 }
 
-.deck-viewer-actions {
+.mind-palace-actions {
     padding: 20px;
     text-align: center;
     border-top: 2px solid rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* Responsive Design for Deck Viewer */
+/* Responsive Design for Mind Palace */
 @media (max-width: 767px) {
-    .deck-viewer-modal {
+    .mind-palace-modal {
         padding: 5px;
         align-items: flex-start;
         padding-top: 20px;
     }
 
-    .deck-viewer-content {
+    .mind-palace-content {
         max-width: 95%;
         margin: 0;
         max-height: 85vh;
@@ -1449,22 +1449,22 @@ ive Flavor Text Animations */
         overflow: hidden;
     }
 
-    .deck-viewer-header {
+    .mind-palace-header {
         padding: 12px 15px;
         flex-shrink: 0;
     }
 
-    .deck-viewer-header h2 {
+    .mind-palace-header h2 {
         font-size: 18px;
     }
 
-    .deck-viewer-close-btn {
+    .mind-palace-close-btn {
         width: 32px;
         height: 32px;
         font-size: 18px;
     }
 
-    .deck-viewer-body {
+    .mind-palace-body {
         padding: 10px 15px;
         flex: 1;
         overflow-y: auto;
@@ -1539,18 +1539,154 @@ ive Flavor Text Animations */
         margin: 4px 0;
     }
 
-    .deck-viewer-actions {
+    .mind-palace-actions {
         padding: 12px 15px;
         flex-shrink: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
         background: rgba(255, 255, 255, 0.05);
     }
 
-    .deck-viewer-actions button {
+    .mind-palace-actions button {
         width: 100%;
         max-width: none;
         padding: 12px;
         font-size: 16px;
+    }
+}
+
+/* Mind Palace Sections */
+.mind-palace-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mind-palace-section h3 {
+    margin: 0 0 10px 0;
+    color: #fff;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.activity-category {
+    margin-bottom: 25px;
+}
+
+.activity-category h4 {
+    margin: 0 0 15px 0;
+    color: #fff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.activity-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+}
+
+.activity-info {
+    flex: 1;
+}
+
+.activity-info h5 {
+    margin: 0 0 5px 0;
+    color: #fff;
+    font-size: 16px;
+}
+
+.activity-cost {
+    color: #FFD700;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.activity-desc {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+
+.activity-status {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.basic-activity {
+    border-left: 3px solid #4CAF50;
+}
+
+.premium-activity {
+    border-left: 3px solid #9C27B0;
+}
+
+/* Responsive adjustments for Mind Palace sections */
+@media (max-width: 767px) {
+    .mind-palace-section {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .activity-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .activity-item {
+        padding: 12px;
+    }
+
+    .activity-icon {
+        font-size: 20px;
+        width: 28px;
+    }
+
+    .activity-info h5 {
+        font-size: 14px;
+    }
+
+    .activity-cost,
+    .activity-desc,
+    .activity-status {
+        font-size: 11px;
     }
 }
 

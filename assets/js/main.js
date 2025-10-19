@@ -3,7 +3,7 @@
 
 import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity } from './game-state.js';
 import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showDeckViewer, hideDeckViewer, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay } from './ui-manager.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showMindPalace, hideMindPalace, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel, switchSplitHand, showZenActivityFeedback, useZenActivity, zenActivities, completeSplitHand, getActiveSplitHand } from './stress-system.js';
 import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
 import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback, purchasePremiumActivityWrapper } from './shop-system.js';
@@ -1134,35 +1134,35 @@ export function closeShopToCampaign() {
     updateCampaignUI();
 }
 
-export function viewDeckComposition() {
+export function visitMindPalace() {
     try {
-        console.log('viewDeckComposition called');
+        console.log('visitMindPalace called');
 
         // Validate campaign mode
         if (!isCampaignMode()) {
-            console.warn('Deck viewer only available in campaign mode');
-            showPopupNotification('Deck viewer only available in campaign mode', 'error');
+            console.warn('Mind Palace only available in campaign mode');
+            showPopupNotification('Mind Palace only available in campaign mode', 'error');
             return;
         }
 
         // Validate campaign state
         if (!campaignState.deckComposition) {
             console.error('Invalid campaign state - missing deck composition');
-            showPopupNotification('Unable to load deck information', 'error');
+            showPopupNotification('Unable to load Mind Palace information', 'error');
             return;
         }
 
-        console.log('Current campaign state before showing deck viewer:', campaignState);
-        showDeckViewer();
+        console.log('Current campaign state before showing Mind Palace:', campaignState);
+        showMindPalace();
 
     } catch (error) {
-        console.error('Error opening deck viewer:', error);
-        showPopupNotification('Unable to open deck viewer. Please try again.', 'error');
+        console.error('Error opening Mind Palace:', error);
+        showPopupNotification('Unable to open Mind Palace. Please try again.', 'error');
     }
 }
 
-export function closeDeckViewer() {
-    hideDeckViewer();
+export function closeMindPalace() {
+    hideMindPalace();
 }
 
 // Make functions available globally for onclick handlers (backup approach)
@@ -1186,8 +1186,8 @@ if (typeof window !== 'undefined') {
     window.declineCompartmentalize = declineCompartmentalize;
     window.continueCampaign = continueCampaign;
     window.closeShopToCampaign = closeShopToCampaign;
-    window.viewDeckComposition = viewDeckComposition;
-    window.closeDeckViewer = closeDeckViewer;
+    window.visitMindPalace = visitMindPalace;
+    window.closeMindPalace = closeMindPalace;
     window.startCampaignTask = startCampaignTask;
     window.resetCampaign = resetCampaign;
     window.returnToCampaign = returnToCampaign;

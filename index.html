@@ -76,7 +76,7 @@
 
             <div class="campaign-actions">
                 <button onclick="openCampaignShop()" class="primary-btn">🛒 Visit Shop</button>
-                <button onclick="viewDeckComposition()" class="secondary-btn">🃏 View Deck</button>
+                <button onclick="visitMindPalace()" class="secondary-btn">🧠 Visit Mind Palace</button>
                 <button onclick="resetCampaign()" class="secondary-btn">Reset Campaign</button>
             </div>
         </div>
@@ -346,62 +346,133 @@
             </div>
         </div>
 
-        <!-- Deck Viewer Modal -->
-        <div class="deck-viewer-modal hidden" id="deckViewerModal" role="dialog" aria-modal="true"
-            aria-labelledby="deckViewerTitle">
-            <div class="deck-viewer-backdrop" id="deckViewerBackdrop"></div>
-            <div class="deck-viewer-content">
-                <div class="deck-viewer-header">
-                    <h2 id="deckViewerTitle">🃏 Your Deck Composition</h2>
-                    <button class="deck-viewer-close-btn" id="deckViewerCloseBtn"
-                        aria-label="Close deck viewer">×</button>
+        <!-- Mind Palace Modal -->
+        <div class="mind-palace-modal hidden" id="mindPalaceModal" role="dialog" aria-modal="true"
+            aria-labelledby="mindPalaceTitle">
+            <div class="mind-palace-backdrop" id="mindPalaceBackdrop"></div>
+            <div class="mind-palace-content">
+                <div class="mind-palace-header">
+                    <h2 id="mindPalaceTitle">🧠 Your Mind Palace</h2>
+                    <button class="mind-palace-close-btn" id="mindPalaceCloseBtn"
+                        aria-label="Close mind palace">×</button>
                 </div>
-                <div class="deck-viewer-body">
-                    <div class="deck-stats">
-                        <div class="card-type-stat">
-                            <div class="card-type-icon">🃏</div>
-                            <div class="card-type-info">
-                                <h3>Wild Jokers</h3>
-                                <p class="card-count" id="jokerCount">0</p>
-                                <p class="card-description">Intelligent cards that automatically calculate the perfect
-                                    value</p>
+                <div class="mind-palace-body">
+                    <!-- Deck Composition Section -->
+                    <div class="mind-palace-section">
+                        <h3>🃏 Your Mental Deck</h3>
+                        <p class="section-description">The cards in your mental toolkit for handling stress</p>
+                        <div class="deck-stats">
+                            <div class="card-type-stat">
+                                <div class="card-type-icon">🃏</div>
+                                <div class="card-type-info">
+                                    <h4>Wild Jokers</h4>
+                                    <p class="card-count" id="jokerCount">0</p>
+                                    <p class="card-description">Intelligent cards that automatically calculate the
+                                        perfect
+                                        value</p>
+                                </div>
+                            </div>
+                            <div class="card-type-stat">
+                                <div class="card-type-icon">🂡</div>
+                                <div class="card-type-info">
+                                    <h4>Aces</h4>
+                                    <p class="card-count" id="aceCount">4</p>
+                                    <p class="card-description">Flexible cards worth 1 or 11</p>
+                                </div>
+                            </div>
+                            <div class="card-type-stat">
+                                <div class="card-type-icon">🂠</div>
+                                <div class="card-type-info">
+                                    <h4>Regular Cards</h4>
+                                    <p class="card-count" id="regularCount">48</p>
+                                    <p class="card-description">Standard playing cards with fixed values</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-type-stat">
-                            <div class="card-type-icon">🂡</div>
-                            <div class="card-type-info">
-                                <h3>Aces</h3>
-                                <p class="card-count" id="aceCount">4</p>
-                                <p class="card-description">Flexible cards worth 1 or 11</p>
+
+                        <div class="deck-power-section">
+                            <h4>🔥 Mental Deck Power</h4>
+                            <div class="power-meter">
+                                <div class="power-fill" id="deckPowerFill"></div>
+                            </div>
+                            <p id="deckPowerText">Power Level: 8% (4 special cards out of 52)</p>
+                        </div>
+                    </div>
+
+                    <!-- Premium Activities Section -->
+                    <div class="mind-palace-section">
+                        <h3>🧘 Your Stress Management Techniques</h3>
+                        <p class="section-description">Advanced techniques you've mastered for handling difficult
+                            situations</p>
+
+                        <!-- Basic Activities -->
+                        <div class="activity-category">
+                            <h4>🌟 Basic Techniques (Always Available)</h4>
+                            <div class="activity-grid">
+                                <div class="activity-item basic-activity">
+                                    <div class="activity-icon">🌬️</div>
+                                    <div class="activity-info">
+                                        <h5>Deep Breath</h5>
+                                        <p class="activity-cost">10 zen points • -10% stress</p>
+                                        <p class="activity-desc">A quick breathing exercise to center yourself</p>
+                                    </div>
+                                </div>
+                                <div class="activity-item basic-activity">
+                                    <div class="activity-icon">🤸</div>
+                                    <div class="activity-info">
+                                        <h5>Quick Stretch</h5>
+                                        <p class="activity-cost">25 zen points • -20% stress</p>
+                                        <p class="activity-desc">Gentle stretching to release physical tension</p>
+                                    </div>
+                                </div>
+                                <div class="activity-item basic-activity">
+                                    <div class="activity-icon">🧘</div>
+                                    <div class="activity-info">
+                                        <h5>Mini Meditation</h5>
+                                        <p class="activity-cost">50 zen points • -35% stress</p>
+                                        <p class="activity-desc">Brief mindfulness practice for mental clarity</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-type-stat">
-                            <div class="card-type-icon">🂠</div>
-                            <div class="card-type-info">
-                                <h3>Regular Cards</h3>
-                                <p class="card-count" id="regularCount">48</p>
-                                <p class="card-description">Standard playing cards with fixed values</p>
+
+                        <!-- Premium Activities -->
+                        <div class="activity-category">
+                            <h4>✨ Advanced Techniques</h4>
+                            <div class="activity-grid" id="premiumActivitiesGrid">
+                                <div class="activity-item premium-activity" id="mindfulBreathingActivity">
+                                    <div class="activity-icon">🌸</div>
+                                    <div class="activity-info">
+                                        <h5>Mindful Breathing</h5>
+                                        <p class="activity-cost">75 zen points • -50% stress</p>
+                                        <p class="activity-desc">Advanced breathing technique with focused awareness</p>
+                                        <p class="activity-status" id="mindfulBreathingActivityStatus">🔒 Locked</p>
+                                    </div>
+                                </div>
+                                <div class="activity-item premium-activity" id="compartmentalizeActivity">
+                                    <div class="activity-icon">🧠</div>
+                                    <div class="activity-info">
+                                        <h5>Compartmentalize</h5>
+                                        <p class="activity-cost">100 zen points • Bust Recovery</p>
+                                        <p class="activity-desc">Split overwhelming situations into manageable parts</p>
+                                        <p class="activity-status" id="compartmentalizeActivityStatus">🔒 Locked</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="deck-power-section">
-                        <h3>🔥 Deck Power Level</h3>
-                        <div class="power-meter">
-                            <div class="power-fill" id="deckPowerFill"></div>
-                        </div>
-                        <p id="deckPowerText">Power Level: 8% (4 special cards out of 52)</p>
-                    </div>
-
-                    <div class="upgrade-history">
-                        <h3>📈 Upgrade History</h3>
+                    <!-- Upgrade History Section -->
+                    <div class="mind-palace-section">
+                        <h3>📈 Your Growth Journey</h3>
+                        <p class="section-description">Track your progress in developing mental resilience</p>
                         <div id="upgradeHistoryContent">
                             <p>Base deck: 4 Aces + 48 Regular Cards</p>
                         </div>
                     </div>
                 </div>
-                <div class="deck-viewer-actions">
-                    <button onclick="closeDeckViewer()" class="primary-btn">Close</button>
+                <div class="mind-palace-actions">
+                    <button onclick="closeMindPalace()" class="primary-btn">Close</button>
                 </div>
             </div>
         </div>
@@ -495,8 +566,8 @@
                                 gameplay</li>
                             <li>Cost increases with each purchase (starts at 75 zen points)</li>
                             <li>Your upgraded deck carries over to all future tasks</li>
-                            <li><strong>Deck Viewer:</strong> Click "View Deck" to see your current composition and
-                                upgrade history</li>
+                            <li><strong>Mind Palace:</strong> Click "Visit Mind Palace" to see your current deck
+                                composition, available stress management techniques, and upgrade history</li>
                         </ul>
                     </div>
 
@@ -561,8 +632,8 @@
                 window.purchaseJokerUpgrade = mainModule.purchaseJoker;
                 window.continueCampaign = mainModule.continueCampaign;
                 window.closeShopToCampaign = mainModule.closeShopToCampaign;
-                window.viewDeckComposition = mainModule.viewDeckComposition;
-                window.closeDeckViewer = mainModule.closeDeckViewer;
+                window.visitMindPalace = mainModule.visitMindPalace;
+                window.closeMindPalace = mainModule.closeMindPalace;
                 window.startCampaignTask = campaignModule.startCampaignTask;
                 window.resetCampaign = campaignModule.resetCampaign;
                 window.returnToCampaign = campaignModule.returnToCampaign;

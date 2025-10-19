@@ -1799,8 +1799,8 @@ export function showStressManagementTip(outcome) {
 // Store the element that had focus before initial flavor text modal opened
 let previouslyFocusedElementForFlavorText = null;
 
-// Store the element that had focus before deck viewer modal opened
-let previouslyFocusedElementForDeckViewer = null;
+// Store the element that had focus before Mind Palace modal opened
+let previouslyFocusedElementForMindPalace = null;
 
 // Show initial flavor text modal
 export function showInitialFlavorText(stepIndex) {
@@ -2128,30 +2128,30 @@ export function hideInitialFlavorText() {
 }
 
 // Deck Viewer Modal Functions
-export function showDeckViewer() {
+export function showMindPalace() {
     try {
-        const deckViewerModal = document.getElementById('deckViewerModal');
-        if (!deckViewerModal) {
-            console.error('Deck viewer modal element not found');
+        const mindPalaceModal = document.getElementById('mindPalaceModal');
+        if (!mindPalaceModal) {
+            console.error('Mind Palace modal element not found');
             return;
         }
 
         // Store currently focused element
-        previouslyFocusedElementForDeckViewer = document.activeElement;
+        previouslyFocusedElementForMindPalace = document.activeElement;
 
         // Update deck composition data
-        updateDeckViewerContent();
+        updateMindPalaceContent();
 
-        deckViewerModal.classList.remove('hidden');
+        mindPalaceModal.classList.remove('hidden');
 
         // Focus management for accessibility
-        const closeBtn = document.getElementById('deckViewerCloseBtn');
+        const closeBtn = document.getElementById('mindPalaceCloseBtn');
         if (closeBtn) {
             setTimeout(() => {
                 try {
                     closeBtn.focus();
                 } catch (focusError) {
-                    console.warn('Could not focus deck viewer close button:', focusError);
+                    console.warn('Could not focus Mind Palace close button:', focusError);
                 }
             }, 100);
         }
@@ -2162,31 +2162,31 @@ export function showDeckViewer() {
         }
 
         // Set up event listeners
-        setupDeckViewerEventListeners();
+        setupMindPalaceEventListeners();
 
     } catch (error) {
-        console.error('Error showing deck viewer:', error);
+        console.error('Error showing Mind Palace:', error);
     }
 }
 
-export function hideDeckViewer() {
+export function hideMindPalace() {
     try {
-        const deckViewerModal = document.getElementById('deckViewerModal');
-        if (!deckViewerModal) {
-            console.error('Deck viewer modal element not found');
+        const mindPalaceModal = document.getElementById('mindPalaceModal');
+        if (!mindPalaceModal) {
+            console.error('Mind Palace modal element not found');
             return;
         }
 
-        deckViewerModal.classList.add('hidden');
+        mindPalaceModal.classList.add('hidden');
 
         // Restore focus to previously focused element
-        if (previouslyFocusedElementForDeckViewer) {
+        if (previouslyFocusedElementForMindPalace) {
             try {
-                previouslyFocusedElementForDeckViewer.focus();
+                previouslyFocusedElementForMindPalace.focus();
             } catch (focusError) {
                 console.warn('Could not restore focus:', focusError);
             }
-            previouslyFocusedElementForDeckViewer = null;
+            previouslyFocusedElementForMindPalace = null;
         }
 
         // Restore body scroll
@@ -2195,21 +2195,24 @@ export function hideDeckViewer() {
         }
 
         // Clean up event listeners
-        cleanupDeckViewerEventListeners();
+        cleanupMindPalaceEventListeners();
 
     } catch (error) {
-        console.error('Error hiding deck viewer:', error);
+        console.error('Error hiding Mind Palace:', error);
     }
 }
 
-function updateDeckViewerContent() {
+function updateMindPalaceContent() {
     try {
         const { deckComposition, shopUpgrades } = campaignState;
         const { aces, jokers, totalCards } = deckComposition;
         const { acesAdded, jokersAdded, totalSpent } = shopUpgrades;
 
+        // Update premium activities display
+        updatePremiumActivitiesDisplay();
+
         // Debug logging
-        console.log('Updating deck viewer with:', {
+        console.log('Updating Mind Palace with:', {
             aces,
             jokers,
             totalCards,
@@ -2275,48 +2278,85 @@ function updateDeckViewerContent() {
         }
 
     } catch (error) {
-        console.error('Error updating deck viewer content:', error);
+        console.error('Error updating Mind Palace content:', error);
     }
 }
 
-function setupDeckViewerEventListeners() {
-    const closeBtn = document.getElementById('deckViewerCloseBtn');
-    const backdrop = document.getElementById('deckViewerBackdrop');
+// Update premium activities display in Mind Palace
+function updatePremiumActivitiesDisplay() {
+    try {
+        // Update Mindful Breathing status
+        const mindfulBreathingStatus = document.getElementById('mindfulBreathingActivityStatus');
+        if (mindfulBreathingStatus) {
+            if (activityState.availableActivities && activityState.availableActivities.mindfulBreathing) {
+                mindfulBreathingStatus.textContent = '✅ Unlocked';
+                mindfulBreathingStatus.style.color = '#4CAF50';
+            } else {
+                mindfulBreathingStatus.textContent = '🔒 Locked';
+                mindfulBreathingStatus.style.color = '#999';
+            }
+        }
+
+        // Update Compartmentalize status
+        const compartmentalizeStatus = document.getElementById('compartmentalizeActivityStatus');
+        if (compartmentalizeStatus) {
+            if (activityState.availableActivities && activityState.availableActivities.compartmentalize) {
+                compartmentalizeStatus.textContent = '✅ Unlocked';
+                compartmentalizeStatus.style.color = '#4CAF50';
+            } else {
+                compartmentalizeStatus.textContent = '🔒 Locked';
+                compartmentalizeStatus.style.color = '#999';
+            }
+        }
+
+        console.log('Premium activities display updated:', {
+            mindfulBreathing: activityState.availableActivities?.mindfulBreathing || false,
+            compartmentalize: activityState.availableActivities?.compartmentalize || false
+        });
+
+    } catch (error) {
+        console.error('Error updating premium activities display:', error);
+    }
+}
+
+function setupMindPalaceEventListeners() {
+    const closeBtn = document.getElementById('mindPalaceCloseBtn');
+    const backdrop = document.getElementById('mindPalaceBackdrop');
 
     if (closeBtn) {
-        closeBtn.addEventListener('click', hideDeckViewer);
+        closeBtn.addEventListener('click', hideMindPalace);
     }
 
     if (backdrop) {
-        backdrop.addEventListener('click', hideDeckViewer);
+        backdrop.addEventListener('click', hideMindPalace);
     }
 
     // Keyboard navigation
-    document.addEventListener('keydown', handleDeckViewerKeydown);
+    document.addEventListener('keydown', handleMindPalaceKeydown);
 }
 
-function cleanupDeckViewerEventListeners() {
-    const closeBtn = document.getElementById('deckViewerCloseBtn');
-    const backdrop = document.getElementById('deckViewerBackdrop');
+function cleanupMindPalaceEventListeners() {
+    const closeBtn = document.getElementById('mindPalaceCloseBtn');
+    const backdrop = document.getElementById('mindPalaceBackdrop');
 
     if (closeBtn) {
-        closeBtn.removeEventListener('click', hideDeckViewer);
+        closeBtn.removeEventListener('click', hideMindPalace);
     }
 
     if (backdrop) {
-        backdrop.removeEventListener('click', hideDeckViewer);
+        backdrop.removeEventListener('click', hideMindPalace);
     }
 
-    document.removeEventListener('keydown', handleDeckViewerKeydown);
+    document.removeEventListener('keydown', handleMindPalaceKeydown);
 }
 
-function handleDeckViewerKeydown(event) {
-    const deckViewerModal = document.getElementById('deckViewerModal');
-    if (!deckViewerModal || deckViewerModal.classList.contains('hidden')) {
+function handleMindPalaceKeydown(event) {
+    const mindPalaceModal = document.getElementById('mindPalaceModal');
+    if (!mindPalaceModal || mindPalaceModal.classList.contains('hidden')) {
         return;
     }
 
     if (event.key === 'Escape') {
-        hideDeckViewer();
+        hideMindPalace();
     }
 }
