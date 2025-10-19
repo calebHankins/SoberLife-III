@@ -598,6 +598,15 @@ export function updateSplitHandDisplay(splitHands) {
     updateSplitHandScore('splitHand2Score', splitHands.hand2.cards);
     updateSplitHandStatus('hand2Status', splitHands.hand2, splitHands.currentHand === 1);
 
+    // Add visual indicators for active hand
+    const hand1Element = document.getElementById('splitHand1');
+    const hand2Element = document.getElementById('splitHand2');
+
+    if (hand1Element && hand2Element) {
+        hand1Element.classList.toggle('active', splitHands.currentHand === 0);
+        hand2Element.classList.toggle('active', splitHands.currentHand === 1);
+    }
+
     // Update progress text
     const progressText = document.getElementById('splitProgressText');
     if (progressText) {
@@ -608,18 +617,43 @@ export function updateSplitHandDisplay(splitHands) {
         progressText.textContent = `Hand ${currentHandNum} - ${handStatus}`;
     }
 
-    // Update switch button
+    // Update switch button and complete button
     const switchBtn = document.getElementById('switchHandBtn');
+    const completeBtn = document.getElementById('completeBothHandsBtn');
+    const bothCompleted = splitHands.hand1.completed && splitHands.hand2.completed;
+
     if (switchBtn) {
         const otherHand = splitHands.currentHand === 0 ? splitHands.hand2 : splitHands.hand1;
-        if (otherHand.completed) {
+
+        if (bothCompleted) {
+            switchBtn.disabled = true;
+            switchBtn.textContent = 'Both Hands Complete';
+            switchBtn.style.background = '#9E9E9E';
+            switchBtn.style.color = 'white';
+        } else if (otherHand.completed) {
             switchBtn.disabled = true;
             switchBtn.textContent = 'Other Hand Completed';
         } else {
             switchBtn.disabled = false;
             switchBtn.textContent = `Switch to Hand ${splitHands.currentHand === 0 ? 2 : 1}`;
+            switchBtn.style.background = '';
+            switchBtn.style.color = '';
         }
     }
+
+    // Show/hide complete button
+    if (completeBtn) {
+        if (bothCompleted) {
+            completeBtn.classList.remove('hidden');
+            completeBtn.style.background = '#4CAF50';
+            completeBtn.style.color = 'white';
+        } else {
+            completeBtn.classList.add('hidden');
+        }
+    }
+
+    // Update house cards display
+    updateCards();
 }
 
 // Update individual split hand cards
@@ -629,9 +663,11 @@ function updateSplitHandCards(containerId, cards) {
 
     container.innerHTML = '';
     cards.forEach(card => {
-        const cardElement = document.createElement('div');
-        cardElement.className = 'card';
-        cardElement.textContent = `${card.value}${card.suit}`;
+        const cardElement = createCardElement(card);
+        // Adjust size for split hand display
+        cardElement.style.width = '50px';
+        cardElement.style.height = '70px';
+        cardElement.style.fontSize = '14px';
         container.appendChild(cardElement);
     });
 }

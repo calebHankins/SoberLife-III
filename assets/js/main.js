@@ -911,6 +911,20 @@ function handleSplitHandHit() {
     return false;
 }
 
+// Play house hand according to standard blackjack rules
+function playHouseHand() {
+    // Ensure house has a deck
+    if (!gameState.houseDeck) {
+        gameState.houseDeck = createDeck();
+        shuffleDeck(gameState.houseDeck);
+    }
+
+    // House hits on 16 and below, stands on 17 and above
+    while (calculateScore(gameState.houseCards) < 17 && gameState.houseDeck.length > 0) {
+        gameState.houseCards.push(gameState.houseDeck.pop());
+    }
+}
+
 // Handle stand action for split hands
 function handleSplitHandStand() {
 
@@ -950,15 +964,42 @@ function handleSplitHandStand() {
 
 // Finalize split hand game and return to normal gameplay
 function finalizeSplitHandGame(result) {
+    // Show completion message with detailed results
+    const completionMessage = `Compartmentalization Complete!\nHand 1: ${result.hand1Result}\nHand 2: ${result.hand2Result}\nOverall Result: ${result.overallOutcome}`;
+
+    // Show detailed feedback
+    setTimeout(() => {
+        showZenActivityFeedback('Compartmentalize Complete', 0);
+
+        // Show detailed results in round result area
+        const roundResult = document.getElementById('roundResult');
+        if (roundResult) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'compartmentalize-results';
+            resultDiv.innerHTML = `
+                <div style="
+                    background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+                    border: 2px solid #4CAF50;
+                    border-radius: 10px;
+                    padding: 15px;
+                    margin: 10px 0;
+                    text-align: center;
+                ">
+                    <h4 style="color: #2E7D32; margin: 0 0 10px 0;">🧠 Compartmentalization Results</h4>
+                    <p style="margin: 5px 0; color: #4CAF50;"><strong>Hand 1:</strong> ${result.hand1Result}</p>
+                    <p style="margin: 5px 0; color: #4CAF50;"><strong>Hand 2:</strong> ${result.hand2Result}</p>
+                    <p style="margin: 10px 0 0 0; color: #2E7D32; font-weight: bold;">Overall: ${result.overallOutcome}</p>
+                </div>
+            `;
+            roundResult.appendChild(resultDiv);
+        }
+    }, 500);
 
     // Hide split hands UI
     hideSplitHandsUI();
 
     // End round with overall outcome
     endRound(result.overallOutcome);
-
-    // Show compartmentalize completion message
-    showZenActivityFeedback('Compartmentalize Complete', 0);
 }
 
 export function switchSplitHandWrapper() {
@@ -967,6 +1008,52 @@ export function switchSplitHandWrapper() {
         return true;
     }
     return false;
+}
+
+// Complete both hands when both are finished
+export function completeBothHandsWrapper() {
+    if (!activityState.compartmentalizeInProgress || !activityState.splitHands) {
+        return false;
+    }
+
+    const splitHands = activityState.splitHands;
+    if (splitHands.hand1.completed && splitHands.hand2.completed) {
+        // Both hands are completed, finalize the results
+        const result = {
+            completed: true,
+            overallOutcome: determineOverallOutcome(splitHands.hand1.outcome, splitHands.hand2.outcome),
+            hand1Result: splitHands.hand1.outcome,
+            hand2Result: splitHands.hand2.outcome,
+            message: `Compartmentalization complete! Hand 1: ${splitHands.hand1.outcome}, Hand 2: ${splitHands.hand2.outcome}`
+        };
+
+        finalizeSplitHandGame(result);
+        return true;
+    }
+    return false;
+}
+
+// Determine overall outcome from two hand results
+function determineOverallOutcome(hand1Result, hand2Result) {
+    // If either hand wins, overall is a win
+    if (hand1Result === 'win' || hand2Result === 'win' ||
+        hand1Result === 'house_bust' || hand2Result === 'house_bust') {
+        return 'win';
+    }
+
+    // If both hands tie, overall is a tie
+    if (hand1Result === 'tie' && hand2Result === 'tie') {
+        return 'tie';
+    }
+
+    // If one ties and the other doesn't bust, it's a tie
+    if ((hand1Result === 'tie' && hand2Result !== 'bust') ||
+        (hand2Result === 'tie' && hand1Result !== 'bust')) {
+        return 'tie';
+    }
+
+    // Otherwise it's a loss
+    return 'lose';
 }
 
 export function purchaseJoker() {

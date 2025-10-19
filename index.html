@@ -215,6 +215,8 @@
                 <div class="split-hand-controls">
                     <button id="switchHandBtn" onclick="switchSplitHandWrapper()" class="secondary-btn">Switch to Other
                         Hand</button>
+                    <button id="completeBothHandsBtn" onclick="completeBothHandsWrapper()"
+                        class="primary-btn hidden">Complete Both Hands</button>
                     <div class="split-progress">
                         <span id="splitProgressText">Playing Hand 1 of 2</span>
                     </div>
@@ -540,6 +542,7 @@
                 const stressModule = await import('./assets/js/stress-system.js');
                 const mainModule = await import('./assets/js/main.js');
                 const campaignModule = await import('./assets/js/campaign-manager.js');
+                const shopModule = await import('./assets/js/shop-system.js');
 
                 // Assign functions to global scope
                 window.useZenActivity = stressModule.useZenActivity;
@@ -563,6 +566,11 @@
                 window.startCampaignTask = campaignModule.startCampaignTask;
                 window.resetCampaign = campaignModule.resetCampaign;
                 window.returnToCampaign = campaignModule.returnToCampaign;
+                window.switchSplitHandWrapper = mainModule.switchSplitHandWrapper;
+                window.completeBothHandsWrapper = mainModule.completeBothHandsWrapper;
+                window.useCompartmentalizeWrapper = mainModule.useCompartmentalizeWrapper;
+                window.declineCompartmentalize = mainModule.declineCompartmentalize;
+                window.purchasePremiumActivityWrapper = shopModule.purchasePremiumActivityWrapper;
 
                 console.log('✅ All functions loaded successfully!');
                 console.log('startCampaignMode:', typeof window.startCampaignMode);
