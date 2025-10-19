@@ -52,10 +52,8 @@ start index.html        # Windows
 open index.html         # macOS
 xdg-open index.html     # Linux
 
-# Serve via local server for full ES6 module support
-python -m http.server 8000    # Python 3
-python -m SimpleHTTPServer    # Python 2
-npx serve . -p 8000          # Node.js
+# Serve via local server for full ES6 module support (REQUIRED for proper testing)
+npx serve . -p 8000          # Node.js (PREFERRED METHOD)
 
 # Then visit http://localhost:8000
 ```

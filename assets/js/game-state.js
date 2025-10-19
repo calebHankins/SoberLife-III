@@ -8,10 +8,13 @@ export let gameState = {
     stressLevel: 0,
     gameInProgress: false,
     deck: [],
+    houseDeck: [], // House's separate deck for consistent gameplay
     playerCards: [],
     houseCards: [],
     surveyCompleted: false,
-    initialFlavorTextShown: false
+    initialFlavorTextShown: false,
+    showCompartmentalizedResult: false,
+    compartmentalizedHands: null
 };
 
 // Campaign state object for rogue-like progression
@@ -32,7 +35,16 @@ export let campaignState = {
         jokersAdded: 0,    // Number of jokers purchased
         totalSpent: 0
     },
-    taskProgress: {}
+    taskProgress: {},
+    unlockedActivities: {      // Persistent activity unlocks
+        mindfulBreathing: false,
+        compartmentalize: false
+    },
+    activityStats: {           // Usage statistics
+        totalActivitiesUsed: 0,
+        compartmentalizeUses: 0,
+        premiumActivityUses: 0
+    }
 };
 
 // Track hit count per hand for progressive flavor text
@@ -40,6 +52,20 @@ export let handState = {
     hitCount: 0,
     currentHand: 0,
     lastAction: ''
+};
+
+// Activity state tracking for cooldown and premium activities
+export let activityState = {
+    usedThisHand: false,           // Tracks if activity used in current hand
+    availableActivities: {         // Tracks unlocked premium activities
+        breath: true,              // Default activities (always available)
+        stretch: true,
+        meditation: true,
+        mindfulBreathing: false,   // Premium activity
+        compartmentalize: false    // Special premium activity
+    },
+    compartmentalizeInProgress: false,  // Tracks if compartmentalize is active
+    splitHands: null              // Stores split hand data when compartmentalizing
 };
 
 // DMV task steps
@@ -297,6 +323,7 @@ export function resetGameState() {
     gameState.stressLevel = 0;
     gameState.gameInProgress = false;
     gameState.deck = [];
+    gameState.houseDeck = []; // Reset house deck
     gameState.playerCards = [];
     gameState.houseCards = [];
     gameState.surveyCompleted = false;
@@ -328,6 +355,15 @@ export function resetCampaignState() {
         totalSpent: 0
     };
     campaignState.taskProgress = {};
+    campaignState.unlockedActivities = {
+        mindfulBreathing: false,
+        compartmentalize: false
+    };
+    campaignState.activityStats = {
+        totalActivitiesUsed: 0,
+        compartmentalizeUses: 0,
+        premiumActivityUses: 0
+    };
     saveCampaignProgress();
 }
 
@@ -391,10 +427,29 @@ export function migrateCampaignState() {
             }
         }
 
+        // Ensure unlockedActivities exists
+        if (!campaignState.unlockedActivities) {
+            campaignState.unlockedActivities = {
+                mindfulBreathing: false,
+                compartmentalize: false
+            };
+            needsSave = true;
+        }
+
+        // Ensure activityStats exists
+        if (!campaignState.activityStats) {
+            campaignState.activityStats = {
+                totalActivitiesUsed: 0,
+                compartmentalizeUses: 0,
+                premiumActivityUses: 0
+            };
+            needsSave = true;
+        }
+
         // Save migrated state if changes were made
         if (needsSave) {
             saveCampaignProgress();
-            console.log('Campaign state migrated to support Joker system');
+            console.log('Campaign state migrated to support activity system');
         }
 
     } catch (error) {
@@ -521,6 +576,8 @@ export function resetHandState() {
     handState.hitCount = 0;
     handState.currentHand = Date.now(); // Use timestamp as unique hand ID
     handState.lastAction = '';
+    // Reset activity cooldown for new hand
+    resetActivityState();
 }
 
 export function incrementHitCount() {
@@ -530,6 +587,38 @@ export function incrementHitCount() {
 
 export function setLastAction(action) {
     handState.lastAction = action;
+}
+
+// Activity state management functions
+export function resetActivityState() {
+    activityState.usedThisHand = false;
+    activityState.compartmentalizeInProgress = false;
+    activityState.splitHands = null;
+}
+
+export function updateActivityState(updates) {
+    Object.assign(activityState, updates);
+}
+
+export function canUseActivity(activity) {
+    return !activityState.usedThisHand &&
+        activityState.availableActivities[activity];
+}
+
+export function markActivityUsed() {
+    activityState.usedThisHand = true;
+}
+
+export function unlockPremiumActivity(activityId) {
+    activityState.availableActivities[activityId] = true;
+}
+
+export function loadActivityStateFromCampaign() {
+    // Load unlocked activities from campaign state
+    if (campaignState.unlockedActivities) {
+        activityState.availableActivities.mindfulBreathing = campaignState.unlockedActivities.mindfulBreathing;
+        activityState.availableActivities.compartmentalize = campaignState.unlockedActivities.compartmentalize;
+    }
 }
 
 // Progressive flavor text system

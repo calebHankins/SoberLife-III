@@ -1,7 +1,7 @@
 // SoberLife III - Shop System
 // Upgrade purchasing logic and deck modifications
 
-import { campaignState, updateCampaignState } from './game-state.js';
+import { campaignState, updateCampaignState, unlockPremiumActivity } from './game-state.js';
 import { hideElement, showElement } from './ui-manager.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 
@@ -17,6 +17,26 @@ export const shopConfig = {
         baseCost: 50,
         costIncrease: 25,
         maxAces: 20
+    }
+};
+
+// Premium activity shop items
+export const premiumActivities = {
+    mindfulBreathing: {
+        name: 'Mindful Breathing',
+        cost: 1000,
+        description: 'Unlock advanced breathing techniques for 50% stress reduction',
+        emoji: '🌸',
+        category: 'stress-relief',
+        details: 'A powerful mindfulness technique that combines deep breathing with focused awareness for maximum stress relief.'
+    },
+    compartmentalize: {
+        name: 'Compartmentalize',
+        cost: 2000,
+        description: 'Learn to split overwhelming situations into manageable parts',
+        emoji: '🧠',
+        category: 'reactive',
+        details: 'Advanced psychological technique that allows you to recover from bust situations by breaking them down into smaller, manageable components.'
     }
 };
 
@@ -175,6 +195,99 @@ export function purchaseAceUpgrade(currentZenPoints) {
     }
 }
 
+// Check if premium activity can be purchased
+export function canPurchasePremiumActivity(activityId, zenPoints) {
+    const activity = premiumActivities[activityId];
+    if (!activity) return false;
+
+    // Check if already unlocked
+    if (campaignState.unlockedActivities && campaignState.unlockedActivities[activityId]) {
+        return false;
+    }
+
+    return zenPoints >= activity.cost;
+}
+
+// Purchase premium activity
+export function purchasePremiumActivity(activityId, currentZenPoints) {
+    try {
+        const activity = premiumActivities[activityId];
+        if (!activity) {
+            return {
+                success: false,
+                message: 'Invalid activity',
+                zenPointsRemaining: currentZenPoints
+            };
+        }
+
+        // Validate purchase
+        if (!canPurchasePremiumActivity(activityId, currentZenPoints)) {
+            if (campaignState.unlockedActivities && campaignState.unlockedActivities[activityId]) {
+                return {
+                    success: false,
+                    message: 'Activity already unlocked',
+                    zenPointsRemaining: currentZenPoints
+                };
+            }
+            return {
+                success: false,
+                message: 'Insufficient zen points',
+                zenPointsRemaining: currentZenPoints
+            };
+        }
+
+        // Process purchase using zen points manager
+        const purchaseSuccess = ZenPointsManager.spendPoints(activity.cost, ZEN_TRANSACTION_TYPES.SHOP_PURCHASE, true, {
+            item: activityId,
+            type: 'premium_activity',
+            cost: activity.cost
+        });
+
+        if (!purchaseSuccess) {
+            return {
+                success: false,
+                message: 'Failed to process zen point transaction',
+                zenPointsRemaining: currentZenPoints
+            };
+        }
+
+        const newZenPoints = ZenPointsManager.getCurrentBalance();
+
+        // Unlock activity permanently
+        unlockPremiumActivity(activityId);
+
+        // Save to campaign state for persistence
+        updateCampaignState({
+            unlockedActivities: {
+                ...campaignState.unlockedActivities,
+                [activityId]: true
+            },
+            shopUpgrades: {
+                ...campaignState.shopUpgrades,
+                totalSpent: campaignState.shopUpgrades.totalSpent + activity.cost
+            }
+        });
+
+        console.log(`Premium activity ${activityId} purchased! Cost: ${activity.cost}, Remaining zen: ${newZenPoints}`);
+
+        return {
+            success: true,
+            message: `${activity.name} unlocked! You can now use this advanced technique.`,
+            zenPointsRemaining: newZenPoints,
+            activityId: activityId,
+            cost: activity.cost
+        };
+
+    } catch (error) {
+        console.error('Error purchasing premium activity:', error);
+        return {
+            success: false,
+            message: 'Purchase failed due to an error',
+            zenPointsRemaining: currentZenPoints
+        };
+    }
+}
+
 // Update shop UI with current state
 export function updateShopUI(zenPoints) {
     try {
@@ -229,8 +342,63 @@ export function updateShopUI(zenPoints) {
             }
         }
 
+        // Update premium activities
+        updatePremiumActivityUI('mindfulBreathing', zenPoints);
+        updatePremiumActivityUI('compartmentalize', zenPoints);
+
     } catch (error) {
         console.error('Error updating shop UI:', error);
+    }
+}
+
+// Update premium activity UI elements
+function updatePremiumActivityUI(activityId, zenPoints) {
+    const activity = premiumActivities[activityId];
+    if (!activity) return;
+
+    const isUnlocked = campaignState.unlockedActivities && campaignState.unlockedActivities[activityId];
+    const canPurchase = canPurchasePremiumActivity(activityId, zenPoints);
+
+    // Update cost display dynamically from JavaScript configuration
+    const costElement = document.getElementById(`${activityId}Cost`);
+    if (costElement) {
+        costElement.textContent = activity.cost;
+    }
+
+    // Update status display
+    const statusElement = document.getElementById(`${activityId}Status`);
+    if (statusElement) {
+        statusElement.textContent = isUnlocked ? 'Unlocked' : 'Locked';
+        statusElement.className = isUnlocked ? 'status-unlocked' : 'status-locked';
+    }
+
+    // Update purchase button
+    const button = document.getElementById(`${activityId}Btn`);
+    if (button) {
+        if (isUnlocked) {
+            button.textContent = 'Already Unlocked';
+            button.disabled = true;
+        } else if (canPurchase) {
+            button.textContent = 'Unlock Activity';
+            button.disabled = false;
+        } else {
+            button.textContent = 'Insufficient Zen';
+            button.disabled = true;
+        }
+    }
+
+    // Update card styling
+    const card = document.getElementById(`${activityId}Card`);
+    if (card) {
+        if (isUnlocked) {
+            card.classList.add('unlocked');
+            card.classList.remove('unavailable');
+        } else if (canPurchase) {
+            card.classList.remove('unavailable', 'unlocked');
+        } else {
+            card.classList.add('unavailable');
+            card.classList.remove('unlocked');
+        }
     }
 }
 
@@ -261,6 +429,20 @@ export function closeShop() {
     } catch (error) {
         console.error('Error closing shop:', error);
     }
+}
+
+// Wrapper function for purchasing premium activities (called from HTML)
+export function purchasePremiumActivityWrapper(activityId) {
+    const currentZenPoints = ZenPointsManager.getCurrentBalance();
+    const result = purchasePremiumActivity(activityId, currentZenPoints);
+
+    // Update UI
+    updateShopUI(ZenPointsManager.getCurrentBalance());
+
+    // Show feedback
+    showPurchaseFeedback(result);
+
+    return result;
 }
 
 // Show purchase feedback

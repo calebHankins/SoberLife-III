@@ -9,6 +9,7 @@
     },
     "chat.agent.maxRequests": 100,
     "cSpell.words": [
+        "cooldown",
         "Desync",
         "flexbox",
         "gamified",
@@ -23,8 +24,12 @@
         "rgba",
         "roleplay",
         "soberlife",
+        "spammable",
         "tappable",
         "viewports"
     ],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.markdownlint": "always"
+    }
 }

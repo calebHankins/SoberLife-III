@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🧘 SoberLife - III 🧘</title>
-    
+
     <!-- External CSS Files -->
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/components.css">
@@ -16,7 +16,8 @@
     <div class="game-container">
         <div class="game-header">
             <h1>🧘 SoberLife - III 🧘</h1>
-            <button class="help-btn" id="helpBtn" onclick="showHelp()" aria-label="Show game help and instructions" tabindex="0">
+            <button class="help-btn" id="helpBtn" onclick="showHelp()" aria-label="Show game help and instructions"
+                tabindex="0">
                 <span class="help-icon">?</span>
                 <span class="help-text">Help</span>
             </button>
@@ -38,14 +39,14 @@
         <div class="game-mode-selection" id="gameModeSelection">
             <h3>Choose Your Experience</h3>
             <p>How would you like to practice stress management?</p>
-            
+
             <div class="mode-options">
                 <div class="mode-card">
                     <h4>🏛️ Single Task Mode</h4>
                     <p>Practice with just the DMV scenario</p>
                     <button onclick="startSingleTaskMode()" class="mode-btn">Start DMV Challenge</button>
                 </div>
-                
+
                 <div class="mode-card">
                     <h4>🎯 Campaign Mode</h4>
                     <p>Progress through multiple scenarios and upgrade your deck</p>
@@ -57,7 +58,7 @@
         <!-- Campaign Overview -->
         <div class="campaign-overview hidden" id="campaignOverview">
             <h2>🎯 Stress Management Campaign</h2>
-            
+
             <div class="campaign-progress">
                 <div class="deck-status">
                     <h4>🃏 Your Deck Power</h4>
@@ -68,14 +69,14 @@
                     <p id="campaignProgress">Tasks Completed: 0/2</p>
                 </div>
             </div>
-            
+
             <div class="task-list" id="taskList">
                 <!-- Task cards will be populated by JavaScript -->
             </div>
-            
+
             <div class="campaign-actions">
                 <button onclick="openCampaignShop()" class="primary-btn">🛒 Visit Shop</button>
-                <button onclick="viewDeckComposition()" class="secondary-btn">🃏 View Deck</button>
+                <button onclick="visitMindPalace()" class="secondary-btn">🧠 Visit Mind Palace</button>
                 <button onclick="resetCampaign()" class="secondary-btn">Reset Campaign</button>
             </div>
         </div>
@@ -126,25 +127,54 @@
         <div class="zen-activities hidden" id="zenActivities">
             <h3>🧘 Stress Relief Activities</h3>
             <p>Use your zen points to manage stress during your task:</p>
+
+            <!-- Activity Cooldown Status -->
+            <div class="activity-status" id="activityStatus">
+                <span class="activity-usage-indicator" id="activityUsageIndicator">
+                    <span class="usage-count" id="activityUsageCount">0/1</span> activities used this hand
+                </span>
+            </div>
+
             <div class="activity-buttons">
-                <button class="activity-btn" onclick="useZenActivity('breath')" id="breathBtn">
-                    🌬️ Deep Breath<br>
-                    <small>10 zen points • -10% stress</small>
-                </button>
-                <button class="activity-btn" onclick="useZenActivity('stretch')" id="stretchBtn">
-                    🤸 Quick Stretch<br>
-                    <small>25 zen points • -20% stress</small>
-                </button>
-                <button class="activity-btn" onclick="useZenActivity('meditation')" id="meditationBtn">
-                    🧘 Mini Meditation<br>
-                    <small>50 zen points • -35% stress</small>
-                </button>
+                <!-- Default Activities -->
+                <div class="activity-section">
+                    <h4>Basic Techniques</h4>
+                    <button class="activity-btn" onclick="useZenActivity('breath')" id="breathBtn">
+                        🌬️ Deep Breath<br>
+                        <small>10 zen points • -10% stress</small>
+                    </button>
+                    <button class="activity-btn" onclick="useZenActivity('stretch')" id="stretchBtn">
+                        🤸 Quick Stretch<br>
+                        <small>25 zen points • -20% stress</small>
+                    </button>
+                    <button class="activity-btn" onclick="useZenActivity('meditation')" id="meditationBtn">
+                        🧘 Mini Meditation<br>
+                        <small>50 zen points • -35% stress</small>
+                    </button>
+                </div>
+
+                <!-- Premium Activities -->
+                <div class="activity-section premium-activities" id="premiumActivitiesSection">
+                    <h4>Advanced Techniques</h4>
+                    <button class="activity-btn premium-activity" onclick="useZenActivity('mindfulBreathing')"
+                        id="mindfulBreathingActivityBtn" style="display: none;">
+                        🌸 Mindful Breathing<br>
+                        <small>75 zen points • -50% stress</small>
+                    </button>
+                    <button class="activity-btn premium-activity reactive-activity"
+                        onclick="useZenActivity('compartmentalize')" id="compartmentalizeActivityBtn"
+                        style="display: none;">
+                        🧠 Compartmentalize<br>
+                        <small>100 zen points • Bust Recovery</small>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Game Area -->
         <div class="game-area hidden" id="gameArea">
-            <div class="cards-container">
+            <!-- Regular Game Display -->
+            <div class="cards-container" id="regularCardsContainer">
                 <div class="player-area">
                     <h3>You</h3>
                     <div class="cards" id="playerCards"></div>
@@ -154,6 +184,49 @@
                     <h3>House</h3>
                     <div class="cards" id="houseCards"></div>
                     <div class="score" id="houseScore">Score: ?</div>
+                </div>
+            </div>
+
+            <!-- Split Hand Display (for Compartmentalize) -->
+            <div class="split-hands-container hidden" id="splitHandsContainer">
+                <div class="split-hands-header">
+                    <h3>🧠 Compartmentalized Hands</h3>
+                    <div class="split-progress">
+                        <span id="splitProgressText">Playing Hand 1 of 2</span>
+                    </div>
+                </div>
+
+                <div class="split-hands-display">
+                    <div class="split-hand" id="splitHand1">
+                        <div class="split-hand-header">
+                            <h4>Hand 1 <span class="hand-status" id="hand1Status"></span></h4>
+                        </div>
+                        <div class="cards" id="splitHand1Cards"></div>
+                        <div class="score" id="splitHand1Score">Score: 0</div>
+                    </div>
+
+                    <div class="split-hand" id="splitHand2">
+                        <div class="split-hand-header">
+                            <h4>Hand 2 <span class="hand-status" id="hand2Status"></span></h4>
+                        </div>
+                        <div class="cards" id="splitHand2Cards"></div>
+                        <div class="score" id="splitHand2Score">Score: 0</div>
+                    </div>
+                </div>
+
+                <!-- Compact House display -->
+                <div class="split-house-area">
+                    <div class="split-house-info">
+                        <h4>House <span id="splitHouseScore">Score: ?</span></h4>
+                        <div class="cards" id="splitHouseCards"></div>
+                    </div>
+                </div>
+
+                <div class="split-hand-controls">
+                    <button id="switchHandBtn" onclick="switchSplitHandWrapper()" class="secondary-btn">Switch
+                        Hand</button>
+                    <button id="completeBothHandsBtn" onclick="completeBothHandsWrapper()"
+                        class="primary-btn hidden">Complete Both</button>
                 </div>
             </div>
 
@@ -171,15 +244,16 @@
             <div class="game-over-content">
                 <div class="game-over-avatar">🤯</div>
                 <h2>STRESS OVERLOAD!</h2>
-                <p class="game-over-message" id="gameOverMessage">You've reached maximum stress levels and had a complete meltdown!</p>
+                <p class="game-over-message" id="gameOverMessage">You've reached maximum stress levels and had a
+                    complete meltdown!</p>
                 <p class="game-over-subtext" id="gameOverSubtext">Don't worry, it happens to the best of us.</p>
-                
+
                 <div class="game-over-stats">
                     <p>Final Stress Level: <span id="finalStressLevel">100%</span></p>
                     <p>Zen Points Remaining: <span id="finalZenPoints">0</span></p>
                     <p>Steps Completed: <span id="stepsCompleted">0</span>/5</p>
                 </div>
-                
+
                 <button id="tryAgainBtn" onclick="restartGame()">Try Again</button>
             </div>
         </div>
@@ -190,16 +264,17 @@
                 <div class="game-success-avatar">🎉</div>
                 <h2 id="successMessage">Congratulations!</h2>
                 <p class="game-success-message" id="successSubtext">You successfully completed your task!</p>
-                
+
                 <div class="game-success-stats" id="successStats">
                     <p>Final Stress Level: 25%</p>
                     <p>Zen Points Remaining: 75</p>
                     <p>Steps Completed: 5/5</p>
                 </div>
-                
+
                 <div class="success-actions">
                     <button id="continueToShopBtn" onclick="openShop()" class="hidden">Visit Shop</button>
-                    <button id="continueCampaignBtn" onclick="returnToCampaign()" class="hidden">Continue Campaign</button>
+                    <button id="continueCampaignBtn" onclick="returnToCampaign()" class="hidden">Continue
+                        Campaign</button>
                     <button id="playAgainBtn" onclick="restartGame()">Play Again</button>
                 </div>
             </div>
@@ -210,24 +285,60 @@
             <div class="shop-content">
                 <h2>🧘 Mindfulness Upgrades</h2>
                 <p>Spend your remaining zen points to upgrade your deck for future challenges!</p>
-                
+
                 <div class="zen-balance">
                     <h3>💎 Zen Points: <span id="shopZenPoints">0</span></h3>
                 </div>
-                
+
                 <div class="upgrade-options">
-                    <div class="upgrade-card" id="jokerUpgradeCard">
-                        <div class="upgrade-icon">🃏</div>
-                        <h3>Add Joker to Deck</h3>
-                        <p>Replace a random card with a Wild Joker. Jokers automatically calculate the perfect value (1-11) to help you reach 21 or avoid busting!</p>
-                        <div class="upgrade-stats">
-                            <div class="cost">Cost: <span id="jokerUpgradeCost">75</span> Zen Points</div>
-                            <div class="benefit">Current Jokers: <span id="currentJokers">0</span></div>
+                    <!-- Deck Upgrades -->
+                    <div class="upgrade-section">
+                        <h3>🃏 Deck Upgrades</h3>
+                        <div class="upgrade-card" id="jokerUpgradeCard">
+                            <div class="upgrade-icon">🃏</div>
+                            <h3>Add Joker to Deck</h3>
+                            <p>Replace a random card with a Wild Joker. Jokers automatically calculate the perfect value
+                                (1-11) to help you reach 21 or avoid busting!</p>
+                            <div class="upgrade-stats">
+                                <div class="cost">Cost: <span id="jokerUpgradeCost">75</span> Zen Points</div>
+                                <div class="benefit">Current Jokers: <span id="currentJokers">0</span></div>
+                            </div>
+                            <button onclick="purchaseJokerUpgrade()" id="jokerUpgradeBtn" class="upgrade-btn">Purchase
+                                Joker</button>
                         </div>
-                        <button onclick="purchaseJokerUpgrade()" id="jokerUpgradeBtn" class="upgrade-btn">Purchase Joker</button>
+                    </div>
+
+                    <!-- Premium Activities -->
+                    <div class="upgrade-section">
+                        <h3>🧘 Premium Activities</h3>
+                        <div class="upgrade-card premium-activity" id="mindfulBreathingCard">
+                            <div class="upgrade-icon">🌸</div>
+                            <h3>Mindful Breathing</h3>
+                            <p>Advanced breathing technique that combines deep breathing with focused awareness for
+                                maximum stress relief (50% reduction).</p>
+                            <div class="upgrade-stats">
+                                <div class="cost">Cost: <span id="mindfulBreathingCost">1000</span> Zen Points</div>
+                                <div class="benefit">Status: <span id="mindfulBreathingStatus">Locked</span></div>
+                            </div>
+                            <button onclick="purchasePremiumActivityWrapper('mindfulBreathing')"
+                                id="mindfulBreathingBtn" class="upgrade-btn">Unlock Activity</button>
+                        </div>
+
+                        <div class="upgrade-card premium-activity" id="compartmentalizeCard">
+                            <div class="upgrade-icon">🧠</div>
+                            <h3>Compartmentalize</h3>
+                            <p>Advanced psychological technique that allows you to recover from bust situations by
+                                breaking them down into manageable components.</p>
+                            <div class="upgrade-stats">
+                                <div class="cost">Cost: <span id="compartmentalizeCost">2000</span> Zen Points</div>
+                                <div class="benefit">Status: <span id="compartmentalizeStatus">Locked</span></div>
+                            </div>
+                            <button onclick="purchasePremiumActivityWrapper('compartmentalize')"
+                                id="compartmentalizeBtn" class="upgrade-btn">Unlock Activity</button>
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="shop-actions">
                     <button onclick="continueCampaign()" class="primary-btn">Continue Campaign</button>
                     <button onclick="closeShopToCampaign()" class="secondary-btn">Close Shop</button>
@@ -235,59 +346,133 @@
             </div>
         </div>
 
-        <!-- Deck Viewer Modal -->
-        <div class="deck-viewer-modal hidden" id="deckViewerModal" role="dialog" aria-modal="true" aria-labelledby="deckViewerTitle">
-            <div class="deck-viewer-backdrop" id="deckViewerBackdrop"></div>
-            <div class="deck-viewer-content">
-                <div class="deck-viewer-header">
-                    <h2 id="deckViewerTitle">🃏 Your Deck Composition</h2>
-                    <button class="deck-viewer-close-btn" id="deckViewerCloseBtn" aria-label="Close deck viewer">×</button>
+        <!-- Mind Palace Modal -->
+        <div class="mind-palace-modal hidden" id="mindPalaceModal" role="dialog" aria-modal="true"
+            aria-labelledby="mindPalaceTitle">
+            <div class="mind-palace-backdrop" id="mindPalaceBackdrop"></div>
+            <div class="mind-palace-content">
+                <div class="mind-palace-header">
+                    <h2 id="mindPalaceTitle">🧠 Your Mind Palace</h2>
+                    <button class="mind-palace-close-btn" id="mindPalaceCloseBtn"
+                        aria-label="Close mind palace">×</button>
                 </div>
-                <div class="deck-viewer-body">
-                    <div class="deck-stats">
-                        <div class="card-type-stat">
-                            <div class="card-type-icon">🃏</div>
-                            <div class="card-type-info">
-                                <h3>Wild Jokers</h3>
-                                <p class="card-count" id="jokerCount">0</p>
-                                <p class="card-description">Intelligent cards that automatically calculate the perfect value</p>
+                <div class="mind-palace-body">
+                    <!-- Deck Composition Section -->
+                    <div class="mind-palace-section">
+                        <h3>🃏 Your Mental Deck</h3>
+                        <p class="section-description">The cards in your mental toolkit for handling stress</p>
+                        <div class="deck-stats">
+                            <div class="card-type-stat">
+                                <div class="card-type-icon">🃏</div>
+                                <div class="card-type-info">
+                                    <h4>Wild Jokers</h4>
+                                    <p class="card-count" id="jokerCount">0</p>
+                                    <p class="card-description">Intelligent cards that automatically calculate the
+                                        perfect
+                                        value</p>
+                                </div>
+                            </div>
+                            <div class="card-type-stat">
+                                <div class="card-type-icon">🂡</div>
+                                <div class="card-type-info">
+                                    <h4>Aces</h4>
+                                    <p class="card-count" id="aceCount">4</p>
+                                    <p class="card-description">Flexible cards worth 1 or 11</p>
+                                </div>
+                            </div>
+                            <div class="card-type-stat">
+                                <div class="card-type-icon">🂠</div>
+                                <div class="card-type-info">
+                                    <h4>Regular Cards</h4>
+                                    <p class="card-count" id="regularCount">48</p>
+                                    <p class="card-description">Standard playing cards with fixed values</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-type-stat">
-                            <div class="card-type-icon">🂡</div>
-                            <div class="card-type-info">
-                                <h3>Aces</h3>
-                                <p class="card-count" id="aceCount">4</p>
-                                <p class="card-description">Flexible cards worth 1 or 11</p>
+
+                        <div class="deck-power-section">
+                            <h4>🔥 Mental Deck Power</h4>
+                            <div class="power-meter">
+                                <div class="power-fill" id="deckPowerFill"></div>
+                            </div>
+                            <p id="deckPowerText">Power Level: 8% (4 special cards out of 52)</p>
+                        </div>
+                    </div>
+
+                    <!-- Premium Activities Section -->
+                    <div class="mind-palace-section">
+                        <h3>🧘 Your Stress Management Techniques</h3>
+                        <p class="section-description">Advanced techniques you've mastered for handling difficult
+                            situations</p>
+
+                        <!-- Basic Activities -->
+                        <div class="activity-category">
+                            <h4>🌟 Basic Techniques (Always Available)</h4>
+                            <div class="activity-grid">
+                                <div class="activity-item basic-activity">
+                                    <div class="activity-icon">🌬️</div>
+                                    <div class="activity-info">
+                                        <h5>Deep Breath</h5>
+                                        <p class="activity-cost">10 zen points • -10% stress</p>
+                                        <p class="activity-desc">A quick breathing exercise to center yourself</p>
+                                    </div>
+                                </div>
+                                <div class="activity-item basic-activity">
+                                    <div class="activity-icon">🤸</div>
+                                    <div class="activity-info">
+                                        <h5>Quick Stretch</h5>
+                                        <p class="activity-cost">25 zen points • -20% stress</p>
+                                        <p class="activity-desc">Gentle stretching to release physical tension</p>
+                                    </div>
+                                </div>
+                                <div class="activity-item basic-activity">
+                                    <div class="activity-icon">🧘</div>
+                                    <div class="activity-info">
+                                        <h5>Mini Meditation</h5>
+                                        <p class="activity-cost">50 zen points • -35% stress</p>
+                                        <p class="activity-desc">Brief mindfulness practice for mental clarity</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-type-stat">
-                            <div class="card-type-icon">🂠</div>
-                            <div class="card-type-info">
-                                <h3>Regular Cards</h3>
-                                <p class="card-count" id="regularCount">48</p>
-                                <p class="card-description">Standard playing cards with fixed values</p>
+
+                        <!-- Premium Activities -->
+                        <div class="activity-category">
+                            <h4>✨ Advanced Techniques</h4>
+                            <div class="activity-grid" id="premiumActivitiesGrid">
+                                <div class="activity-item premium-activity" id="mindfulBreathingActivity">
+                                    <div class="activity-icon">🌸</div>
+                                    <div class="activity-info">
+                                        <h5>Mindful Breathing</h5>
+                                        <p class="activity-cost">75 zen points • -50% stress</p>
+                                        <p class="activity-desc">Advanced breathing technique with focused awareness</p>
+                                        <p class="activity-status" id="mindfulBreathingActivityStatus">🔒 Locked</p>
+                                    </div>
+                                </div>
+                                <div class="activity-item premium-activity" id="compartmentalizeActivity">
+                                    <div class="activity-icon">🧠</div>
+                                    <div class="activity-info">
+                                        <h5>Compartmentalize</h5>
+                                        <p class="activity-cost">100 zen points • Bust Recovery</p>
+                                        <p class="activity-desc">Split overwhelming situations into manageable parts</p>
+                                        <p class="activity-status" id="compartmentalizeActivityStatus">🔒 Locked</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="deck-power-section">
-                        <h3>🔥 Deck Power Level</h3>
-                        <div class="power-meter">
-                            <div class="power-fill" id="deckPowerFill"></div>
-                        </div>
-                        <p id="deckPowerText">Power Level: 8% (4 special cards out of 52)</p>
-                    </div>
-                    
-                    <div class="upgrade-history">
-                        <h3>📈 Upgrade History</h3>
+
+                    <!-- Upgrade History Section -->
+                    <div class="mind-palace-section">
+                        <h3>📈 Your Growth Journey</h3>
+                        <p class="section-description">Track your progress in developing mental resilience</p>
                         <div id="upgradeHistoryContent">
                             <p>Base deck: 4 Aces + 48 Regular Cards</p>
                         </div>
                     </div>
                 </div>
-                <div class="deck-viewer-actions">
-                    <button onclick="closeDeckViewer()" class="primary-btn">Close</button>
+                <div class="mind-palace-actions">
+                    <button onclick="closeMindPalace()" class="primary-btn">Close</button>
                 </div>
             </div>
         </div>
@@ -303,10 +488,12 @@
                 <div class="help-modal-body" id="helpModalBody">
                     <div class="help-section">
                         <h3>🎯 Game Objective</h3>
-                        <p><strong>Single Task Mode:</strong> Successfully complete your DMV visit by managing stress and winning blackjack rounds for each step.</p>
-                        <p><strong>Campaign Mode:</strong> Progress through multiple stress management scenarios, upgrading your deck between tasks to become more mindful and capable.</p>
+                        <p><strong>Single Task Mode:</strong> Successfully complete your DMV visit by managing stress
+                            and winning blackjack rounds for each step.</p>
+                        <p><strong>Campaign Mode:</strong> Progress through multiple stress management scenarios,
+                            upgrading your deck between tasks to become more mindful and capable.</p>
                     </div>
-                    
+
                     <div class="help-section">
                         <h3>🃏 Blackjack Rules</h3>
                         <ul>
@@ -318,17 +505,19 @@
                             <li>Beat the house to advance to the next step</li>
                         </ul>
                     </div>
-                        <!-- Button to show Nirvana Mode -->
-                        <div class="help-section">
-                            <button id="showNirvanaBtn" class="secondary-btn" style="margin-bottom:10px;">Show Nirvana Mode</button>
-                        </div>
-                        <!-- Nirvana Mode (hidden debug zone) -->
-                        <div class="help-section nirvana-zone" style="display:none;">
-                            <h3>🧘 Nirvana Mode</h3>
-                            <button id="nirvanaZenBtn" class="primary-btn">Add 1000 Zen Points (Debug)</button>
-                            <p style="font-size:smaller;opacity:0.7;">For debugging: instantly add zen points for shop testing.</p>
-                        </div>
-                    
+                    <!-- Button to show Nirvana Mode -->
+                    <div class="help-section">
+                        <button id="showNirvanaBtn" class="secondary-btn" style="margin-bottom:10px;">Show Nirvana
+                            Mode</button>
+                    </div>
+                    <!-- Nirvana Mode (hidden debug zone) -->
+                    <div class="help-section nirvana-zone" style="display:none;">
+                        <h3>🧘 Nirvana Mode</h3>
+                        <button id="nirvanaZenBtn" class="primary-btn">Add 1000 Zen Points (Debug)</button>
+                        <p style="font-size:smaller;opacity:0.7;">For debugging: instantly add zen points for shop
+                            testing.</p>
+                    </div>
+
                     <div class="help-section">
                         <h3>😰 Stress Management</h3>
                         <ul>
@@ -340,41 +529,48 @@
                             <li class="zen-activity">🧘 Mini Meditation: 50 zen points • -35% stress</li>
                         </ul>
                     </div>
-                    
+
                     <div class="help-section">
                         <h3>🎯 Campaign Mode</h3>
                         <p>In Campaign Mode, you'll progress through multiple stress management scenarios:</p>
                         <ul>
                             <li><strong>DMV License Renewal:</strong> Navigate bureaucratic processes</li>
-                            <li><strong>Job Interview:</strong> Handle performance anxiety and professional pressure</li>
+                            <li><strong>Job Interview:</strong> Handle performance anxiety and professional pressure
+                            </li>
                             <li><strong>Deck Upgrades:</strong> Spend zen points to add Wild Jokers to your deck</li>
-                            <li><strong>Progressive Difficulty:</strong> Later tasks unlock as you complete earlier ones</li>
+                            <li><strong>Progressive Difficulty:</strong> Later tasks unlock as you complete earlier ones
+                            </li>
                             <li><strong>Shop Access:</strong> Visit the shop anytime from the campaign overview</li>
                         </ul>
                     </div>
-                    
+
                     <div class="help-section">
                         <h3>🃏 Wild Joker Cards</h3>
                         <ul>
-                            <li><strong>Intelligent Value:</strong> Jokers automatically calculate the perfect value (1-11) for your hand</li>
+                            <li><strong>Intelligent Value:</strong> Jokers automatically calculate the perfect value
+                                (1-11) for your hand</li>
                             <li><strong>Perfect 21:</strong> If you need 6 to reach 21, the Joker becomes 6</li>
                             <li><strong>Bust Prevention:</strong> If you'd bust, the Joker becomes 1 to save you</li>
-                            <li><strong>Visual Effects:</strong> Jokers have rainbow animations and show their calculated value</li>
-                            <li><strong>Celebration:</strong> Special effects when Jokers help you achieve perfect scores</li>
+                            <li><strong>Visual Effects:</strong> Jokers have rainbow animations and show their
+                                calculated value</li>
+                            <li><strong>Celebration:</strong> Special effects when Jokers help you achieve perfect
+                                scores</li>
                         </ul>
                     </div>
-                    
+
                     <div class="help-section">
                         <h3>🛒 Upgrade Shop</h3>
                         <ul>
                             <li>Access the shop from the campaign overview or after completing tasks</li>
-                            <li><strong>Purchase Jokers:</strong> Add Wild Joker cards to your deck for superior gameplay</li>
+                            <li><strong>Purchase Jokers:</strong> Add Wild Joker cards to your deck for superior
+                                gameplay</li>
                             <li>Cost increases with each purchase (starts at 75 zen points)</li>
                             <li>Your upgraded deck carries over to all future tasks</li>
-                            <li><strong>Deck Viewer:</strong> Click "View Deck" to see your current composition and upgrade history</li>
+                            <li><strong>Mind Palace:</strong> Click "Visit Mind Palace" to see your current deck
+                                composition, available stress management techniques, and upgrade history</li>
                         </ul>
                     </div>
-                    
+
                     <div class="help-section">
                         <h3>⌨️ Keyboard Shortcuts</h3>
                         <ul>
@@ -385,16 +581,18 @@
                             <li><strong>ESC</strong> - Close help modal</li>
                         </ul>
                     </div>
-                    
+
                     <div class="help-section">
                         <h3>💡 Tips for Success</h3>
                         <ul>
                             <li>Use zen activities strategically - don't wait until stress is too high</li>
                             <li>Remember basic blackjack strategy: stand on 17+, be careful with 12-16</li>
                             <li>Your initial survey affects starting stress level</li>
-                            <li><strong>Campaign Mode:</strong> Save zen points for Wild Joker upgrades between tasks</li>
+                            <li><strong>Campaign Mode:</strong> Save zen points for Wild Joker upgrades between tasks
+                            </li>
                             <li><strong>Campaign Mode:</strong> More Jokers = intelligent plays and better odds</li>
-                            <li><strong>Joker Strategy:</strong> Jokers automatically calculate the best value - trust their intelligence!</li>
+                            <li><strong>Joker Strategy:</strong> Jokers automatically calculate the best value - trust
+                                their intelligence!</li>
                             <li>Each task teaches different stress management techniques</li>
                         </ul>
                     </div>
@@ -407,15 +605,16 @@
     <script type="module" src="assets/js/main.js"></script>
     <script>
         // Wait for modules to load, then assign functions to global scope
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async function () {
             console.log('DOM loaded, importing functions...');
-            
+
             try {
                 // Dynamic imports to ensure modules are loaded
                 const stressModule = await import('./assets/js/stress-system.js');
                 const mainModule = await import('./assets/js/main.js');
                 const campaignModule = await import('./assets/js/campaign-manager.js');
-                
+                const shopModule = await import('./assets/js/shop-system.js');
+
                 // Assign functions to global scope
                 window.useZenActivity = stressModule.useZenActivity;
                 window.startSingleTaskMode = mainModule.startSingleTaskMode;
@@ -433,30 +632,41 @@
                 window.purchaseJokerUpgrade = mainModule.purchaseJoker;
                 window.continueCampaign = mainModule.continueCampaign;
                 window.closeShopToCampaign = mainModule.closeShopToCampaign;
-                window.viewDeckComposition = mainModule.viewDeckComposition;
-                window.closeDeckViewer = mainModule.closeDeckViewer;
+                window.visitMindPalace = mainModule.visitMindPalace;
+                window.closeMindPalace = mainModule.closeMindPalace;
                 window.startCampaignTask = campaignModule.startCampaignTask;
                 window.resetCampaign = campaignModule.resetCampaign;
                 window.returnToCampaign = campaignModule.returnToCampaign;
-                
+                window.switchSplitHandWrapper = mainModule.switchSplitHandWrapper;
+                window.completeBothHandsWrapper = mainModule.completeBothHandsWrapper;
+                window.useCompartmentalizeWrapper = mainModule.useCompartmentalizeWrapper;
+                window.declineCompartmentalize = mainModule.declineCompartmentalize;
+                window.purchasePremiumActivityWrapper = shopModule.purchasePremiumActivityWrapper;
+
                 console.log('✅ All functions loaded successfully!');
                 console.log('startCampaignMode:', typeof window.startCampaignMode);
                 console.log('startSingleTaskMode:', typeof window.startSingleTaskMode);
-                
+
                 // Add event listener for Show Nirvana Mode button
                 const showNirvanaBtn = document.getElementById('showNirvanaBtn');
                 if (showNirvanaBtn) {
-                    showNirvanaBtn.addEventListener('click', function() {
+                    showNirvanaBtn.addEventListener('click', function () {
                         const nirvanaZone = document.querySelector('.nirvana-zone');
                         if (nirvanaZone) {
                             nirvanaZone.style.display = 'block';
                             showNirvanaBtn.style.display = 'none';
+
+                            // Set up the nirvana zen button click handler
+                            const nirvanaZenBtn = document.getElementById('nirvanaZenBtn');
+                            if (nirvanaZenBtn && window.addZenPointsDebug) {
+                                nirvanaZenBtn.onclick = window.addZenPointsDebug;
+                            }
                         }
                     });
                 }
             } catch (error) {
                 console.error('❌ Error loading functions:', error);
-                
+
                 // Fallback: show error message to user
                 const errorDiv = document.createElement('div');
                 errorDiv.style.cssText = `

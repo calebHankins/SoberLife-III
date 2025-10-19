@@ -83,7 +83,8 @@
     overflow: hidden;
     animation: taskHighlight 0.8s ease-out;
     z-index: 10;
-    transform: translateZ(0); /* Create stacking context */
+    transform: translateZ(0);
+    /* Create stacking context */
 }
 
 .task-info::before {
@@ -351,6 +352,277 @@
     font-size: 11px;
     margin-top: 5px;
     opacity: 0.9;
+}
+
+/* Activity Status and Cooldown */
+.activity-status {
+    background: rgba(52, 152, 219, 0.1);
+    border: 1px solid #3498DB;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.activity-usage-indicator {
+    font-size: 14px;
+    color: #2C3E50;
+    font-weight: bold;
+}
+
+.activity-usage-indicator.cooldown-active {
+    color: #E74C3C;
+}
+
+.usage-count {
+    background: #3498DB;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.cooldown-active .usage-count {
+    background: #E74C3C;
+}
+
+/* Activity Sections */
+.activity-section {
+    margin-bottom: 20px;
+}
+
+.activity-section h4 {
+    color: #27AE60;
+    font-size: 16px;
+    margin-bottom: 10px;
+    text-align: center;
+    border-bottom: 2px solid #2ECC71;
+    padding-bottom: 5px;
+}
+
+.premium-activities h4 {
+    color: #8E44AD;
+    border-bottom-color: #9B59B6;
+}
+
+/* Premium Activity Styling */
+.activity-btn.premium-activity {
+    background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+    border: 2px solid #8E44AD;
+    position: relative;
+}
+
+.activity-btn.premium-activity::before {
+    content: "✨";
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #F39C12;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border: 2px solid white;
+}
+
+.activity-btn.reactive-activity {
+    background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
+    border: 2px solid #D35400;
+}
+
+.activity-btn.reactive-activity::before {
+    content: "⚡";
+    background: #E74C3C;
+}
+
+/* Activity Button States */
+.activity-btn.on-cooldown {
+    background: #95A5A6;
+    border-color: #7F8C8D;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.activity-btn.on-cooldown::after {
+    content: "Cooldown";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.activity-btn.insufficient-funds {
+    background: #E74C3C;
+    border-color: #C0392B;
+    opacity: 0.7;
+}
+
+/* Split Hands UI */
+.split-hands-container {
+    background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+    border: 2px solid #6C757D;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 10px 0;
+}
+
+.split-hands-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.split-hands-header h3 {
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.split-hands-header p {
+    color: #6C757D;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.split-hands-display {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.split-hand {
+    background: white;
+    border: 2px solid #DEE2E6;
+    border-radius: 10px;
+    padding: 15px;
+    min-width: 200px;
+    text-align: center;
+}
+
+.split-hand.active {
+    border-color: #28A745;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+}
+
+.split-hand-header {
+    margin-bottom: 10px;
+}
+
+.split-hand-header h4 {
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.hand-status {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.hand-status.active {
+    background: #28A745;
+    color: white;
+}
+
+.hand-status.waiting {
+    background: #FFC107;
+    color: #212529;
+}
+
+.hand-status.completed {
+    background: #6C757D;
+    color: white;
+}
+
+.split-hand-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.split-progress {
+    font-size: 14px;
+    color: #495057;
+    font-weight: bold;
+}
+
+/* Shop Premium Activities */
+.upgrade-section {
+    margin-bottom: 30px;
+}
+
+.upgrade-section h3 {
+    color: #2C3E50;
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 2px solid #3498DB;
+    padding-bottom: 8px;
+}
+
+.upgrade-card.premium-activity {
+    border-color: #9B59B6;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    /* Match the standard upgrade card styling */
+}
+
+.upgrade-card.premium-activity .upgrade-icon {
+    background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+}
+
+.upgrade-card.premium-activity h3 {
+    color: #fff;
+    /* White text for headings to match standard cards */
+}
+
+.upgrade-card.premium-activity p {
+    color: #fff;
+    opacity: 0.9;
+    /* White text with slight opacity for descriptions */
+}
+
+.upgrade-card.unlocked {
+    border-color: #28A745;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    /* Match the standard upgrade card styling */
+}
+
+.upgrade-card.unlocked .upgrade-icon {
+    background: linear-gradient(135deg, #28A745 0%, #20A83A 100%);
+}
+
+.upgrade-card.unlocked h3 {
+    color: #fff;
+    /* White text for headings to match standard cards */
+}
+
+.upgrade-card.unlocked p {
+    color: #fff;
+    opacity: 0.9;
+    /* White text with slight opacity for descriptions */
+}
+
+.status-unlocked {
+    color: #28A745;
+    font-weight: bold;
+}
+
+.status-locked {
+    color: #E74C3C;
+    font-weight: bold;
 }
 
 /* Game Over Screen */
@@ -649,6 +921,7 @@
         opacity: 0;
         transform: scale(0.9) translateY(-20px);
     }
+
     100% {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -678,11 +951,13 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0);
     }
 }
+
 /* Progress
 ive Flavor Text Animations */
 @keyframes fadeInSlide {
@@ -690,6 +965,7 @@ ive Flavor Text Animations */
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -701,6 +977,7 @@ ive Flavor Text Animations */
         opacity: 0;
         transform: translateX(100%);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -732,6 +1009,7 @@ ive Flavor Text Animations */
     from {
         height: 0;
     }
+
     to {
         height: 100%;
     }
@@ -761,6 +1039,7 @@ ive Flavor Text Animations */
     from {
         width: 0;
     }
+
     to {
         width: 100%;
     }
@@ -836,6 +1115,7 @@ ive Flavor Text Animations */
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -846,6 +1126,7 @@ ive Flavor Text Animations */
         opacity: 0;
         transform: translateY(30px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -853,9 +1134,12 @@ ive Flavor Text Animations */
 }
 
 @keyframes modalBorderGlow {
-    0%, 100% {
+
+    0%,
+    100% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
@@ -866,23 +1150,23 @@ ive Flavor Text Animations */
     .initial-flavor-modal-overlay {
         padding: 15px;
     }
-    
+
     .initial-flavor-modal-content {
         max-height: 85vh;
         overflow-y: auto;
     }
-    
+
     .initial-flavor-modal-content h2 {
         font-size: 16px !important;
         margin-bottom: 8px !important;
     }
-    
+
     .initial-flavor-modal-content p {
         font-size: 12px !important;
         line-height: 1.3 !important;
         margin-bottom: 8px !important;
     }
-    
+
     .initial-flavor-modal-content button {
         font-size: 13px !important;
         padding: 8px 16px !important;
@@ -896,15 +1180,15 @@ ive Flavor Text Animations */
         border: 4px solid #000;
         background: #fff;
     }
-    
+
     .initial-flavor-modal-content h2 {
         color: #000 !important;
     }
-    
+
     .initial-flavor-modal-content p {
         color: #000 !important;
     }
-    
+
     .initial-flavor-modal-content button {
         background: #000 !important;
         color: #fff !important;
@@ -917,26 +1201,26 @@ ive Flavor Text Animations */
     .initial-flavor-modal-overlay {
         animation: none;
     }
-    
+
     .initial-flavor-modal-content {
         animation: none;
     }
-    
+
     .initial-flavor-modal-content::before {
         animation: none;
     }
-    
+
     .initial-flavor-modal-content button {
         transition: none;
     }
-    
+
     .initial-flavor-modal-content button::before {
         transition: none;
     }
 }
 
-/* Deck Viewer Modal */
-.deck-viewer-modal {
+/* Mind Palace Modal */
+.mind-palace-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -950,7 +1234,7 @@ ive Flavor Text Animations */
     box-sizing: border-box;
 }
 
-.deck-viewer-backdrop {
+.mind-palace-backdrop {
     position: absolute;
     top: 0;
     left: 0;
@@ -960,7 +1244,7 @@ ive Flavor Text Animations */
     backdrop-filter: blur(4px);
 }
 
-.deck-viewer-content {
+.mind-palace-content {
     position: relative;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 20px;
@@ -974,7 +1258,7 @@ ive Flavor Text Animations */
     color: white;
 }
 
-.deck-viewer-header {
+.mind-palace-header {
     background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
     color: white;
     padding: 20px;
@@ -984,13 +1268,13 @@ ive Flavor Text Animations */
     border-bottom: 2px solid #4c51bf;
 }
 
-.deck-viewer-header h2 {
+.mind-palace-header h2 {
     margin: 0;
     font-size: 24px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.deck-viewer-close-btn {
+.mind-palace-close-btn {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -1008,13 +1292,13 @@ ive Flavor Text Animations */
     line-height: 1;
 }
 
-.deck-viewer-close-btn:hover {
+.mind-palace-close-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     border-color: rgba(255, 255, 255, 0.5);
     transform: scale(1.1);
 }
 
-.deck-viewer-body {
+.mind-palace-body {
     padding: 25px;
     overflow-y: auto;
     max-height: calc(90vh - 140px);
@@ -1140,22 +1424,22 @@ ive Flavor Text Animations */
     opacity: 0.9;
 }
 
-.deck-viewer-actions {
+.mind-palace-actions {
     padding: 20px;
     text-align: center;
     border-top: 2px solid rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* Responsive Design for Deck Viewer */
+/* Responsive Design for Mind Palace */
 @media (max-width: 767px) {
-    .deck-viewer-modal {
+    .mind-palace-modal {
         padding: 5px;
         align-items: flex-start;
         padding-top: 20px;
     }
-    
-    .deck-viewer-content {
+
+    .mind-palace-content {
         max-width: 95%;
         margin: 0;
         max-height: 85vh;
@@ -1164,111 +1448,310 @@ ive Flavor Text Animations */
         flex-direction: column;
         overflow: hidden;
     }
-    
-    .deck-viewer-header {
+
+    .mind-palace-header {
         padding: 12px 15px;
         flex-shrink: 0;
     }
-    
-    .deck-viewer-header h2 {
+
+    .mind-palace-header h2 {
         font-size: 18px;
     }
-    
-    .deck-viewer-close-btn {
+
+    .mind-palace-close-btn {
         width: 32px;
         height: 32px;
         font-size: 18px;
     }
-    
-    .deck-viewer-body {
+
+    .mind-palace-body {
         padding: 10px 15px;
         flex: 1;
         overflow-y: auto;
         min-height: 0;
     }
-    
+
     .deck-stats {
         gap: 10px;
         margin-bottom: 15px;
     }
-    
+
     .card-type-stat {
         flex-direction: row;
         text-align: left;
         gap: 12px;
         padding: 12px;
     }
-    
+
     .card-type-icon {
         font-size: 32px;
         min-width: 45px;
     }
-    
+
     .card-type-info h3 {
         font-size: 16px;
         margin-bottom: 4px;
     }
-    
+
     .card-count {
         font-size: 22px;
     }
-    
+
     .card-description {
         font-size: 11px;
         line-height: 1.3;
     }
-    
+
     .deck-power-section {
         padding: 12px;
         margin-bottom: 15px;
     }
-    
+
     .deck-power-section h3 {
         font-size: 16px;
         margin-bottom: 10px;
     }
-    
+
     .power-meter {
         height: 14px;
     }
-    
+
     #deckPowerText {
         font-size: 13px;
     }
-    
+
     .upgrade-history {
         padding: 12px;
         margin-bottom: 10px;
     }
-    
+
     .upgrade-history h3 {
         font-size: 15px;
         margin-bottom: 8px;
     }
-    
+
     #upgradeHistoryContent {
         font-size: 12px;
         line-height: 1.4;
     }
-    
+
     #upgradeHistoryContent p {
         margin: 4px 0;
     }
-    
-    .deck-viewer-actions {
+
+    .mind-palace-actions {
         padding: 12px 15px;
         flex-shrink: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
         background: rgba(255, 255, 255, 0.05);
     }
-    
-    .deck-viewer-actions button {
+
+    .mind-palace-actions button {
         width: 100%;
         max-width: none;
         padding: 12px;
         font-size: 16px;
     }
 }
+
+/* Mind Palace Sections */
+.mind-palace-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mind-palace-section h3 {
+    margin: 0 0 10px 0;
+    color: #fff;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.activity-category {
+    margin-bottom: 25px;
+}
+
+.activity-category h4 {
+    margin: 0 0 15px 0;
+    color: #fff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.activity-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+}
+
+.activity-info {
+    flex: 1;
+}
+
+.activity-info h5 {
+    margin: 0 0 5px 0;
+    color: #fff;
+    font-size: 16px;
+}
+
+.activity-cost {
+    color: #FFD700;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.activity-desc {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+
+.activity-status {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.basic-activity {
+    border-left: 3px solid #4CAF50;
+}
+
+.premium-activity {
+    border-left: 3px solid #9C27B0;
+}
+
+/* Growth Journey specific styling */
+#upgradeHistoryContent p {
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+#upgradeHistoryContent p:first-child {
+    border-left-color: #4CAF50;
+    /* Base deck - green */
+}
+
+#upgradeHistoryContent p:has-text("Wild Joker") {
+    border-left-color: #FFD700;
+    /* Jokers - gold */
+}
+
+#upgradeHistoryContent p:has-text("Ace") {
+    border-left-color: #FF6B6B;
+    /* Aces - red */
+}
+
+#upgradeHistoryContent p:has-text("advanced techniques") {
+    border-left-color: #9C27B0;
+    /* Advanced techniques - purple */
+}
+
+#upgradeHistoryContent p:has-text("zen points invested") {
+    border-left-color: #00BCD4;
+    /* Investment - cyan */
+}
+
+/* Class-based styling for better browser support */
+.growth-base {
+    border-left-color: #4CAF50 !important;
+    /* Base deck - green */
+}
+
+.growth-joker {
+    border-left-color: #FFD700 !important;
+    /* Jokers - gold */
+}
+
+.growth-ace {
+    border-left-color: #FF6B6B !important;
+    /* Aces - red */
+}
+
+.growth-technique {
+    border-left-color: #9C27B0 !important;
+    /* Advanced techniques - purple */
+}
+
+.growth-investment {
+    border-left-color: #00BCD4 !important;
+    /* Investment - cyan */
+}
+
+/* Responsive adjustments for Mind Palace sections */
+@media (max-width: 767px) {
+    .mind-palace-section {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .activity-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .activity-item {
+        padding: 12px;
+    }
+
+    .activity-icon {
+        font-size: 20px;
+        width: 28px;
+    }
+
+    .activity-info h5 {
+        font-size: 14px;
+    }
+
+    .activity-cost,
+    .activity-desc,
+    .activity-status {
+        font-size: 11px;
+    }
+}
+
 /* Campaign Interface Styles */
 
 /* Game Mode Selection */
@@ -1547,7 +2030,7 @@ ive Flavor Text Animations */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.shop-content > p {
+.shop-content>p {
     text-align: center;
     font-size: 16px;
     margin-bottom: 25px;
@@ -1694,77 +2177,78 @@ ive Flavor Text Animations */
 
 /* Responsive Design for Campaign Interface */
 @media (max-width: 767px) {
+
     /* Campaign Overview Mobile Optimizations */
     .campaign-overview {
         margin: 5px 0;
         padding: 15px;
         border-radius: 15px;
     }
-    
+
     .campaign-overview h2 {
         font-size: 24px;
         margin-bottom: 15px;
     }
-    
+
     .mode-options {
         flex-direction: column;
         align-items: center;
         gap: 15px;
     }
-    
+
     .mode-card {
         max-width: 100%;
         min-width: auto;
         padding: 20px;
     }
-    
+
     .campaign-progress {
         flex-direction: column;
         gap: 15px;
         margin-bottom: 20px;
     }
-    
+
     .deck-status,
     .total-progress {
         min-width: auto;
         padding: 15px;
     }
-    
+
     .deck-status h4,
     .total-progress h4 {
         font-size: 16px;
     }
-    
+
     .task-list {
         gap: 12px;
         margin-bottom: 20px;
     }
-    
+
     .task-card {
         flex-direction: column;
         text-align: center;
         gap: 15px;
         padding: 15px;
     }
-    
+
     .task-info-section h4 {
         font-size: 18px;
     }
-    
+
     .task-info-section p {
         font-size: 13px;
     }
-    
+
     .task-status {
         justify-content: center;
     }
-    
+
     .task-btn {
         min-width: 80px;
         padding: 8px 16px;
         font-size: 13px;
     }
-    
+
     /* Campaign Actions Mobile */
     .campaign-actions {
         display: flex;
@@ -1772,77 +2256,77 @@ ive Flavor Text Animations */
         gap: 10px;
         align-items: center;
     }
-    
+
     .campaign-actions button {
         width: 100%;
         max-width: 280px;
         padding: 12px 20px;
         font-size: 14px;
     }
-    
+
     /* Shop Mobile Optimizations */
     .upgrade-shop {
         padding: 10px;
     }
-    
+
     .shop-content {
         padding: 20px;
         max-height: 85vh;
         margin: 10px;
     }
-    
+
     .shop-content h2 {
         font-size: 24px;
     }
-    
+
     .zen-balance {
         padding: 15px;
         margin-bottom: 20px;
     }
-    
+
     .zen-balance h3 {
         font-size: 20px;
     }
-    
+
     .upgrade-card {
         padding: 20px;
     }
-    
+
     .upgrade-card h3 {
         font-size: 20px;
     }
-    
+
     .upgrade-card p {
         font-size: 13px;
     }
-    
+
     .upgrade-stats {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .upgrade-btn {
         font-size: 14px;
         padding: 10px 20px;
     }
-    
+
     .shop-actions {
         flex-direction: column;
         align-items: center;
         gap: 10px;
     }
-    
+
     .shop-actions button {
         width: 100%;
         max-width: 200px;
     }
-    
+
     .success-actions {
         flex-direction: column;
         align-items: center;
         gap: 10px;
     }
-    
+
     .success-actions button {
         width: 100%;
         max-width: 200px;
@@ -1855,10 +2339,12 @@ ive Flavor Text Animations */
         transform: scale(1);
         box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
     }
+
     50% {
         transform: scale(1.02);
         box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
     }
+
     100% {
         transform: scale(1);
         box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
@@ -1866,19 +2352,25 @@ ive Flavor Text Animations */
 }
 
 @keyframes borderGlow {
-    0%, 100% {
+
+    0%,
+    100% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
 }
 
 @keyframes taskPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
         box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
     }
+
     50% {
         transform: scale(1.01);
         box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
@@ -1890,10 +2382,12 @@ ive Flavor Text Animations */
         transform: scale(1) rotateY(0deg);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.05) rotateY(5deg);
         opacity: 0.8;
     }
+
     100% {
         transform: scale(1) rotateY(0deg);
         opacity: 1;
@@ -1901,15 +2395,38 @@ ive Flavor Text Animations */
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
 
 @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
 }
 
 /* Joker Card Animations */
@@ -1917,19 +2434,24 @@ ive Flavor Text Animations */
     0% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
+
     100% {
         background-position: 0% 50%;
     }
 }
 
 @keyframes joker-border-glow {
-    0%, 100% {
+
+    0%,
+    100% {
         background-position: 0% 50%;
         opacity: 0.8;
     }
+
     50% {
         background-position: 100% 50%;
         opacity: 1;
@@ -1940,15 +2462,19 @@ ive Flavor Text Animations */
     0% {
         transform: scale(1) rotate(0deg);
     }
+
     25% {
         transform: scale(1.1) rotate(2deg);
     }
+
     50% {
         transform: scale(1.05) rotate(-1deg);
     }
+
     75% {
         transform: scale(1.08) rotate(1deg);
     }
+
     100% {
         transform: scale(1) rotate(0deg);
     }
@@ -1958,18 +2484,23 @@ ive Flavor Text Animations */
     0% {
         transform: scale(1);
     }
+
     20% {
         transform: scale(1.2) rotate(5deg);
     }
+
     40% {
         transform: scale(1.1) rotate(-3deg);
     }
+
     60% {
         transform: scale(1.15) rotate(2deg);
     }
+
     80% {
         transform: scale(1.05) rotate(-1deg);
     }
+
     100% {
         transform: scale(1) rotate(0deg);
     }
@@ -1980,10 +2511,12 @@ ive Flavor Text Animations */
         transform: scale(0);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.3);
         opacity: 1;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;
@@ -1996,6 +2529,7 @@ ive Flavor Text Animations */
         transform: translateY(0) scale(1);
         opacity: 1;
     }
+
     100% {
         transform: translateY(-50px) scale(0.5);
         opacity: 0;
@@ -2018,10 +2552,12 @@ ive Flavor Text Animations */
         transform: scale(0.9);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.05);
         opacity: 1;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;
@@ -2033,10 +2569,12 @@ ive Flavor Text Animations */
         transform: scale(0.5) rotate(-5deg);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.1) rotate(2deg);
         opacity: 1;
     }
+
     100% {
         transform: scale(1) rotate(0deg);
         opacity: 1;
@@ -2049,26 +2587,338 @@ ive Flavor Text Animations */
         animation: none;
         background: linear-gradient(45deg, #4ecdc4, #45b7d1);
     }
-    
+
     .card.joker::before {
         animation: none;
     }
-    
+
     .card.joker.calculating,
     .card.joker.perfect-score {
         animation: none;
     }
-    
+
     .joker-value-indicator {
         animation: none;
     }
-    
+
     .joker-celebration-particle {
         animation: none;
         display: none;
     }
-    
+
     .joker-feedback {
         animation: none;
+    }
+}
+
+/* Split Hands UI for Compartmentalize */
+.split-hands-container {
+    background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+    border: 3px solid #4CAF50;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 0;
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+    max-height: none;
+    overflow: visible;
+}
+
+.split-hands-header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.split-hands-header h3 {
+    color: #2E7D32;
+    font-size: 20px;
+    margin: 0 0 8px 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.split-hands-header p {
+    color: #4CAF50;
+    font-style: italic;
+    margin: 0;
+    font-size: 14px;
+}
+
+.split-hands-display {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.split-hand {
+    background: white;
+    border: 2px solid #81C784;
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 160px;
+    flex: 1;
+    max-width: 200px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.split-hand.active {
+    border-color: #4CAF50;
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+    transform: translateY(-2px);
+}
+
+.split-hand-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.split-hand-header h4 {
+    margin: 0;
+    color: #2E7D32;
+    font-size: 18px;
+}
+
+.hand-status {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.hand-status.active {
+    background: #4CAF50;
+    color: white;
+}
+
+.hand-status.waiting {
+    background: #FFC107;
+    color: #333;
+}
+
+.hand-status.completed {
+    background: #9E9E9E;
+    color: white;
+}
+
+.split-hand .cards {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 10px 0;
+    min-height: 60px;
+    align-items: center;
+}
+
+.split-hand .card {
+    width: 40px;
+    height: 56px;
+    font-size: 12px;
+    border: 2px solid #4CAF50;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.split-hand .score {
+    text-align: center;
+    font-weight: bold;
+    color: #2E7D32;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.split-hand .score.bust {
+    color: #D32F2F;
+    animation: bustPulse 0.5s ease-in-out;
+}
+
+.split-hand-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.split-progress {
+    background: #E8F5E8;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: 1px solid #4CAF50;
+    color: #2E7D32;
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+/* Compact house area for split hands */
+.split-house-area {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #81C784;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+.split-house-info h4 {
+    margin: 0 0 8px 0;
+    color: #2E7D32;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.split-house-area .cards {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 8px 0 0 0;
+    min-height: 56px;
+    align-items: center;
+}
+
+.split-house-area .card {
+    width: 40px;
+    height: 56px;
+    font-size: 12px;
+    border: 2px solid #4CAF50;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Compartmentalize offer popup */
+.compartmentalize-offer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border: 3px solid #FF9800;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(255, 152, 0, 0.4);
+    z-index: 1000;
+    max-width: 400px;
+    text-align: center;
+    animation: compartmentalizeAppear 0.5s ease-out;
+}
+
+.compartmentalize-content h3 {
+    color: #E65100;
+    margin: 0 0 15px 0;
+    font-size: 22px;
+}
+
+.compartmentalize-content p {
+    color: #BF360C;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+.compartmentalize-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.compartmentalize-actions .primary-btn {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.compartmentalize-actions .primary-btn:hover {
+    background: linear-gradient(135deg, #F57C00, #E65100);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+}
+
+.compartmentalize-actions .secondary-btn {
+    background: #FFF;
+    color: #FF9800;
+    border: 2px solid #FF9800;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.compartmentalize-actions .secondary-btn:hover {
+    background: #FF9800;
+    color: white;
+}
+
+/* Animations */
+@keyframes compartmentalizeAppear {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes bustPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Responsive design for split hands */
+@media (max-width: 768px) {
+    .split-hands-display {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .split-hand {
+        min-width: 250px;
+        max-width: 300px;
+    }
+
+    .split-hand-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .compartmentalize-offer {
+        max-width: 90%;
+        margin: 0 5%;
+    }
+
+    .compartmentalize-actions {
+        flex-direction: column;
     }
 }

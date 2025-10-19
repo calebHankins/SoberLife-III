@@ -13,7 +13,10 @@
         "browser_snapshot",
         "browser_console_messages",
         "browser_navigate_back",
-        "browser_evaluate"
+        "browser_evaluate",
+        "browser_take_screenshot",
+        "browser_press_key",
+        "browser_close"
       ]
     }
   }

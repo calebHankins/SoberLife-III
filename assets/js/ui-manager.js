@@ -1,16 +1,55 @@
 // SoberLife III - UI Manager
 // DOM manipulation and visual updates
 
-import { gameState, campaignState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText } from './game-state.js';
+import { gameState, campaignState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText, activityState, canUseActivity, loadActivityStateFromCampaign } from './game-state.js';
 import { calculateScore } from './card-system.js';
 import { isCampaignMode, getCurrentTask } from './campaign-manager.js';
-import { ZenPointsManager } from './zen-points-manager.js';
+import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
+import { zenActivities } from './stress-system.js';
 
 // Utility functions for showing/hiding elements
 // Debug: Add 1000 zen points instantly
 export function addZenPointsDebug() {
-    gameState.zenPoints += 1000;
-    updateDisplay();
+    const success = ZenPointsManager.addPoints(1000, ZEN_TRANSACTION_TYPES.ADMIN_ADJUSTMENT, true, {
+        source: 'nirvana_mode_debug',
+        description: 'Debug zen points added via Nirvana Mode'
+    });
+
+    if (success) {
+        console.log('Nirvana Mode: Added 1000 zen points via ZenPointsManager');
+        updateDisplay();
+
+        // Show feedback to user
+        const popup = document.createElement('div');
+        popup.className = 'popup-notification zen-gain';
+        popup.textContent = '🧘 Nirvana Mode: +1000 Zen Points!';
+        popup.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: popupFade 2s ease-out forwards;
+        `;
+
+        document.body.appendChild(popup);
+
+        // Remove popup after animation
+        setTimeout(() => {
+            if (popup.parentNode) {
+                popup.parentNode.removeChild(popup);
+            }
+        }, 2000);
+    } else {
+        console.error('Nirvana Mode: Failed to add zen points');
+    }
 }
 export function hideElement(id) {
     const element = document.getElementById(id);
@@ -82,34 +121,41 @@ export function updateCards() {
     if (playerCardsEl) {
         playerCardsEl.innerHTML = '';
 
-        // Player cards
-        gameState.playerCards.forEach(card => {
-            const cardEl = createCardElement(card);
-            playerCardsEl.appendChild(cardEl);
-        });
+        // Check if we should show compartmentalized display
+        if (gameState.showCompartmentalizedResult && gameState.compartmentalizedHands) {
+            showCompartmentalizedFinalDisplay(gameState.compartmentalizedHands);
+        } else {
+            // Regular player cards display
+            gameState.playerCards.forEach(card => {
+                const cardEl = createCardElement(card);
+                playerCardsEl.appendChild(cardEl);
+            });
+        }
     }
 
     if (houseCardsEl) {
         houseCardsEl.innerHTML = '';
 
-        // House cards (hide hole card only if game is still in progress)
-        gameState.houseCards.forEach((card, index) => {
-            const cardEl = document.createElement('div');
-            cardEl.className = 'card';
+        // Always show house cards, regardless of compartmentalized state
+        if (gameState.houseCards && gameState.houseCards.length > 0) {
+            gameState.houseCards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card';
 
-            if (index === 1 && gameState.gameInProgress) {
-                // Hide hole card during active play
-                cardEl.textContent = '?';
-                cardEl.style.background = 'linear-gradient(135deg, #34495E, #2C3E50)';
-                cardEl.style.color = 'white';
-            } else {
-                const fullCardEl = createCardElement(card);
-                cardEl.className = fullCardEl.className;
-                cardEl.innerHTML = fullCardEl.innerHTML;
-                cardEl.style.cssText = fullCardEl.style.cssText;
-            }
-            houseCardsEl.appendChild(cardEl);
-        });
+                if (index === 1 && gameState.gameInProgress) {
+                    // Hide hole card during active play
+                    cardEl.textContent = '?';
+                    cardEl.style.background = 'linear-gradient(135deg, #34495E, #2C3E50)';
+                    cardEl.style.color = 'white';
+                } else {
+                    const fullCardEl = createCardElement(card);
+                    cardEl.className = fullCardEl.className;
+                    cardEl.innerHTML = fullCardEl.innerHTML;
+                    cardEl.style.cssText = fullCardEl.style.cssText;
+                }
+                houseCardsEl.appendChild(cardEl);
+            });
+        }
     }
 
     // Update scores with Joker value indicators
@@ -192,19 +238,26 @@ function createCardElement(card) {
 
 // Update score displays with Joker information
 function updateScoreDisplays() {
-    const playerScore = calculateScore(gameState.playerCards);
     const playerScoreEl = document.getElementById('playerScore');
     if (playerScoreEl) {
-        let scoreText = `Score: ${playerScore}`;
+        // Don't update player score if showing compartmentalized display
+        if (gameState.showCompartmentalizedResult && gameState.compartmentalizedHands) {
+            playerScoreEl.textContent = 'Compartmentalized Hands';
+            playerScoreEl.style.textAlign = 'center';
+        } else {
+            const playerScore = calculateScore(gameState.playerCards);
+            let scoreText = `Score: ${playerScore}`;
 
-        // Add Joker contribution info
-        const jokers = gameState.playerCards.filter(card => card.isJoker);
-        if (jokers.length > 0) {
-            const jokerValues = jokers.map(j => j.getCurrentValue()).join(', ');
-            scoreText += ` (Jokers: ${jokerValues})`;
+            // Add Joker contribution info
+            const jokers = gameState.playerCards.filter(card => card.isJoker);
+            if (jokers.length > 0) {
+                const jokerValues = jokers.map(j => j.getCurrentValue()).join(', ');
+                scoreText += ` (Jokers: ${jokerValues})`;
+            }
+
+            playerScoreEl.textContent = scoreText;
+            playerScoreEl.style.textAlign = '';
         }
-
-        playerScoreEl.textContent = scoreText;
     }
 
     const houseScoreEl = document.getElementById('houseScore');
@@ -458,21 +511,498 @@ function generateTaskSpecificStats() {
 
 // Update zen activities button states
 export function updateZenActivities() {
-    const breathBtn = document.getElementById('breathBtn');
-    const stretchBtn = document.getElementById('stretchBtn');
-    const meditationBtn = document.getElementById('meditationBtn');
 
     // Use zen points manager to get current balance
     const currentBalance = ZenPointsManager.getCurrentBalance();
 
-    if (breathBtn) {
-        breathBtn.disabled = currentBalance < 10;
+    // Update activity usage indicator
+    updateActivityUsageIndicator();
+
+    // Update default activity buttons
+    updateActivityButton('breath', zenActivities.breath, currentBalance);
+    updateActivityButton('stretch', zenActivities.stretch, currentBalance);
+    updateActivityButton('meditation', zenActivities.meditation, currentBalance);
+
+    // Update premium activity buttons
+    updatePremiumActivityButton('mindfulBreathing', zenActivities.mindfulBreathing, currentBalance);
+    updatePremiumActivityButton('compartmentalize', zenActivities.compartmentalize, currentBalance);
+}
+
+// Update individual activity button
+function updateActivityButton(activityId, activityConfig, currentBalance) {
+    const button = document.getElementById(`${activityId}Btn`);
+    if (!button) return;
+    const canUse = canUseActivity(activityId) && currentBalance >= activityConfig.cost;
+
+    button.disabled = !canUse;
+
+    // Add visual feedback for cooldown
+    if (!canUse) {
+        if (currentBalance < activityConfig.cost) {
+            button.classList.add('insufficient-funds');
+            button.classList.remove('on-cooldown');
+        } else {
+            button.classList.add('on-cooldown');
+            button.classList.remove('insufficient-funds');
+        }
+    } else {
+        button.classList.remove('on-cooldown', 'insufficient-funds');
     }
-    if (stretchBtn) {
-        stretchBtn.disabled = currentBalance < 25;
+}
+
+// Update premium activity button
+function updatePremiumActivityButton(activityId, activityConfig, currentBalance) {
+    const button = document.getElementById(`${activityId}ActivityBtn`);
+    if (!button) return;
+
+    // Check if activity is unlocked
+    const isUnlocked = campaignState.unlockedActivities && campaignState.unlockedActivities[activityId];
+
+    if (isUnlocked) {
+        button.style.display = 'inline-block';
+
+        const canUse = canUseActivity(activityId) && currentBalance >= activityConfig.cost;
+        button.disabled = !canUse;
+
+        // Add visual feedback
+        if (!canUse) {
+            if (currentBalance < activityConfig.cost) {
+                button.classList.add('insufficient-funds');
+                button.classList.remove('on-cooldown');
+            } else {
+                button.classList.add('on-cooldown');
+                button.classList.remove('insufficient-funds');
+            }
+        } else {
+            button.classList.remove('on-cooldown', 'insufficient-funds');
+        }
+    } else {
+        button.style.display = 'none';
     }
-    if (meditationBtn) {
-        meditationBtn.disabled = currentBalance < 50;
+}
+
+// Update activity usage indicator
+function updateActivityUsageIndicator() {
+
+    const indicator = document.getElementById('activityUsageIndicator');
+    const countElement = document.getElementById('activityUsageCount');
+
+    if (indicator && countElement) {
+        const usedCount = activityState.usedThisHand ? 1 : 0;
+        countElement.textContent = `${usedCount}/1`;
+
+        if (activityState.usedThisHand) {
+            indicator.classList.add('cooldown-active');
+            indicator.title = 'Activities are on cooldown until next hand';
+        } else {
+            indicator.classList.remove('cooldown-active');
+            indicator.title = 'You can use 1 activity this hand';
+        }
+    }
+}
+
+// Load and display premium activities based on campaign state
+export function loadPremiumActivities() {
+
+    // Load activity state from campaign
+    loadActivityStateFromCampaign();
+
+    // Update activity display
+    updateZenActivities();
+}
+
+// Show split hands UI for compartmentalize
+export function showSplitHandsUI(splitHands) {
+    const regularContainer = document.getElementById('regularCardsContainer');
+    const splitContainer = document.getElementById('splitHandsContainer');
+
+    if (regularContainer && splitContainer) {
+        regularContainer.classList.add('hidden');
+        splitContainer.classList.remove('hidden');
+
+        // Update split hand displays
+        updateSplitHandDisplay(splitHands);
+    }
+}
+
+// Hide split hands UI and return to regular display
+export function hideSplitHandsUI() {
+    const regularContainer = document.getElementById('regularCardsContainer');
+    const splitContainer = document.getElementById('splitHandsContainer');
+
+    if (regularContainer && splitContainer) {
+        regularContainer.classList.remove('hidden');
+        splitContainer.classList.add('hidden');
+    }
+}
+
+// Update split hand display
+export function updateSplitHandDisplay(splitHands) {
+    if (!splitHands) return;
+
+    // Update hand 1
+    updateSplitHandCards('splitHand1Cards', splitHands.hand1.cards);
+    updateSplitHandScore('splitHand1Score', splitHands.hand1.cards);
+    updateSplitHandStatus('hand1Status', splitHands.hand1, splitHands.currentHand === 0);
+
+    // Update hand 2
+    updateSplitHandCards('splitHand2Cards', splitHands.hand2.cards);
+    updateSplitHandScore('splitHand2Score', splitHands.hand2.cards);
+    updateSplitHandStatus('hand2Status', splitHands.hand2, splitHands.currentHand === 1);
+
+    // Add visual indicators for active hand
+    const hand1Element = document.getElementById('splitHand1');
+    const hand2Element = document.getElementById('splitHand2');
+
+    if (hand1Element && hand2Element) {
+        hand1Element.classList.toggle('active', splitHands.currentHand === 0);
+        hand2Element.classList.toggle('active', splitHands.currentHand === 1);
+    }
+
+    // Update progress text
+    const progressText = document.getElementById('splitProgressText');
+    if (progressText) {
+        const currentHandNum = splitHands.currentHand + 1;
+        const handStatus = splitHands.currentHand === 0 ?
+            (splitHands.hand1.completed ? 'Completed' : 'Active') :
+            (splitHands.hand2.completed ? 'Completed' : 'Active');
+        progressText.textContent = `Hand ${currentHandNum} - ${handStatus}`;
+    }
+
+    // Update switch button and complete button
+    const switchBtn = document.getElementById('switchHandBtn');
+    const completeBtn = document.getElementById('completeBothHandsBtn');
+    const bothCompleted = splitHands.hand1.completed && splitHands.hand2.completed;
+
+    if (switchBtn) {
+        const otherHand = splitHands.currentHand === 0 ? splitHands.hand2 : splitHands.hand1;
+
+        if (bothCompleted) {
+            switchBtn.disabled = true;
+            switchBtn.textContent = 'Both Hands Complete';
+            switchBtn.style.background = '#9E9E9E';
+            switchBtn.style.color = 'white';
+        } else if (otherHand.completed) {
+            switchBtn.disabled = true;
+            switchBtn.textContent = 'Other Hand Completed';
+        } else {
+            switchBtn.disabled = false;
+            switchBtn.textContent = `Switch to Hand ${splitHands.currentHand === 0 ? 2 : 1}`;
+            switchBtn.style.background = '';
+            switchBtn.style.color = '';
+        }
+    }
+
+    // Show/hide complete button
+    if (completeBtn) {
+        if (bothCompleted) {
+            completeBtn.classList.remove('hidden');
+            completeBtn.style.background = '#4CAF50';
+            completeBtn.style.color = 'white';
+        } else {
+            completeBtn.classList.add('hidden');
+        }
+    }
+
+    // Update house cards display for split hands
+    updateSplitHouseCards();
+}
+
+// Update individual split hand cards
+function updateSplitHandCards(containerId, cards) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    cards.forEach(card => {
+        const cardElement = createCardElement(card);
+        // Adjust size for split hand display
+        cardElement.style.width = '50px';
+        cardElement.style.height = '70px';
+        cardElement.style.fontSize = '14px';
+        container.appendChild(cardElement);
+    });
+}
+
+// Update individual split hand score
+function updateSplitHandScore(scoreId, cards) {
+    const scoreElement = document.getElementById(scoreId);
+    if (scoreElement) {
+        const score = calculateScore(cards);
+        scoreElement.textContent = `Score: ${score}`;
+
+        // Add visual feedback for bust
+        if (score > 21) {
+            scoreElement.classList.add('bust');
+        } else {
+            scoreElement.classList.remove('bust');
+        }
+    }
+}
+
+// Update split hand status indicator
+function updateSplitHandStatus(statusId, handData, isActive) {
+    const statusElement = document.getElementById(statusId);
+    if (!statusElement) return;
+
+    if (handData.completed) {
+        statusElement.textContent = `(${handData.outcome || 'Completed'})`;
+        statusElement.className = 'hand-status completed';
+    } else if (isActive) {
+        statusElement.textContent = '(Active)';
+        statusElement.className = 'hand-status active';
+    } else {
+        statusElement.textContent = '(Waiting)';
+        statusElement.className = 'hand-status waiting';
+    }
+}
+
+// Update house cards for split hands display
+function updateSplitHouseCards() {
+    const container = document.getElementById('splitHouseCards');
+    const scoreElement = document.getElementById('splitHouseScore');
+
+    if (!container || !scoreElement) return;
+
+    container.innerHTML = '';
+
+    // Show house cards (hide hole card if game is in progress)
+    gameState.houseCards.forEach((card, index) => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'card';
+
+        if (index === 1 && gameState.gameInProgress) {
+            // Hide hole card during active play
+            cardElement.textContent = '?';
+            cardElement.style.background = 'linear-gradient(135deg, #34495E, #2C3E50)';
+            cardElement.style.color = 'white';
+        } else {
+            const fullCardEl = createCardElement(card);
+            cardElement.className = fullCardEl.className;
+            cardElement.innerHTML = fullCardEl.innerHTML;
+            cardElement.style.cssText = fullCardEl.style.cssText;
+            // Adjust size for split display
+            cardElement.style.width = '40px';
+            cardElement.style.height = '56px';
+            cardElement.style.fontSize = '12px';
+        }
+        container.appendChild(cardElement);
+    });
+
+    // Update house score
+    if (gameState.gameInProgress && gameState.houseCards.length > 1) {
+        scoreElement.textContent = 'Score: ?';
+    } else {
+        const houseScore = calculateScore(gameState.houseCards);
+        scoreElement.textContent = `Score: ${houseScore}`;
+    }
+}
+
+// Show compartmentalized hands in the final display
+function showCompartmentalizedFinalDisplay(splitHandsData) {
+    const playerCardsEl = document.getElementById('playerCards');
+    const playerScoreEl = document.getElementById('playerScore');
+
+    if (!playerCardsEl || !splitHandsData) return;
+
+    // Create a container for separated hands
+    const handsContainer = document.createElement('div');
+    handsContainer.className = 'compartmentalized-final-display';
+    handsContainer.style.cssText = `
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+        margin: 10px 0;
+    `;
+
+    // Create Hand 1 display
+    const hand1Container = document.createElement('div');
+    hand1Container.style.cssText = `
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #81C784;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        min-width: 120px;
+    `;
+
+    const hand1Title = document.createElement('h4');
+    hand1Title.textContent = 'Hand 1';
+    hand1Title.style.cssText = 'margin: 0 0 8px 0; color: #2E7D32; font-size: 14px;';
+    hand1Container.appendChild(hand1Title);
+
+    const hand1Cards = document.createElement('div');
+    hand1Cards.style.cssText = 'display: flex; gap: 4px; justify-content: center; margin: 8px 0;';
+    splitHandsData.hand1Cards.forEach(card => {
+        const cardEl = createCardElement(card);
+        cardEl.style.width = '35px';
+        cardEl.style.height = '50px';
+        cardEl.style.fontSize = '11px';
+        hand1Cards.appendChild(cardEl);
+    });
+    hand1Container.appendChild(hand1Cards);
+
+    const hand1Score = document.createElement('div');
+    hand1Score.textContent = `Score: ${splitHandsData.hand1Score}`;
+    hand1Score.style.cssText = 'font-weight: bold; color: #2E7D32; font-size: 12px;';
+    hand1Container.appendChild(hand1Score);
+
+    // Create Hand 2 display
+    const hand2Container = document.createElement('div');
+    hand2Container.style.cssText = `
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #81C784;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        min-width: 120px;
+    `;
+
+    const hand2Title = document.createElement('h4');
+    hand2Title.textContent = 'Hand 2';
+    hand2Title.style.cssText = 'margin: 0 0 8px 0; color: #2E7D32; font-size: 14px;';
+    hand2Container.appendChild(hand2Title);
+
+    const hand2Cards = document.createElement('div');
+    hand2Cards.style.cssText = 'display: flex; gap: 4px; justify-content: center; margin: 8px 0;';
+    splitHandsData.hand2Cards.forEach(card => {
+        const cardEl = createCardElement(card);
+        cardEl.style.width = '35px';
+        cardEl.style.height = '50px';
+        cardEl.style.fontSize = '11px';
+        hand2Cards.appendChild(cardEl);
+    });
+    hand2Container.appendChild(hand2Cards);
+
+    const hand2Score = document.createElement('div');
+    hand2Score.textContent = `Score: ${splitHandsData.hand2Score}`;
+    hand2Score.style.cssText = 'font-weight: bold; color: #2E7D32; font-size: 12px;';
+    hand2Container.appendChild(hand2Score);
+
+    // Add both hands to the container
+    handsContainer.appendChild(hand1Container);
+    handsContainer.appendChild(hand2Container);
+
+    // Replace player cards with the separated hands display
+    playerCardsEl.appendChild(handsContainer);
+
+    // Update player score to show compartmentalized info
+    if (playerScoreEl) {
+        playerScoreEl.textContent = 'Compartmentalized Hands';
+        playerScoreEl.style.textAlign = 'center';
+    }
+}
+
+// Update card display after compartmentalization to show hands separately
+export function updateCompartmentalizedCardDisplay(splitHandsData) {
+    const playerCardsEl = document.getElementById('playerCards');
+    const houseCardsEl = document.getElementById('houseCards');
+    const playerScoreEl = document.getElementById('playerScore');
+
+    if (!playerCardsEl || !houseCardsEl || !playerScoreEl) return;
+
+    // Clear existing cards
+    playerCardsEl.innerHTML = '';
+    houseCardsEl.innerHTML = '';
+
+    // Create a container for separated hands
+    const handsContainer = document.createElement('div');
+    handsContainer.className = 'compartmentalized-final-display';
+    handsContainer.style.cssText = `
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+        margin: 10px 0;
+    `;
+
+    // Create Hand 1 display
+    const hand1Container = document.createElement('div');
+    hand1Container.style.cssText = `
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #81C784;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        min-width: 120px;
+    `;
+
+    const hand1Title = document.createElement('h4');
+    hand1Title.textContent = 'Hand 1';
+    hand1Title.style.cssText = 'margin: 0 0 8px 0; color: #2E7D32; font-size: 14px;';
+    hand1Container.appendChild(hand1Title);
+
+    const hand1Cards = document.createElement('div');
+    hand1Cards.style.cssText = 'display: flex; gap: 4px; justify-content: center; margin: 8px 0;';
+    splitHandsData.hand1Cards.forEach(card => {
+        const cardEl = createCardElement(card);
+        cardEl.style.width = '35px';
+        cardEl.style.height = '50px';
+        cardEl.style.fontSize = '11px';
+        hand1Cards.appendChild(cardEl);
+    });
+    hand1Container.appendChild(hand1Cards);
+
+    const hand1Score = document.createElement('div');
+    hand1Score.textContent = `Score: ${splitHandsData.hand1Score}`;
+    hand1Score.style.cssText = 'font-weight: bold; color: #2E7D32; font-size: 12px;';
+    hand1Container.appendChild(hand1Score);
+
+    // Create Hand 2 display
+    const hand2Container = document.createElement('div');
+    hand2Container.style.cssText = `
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #81C784;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        min-width: 120px;
+    `;
+
+    const hand2Title = document.createElement('h4');
+    hand2Title.textContent = 'Hand 2';
+    hand2Title.style.cssText = 'margin: 0 0 8px 0; color: #2E7D32; font-size: 14px;';
+    hand2Container.appendChild(hand2Title);
+
+    const hand2Cards = document.createElement('div');
+    hand2Cards.style.cssText = 'display: flex; gap: 4px; justify-content: center; margin: 8px 0;';
+    splitHandsData.hand2Cards.forEach(card => {
+        const cardEl = createCardElement(card);
+        cardEl.style.width = '35px';
+        cardEl.style.height = '50px';
+        cardEl.style.fontSize = '11px';
+        hand2Cards.appendChild(cardEl);
+    });
+    hand2Container.appendChild(hand2Cards);
+
+    const hand2Score = document.createElement('div');
+    hand2Score.textContent = `Score: ${splitHandsData.hand2Score}`;
+    hand2Score.style.cssText = 'font-weight: bold; color: #2E7D32; font-size: 12px;';
+    hand2Container.appendChild(hand2Score);
+
+    // Add both hands to the container
+    handsContainer.appendChild(hand1Container);
+    handsContainer.appendChild(hand2Container);
+
+    // Replace player cards with the separated hands display
+    playerCardsEl.appendChild(handsContainer);
+
+    // Update player score to show compartmentalized info
+    playerScoreEl.textContent = 'Compartmentalized Hands';
+    playerScoreEl.style.textAlign = 'center';
+
+    // Update house cards normally
+    gameState.houseCards.forEach(card => {
+        const cardEl = createCardElement(card);
+        houseCardsEl.appendChild(cardEl);
+    });
+
+    // Update house score
+    const houseScoreEl = document.getElementById('houseScore');
+    if (houseScoreEl) {
+        const houseScore = calculateScore(gameState.houseCards);
+        houseScoreEl.textContent = `Score: ${houseScore}`;
     }
 }
 
@@ -1307,8 +1837,8 @@ export function showStressManagementTip(outcome) {
 // Store the element that had focus before initial flavor text modal opened
 let previouslyFocusedElementForFlavorText = null;
 
-// Store the element that had focus before deck viewer modal opened
-let previouslyFocusedElementForDeckViewer = null;
+// Store the element that had focus before Mind Palace modal opened
+let previouslyFocusedElementForMindPalace = null;
 
 // Show initial flavor text modal
 export function showInitialFlavorText(stepIndex) {
@@ -1636,30 +2166,30 @@ export function hideInitialFlavorText() {
 }
 
 // Deck Viewer Modal Functions
-export function showDeckViewer() {
+export function showMindPalace() {
     try {
-        const deckViewerModal = document.getElementById('deckViewerModal');
-        if (!deckViewerModal) {
-            console.error('Deck viewer modal element not found');
+        const mindPalaceModal = document.getElementById('mindPalaceModal');
+        if (!mindPalaceModal) {
+            console.error('Mind Palace modal element not found');
             return;
         }
 
         // Store currently focused element
-        previouslyFocusedElementForDeckViewer = document.activeElement;
+        previouslyFocusedElementForMindPalace = document.activeElement;
 
         // Update deck composition data
-        updateDeckViewerContent();
+        updateMindPalaceContent();
 
-        deckViewerModal.classList.remove('hidden');
+        mindPalaceModal.classList.remove('hidden');
 
         // Focus management for accessibility
-        const closeBtn = document.getElementById('deckViewerCloseBtn');
+        const closeBtn = document.getElementById('mindPalaceCloseBtn');
         if (closeBtn) {
             setTimeout(() => {
                 try {
                     closeBtn.focus();
                 } catch (focusError) {
-                    console.warn('Could not focus deck viewer close button:', focusError);
+                    console.warn('Could not focus Mind Palace close button:', focusError);
                 }
             }, 100);
         }
@@ -1670,31 +2200,31 @@ export function showDeckViewer() {
         }
 
         // Set up event listeners
-        setupDeckViewerEventListeners();
+        setupMindPalaceEventListeners();
 
     } catch (error) {
-        console.error('Error showing deck viewer:', error);
+        console.error('Error showing Mind Palace:', error);
     }
 }
 
-export function hideDeckViewer() {
+export function hideMindPalace() {
     try {
-        const deckViewerModal = document.getElementById('deckViewerModal');
-        if (!deckViewerModal) {
-            console.error('Deck viewer modal element not found');
+        const mindPalaceModal = document.getElementById('mindPalaceModal');
+        if (!mindPalaceModal) {
+            console.error('Mind Palace modal element not found');
             return;
         }
 
-        deckViewerModal.classList.add('hidden');
+        mindPalaceModal.classList.add('hidden');
 
         // Restore focus to previously focused element
-        if (previouslyFocusedElementForDeckViewer) {
+        if (previouslyFocusedElementForMindPalace) {
             try {
-                previouslyFocusedElementForDeckViewer.focus();
+                previouslyFocusedElementForMindPalace.focus();
             } catch (focusError) {
                 console.warn('Could not restore focus:', focusError);
             }
-            previouslyFocusedElementForDeckViewer = null;
+            previouslyFocusedElementForMindPalace = null;
         }
 
         // Restore body scroll
@@ -1703,21 +2233,24 @@ export function hideDeckViewer() {
         }
 
         // Clean up event listeners
-        cleanupDeckViewerEventListeners();
+        cleanupMindPalaceEventListeners();
 
     } catch (error) {
-        console.error('Error hiding deck viewer:', error);
+        console.error('Error hiding Mind Palace:', error);
     }
 }
 
-function updateDeckViewerContent() {
+function updateMindPalaceContent() {
     try {
         const { deckComposition, shopUpgrades } = campaignState;
         const { aces, jokers, totalCards } = deckComposition;
         const { acesAdded, jokersAdded, totalSpent } = shopUpgrades;
 
+        // Update premium activities display
+        updatePremiumActivitiesDisplay();
+
         // Debug logging
-        console.log('Updating deck viewer with:', {
+        console.log('Updating Mind Palace with:', {
             aces,
             jokers,
             totalCards,
@@ -1761,70 +2294,128 @@ function updateDeckViewerContent() {
         // Update upgrade history
         const upgradeHistoryContent = document.getElementById('upgradeHistoryContent');
         if (upgradeHistoryContent) {
-            let historyHtml = '<p>Base deck: 4 Aces + 48 Regular Cards</p>';
+            let historyHtml = '<p class="growth-base">Base deck: 4 Aces + 48 Regular Cards</p>';
+            let hasAnyUpgrades = false;
 
+            // Deck upgrades section
             if (jokersAdded > 0) {
-                historyHtml += `<p>✨ Added ${jokersAdded} Wild Joker${jokersAdded > 1 ? 's' : ''}</p>`;
+                historyHtml += `<p class="growth-joker">✨ Added ${jokersAdded} Wild Joker${jokersAdded > 1 ? 's' : ''}</p>`;
+                hasAnyUpgrades = true;
             }
 
             if (acesAdded > 0) {
-                historyHtml += `<p>🂡 Added ${acesAdded} extra Ace${acesAdded > 1 ? 's' : ''}</p>`;
+                historyHtml += `<p class="growth-ace">🂡 Added ${acesAdded} extra Ace${acesAdded > 1 ? 's' : ''}</p>`;
+                hasAnyUpgrades = true;
             }
 
+            // Premium activities section
+            const unlockedActivities = [];
+            if (activityState.availableActivities?.mindfulBreathing) {
+                unlockedActivities.push('🌸 Mindful Breathing');
+                hasAnyUpgrades = true;
+            }
+            if (activityState.availableActivities?.compartmentalize) {
+                unlockedActivities.push('🧠 Compartmentalize');
+                hasAnyUpgrades = true;
+            }
+
+            if (unlockedActivities.length > 0) {
+                historyHtml += `<p class="growth-technique">🧘 Mastered advanced techniques: ${unlockedActivities.join(', ')}</p>`;
+            }
+
+            // Total investment
             if (totalSpent > 0) {
-                historyHtml += `<p>💎 Total zen points invested: ${totalSpent}</p>`;
+                historyHtml += `<p class="growth-investment">💎 Total zen points invested: ${totalSpent}</p>`;
             }
 
-            if (jokersAdded === 0 && acesAdded === 0) {
-                historyHtml += '<p>No upgrades purchased yet. Visit the shop to enhance your deck!</p>';
+            // No upgrades message
+            if (!hasAnyUpgrades) {
+                historyHtml += '<p>No upgrades purchased yet. Visit the shop to enhance your deck and unlock advanced techniques!</p>';
             }
 
             upgradeHistoryContent.innerHTML = historyHtml;
         }
 
     } catch (error) {
-        console.error('Error updating deck viewer content:', error);
+        console.error('Error updating Mind Palace content:', error);
     }
 }
 
-function setupDeckViewerEventListeners() {
-    const closeBtn = document.getElementById('deckViewerCloseBtn');
-    const backdrop = document.getElementById('deckViewerBackdrop');
+// Update premium activities display in Mind Palace
+function updatePremiumActivitiesDisplay() {
+    try {
+        // Update Mindful Breathing status
+        const mindfulBreathingStatus = document.getElementById('mindfulBreathingActivityStatus');
+        if (mindfulBreathingStatus) {
+            if (activityState.availableActivities && activityState.availableActivities.mindfulBreathing) {
+                mindfulBreathingStatus.textContent = '✅ Unlocked';
+                mindfulBreathingStatus.style.color = '#4CAF50';
+            } else {
+                mindfulBreathingStatus.textContent = '🔒 Locked';
+                mindfulBreathingStatus.style.color = '#999';
+            }
+        }
+
+        // Update Compartmentalize status
+        const compartmentalizeStatus = document.getElementById('compartmentalizeActivityStatus');
+        if (compartmentalizeStatus) {
+            if (activityState.availableActivities && activityState.availableActivities.compartmentalize) {
+                compartmentalizeStatus.textContent = '✅ Unlocked';
+                compartmentalizeStatus.style.color = '#4CAF50';
+            } else {
+                compartmentalizeStatus.textContent = '🔒 Locked';
+                compartmentalizeStatus.style.color = '#999';
+            }
+        }
+
+        console.log('Premium activities display updated:', {
+            mindfulBreathing: activityState.availableActivities?.mindfulBreathing || false,
+            compartmentalize: activityState.availableActivities?.compartmentalize || false
+        });
+
+    } catch (error) {
+        console.error('Error updating premium activities display:', error);
+    }
+}
+
+function setupMindPalaceEventListeners() {
+    const closeBtn = document.getElementById('mindPalaceCloseBtn');
+    const backdrop = document.getElementById('mindPalaceBackdrop');
 
     if (closeBtn) {
-        closeBtn.addEventListener('click', hideDeckViewer);
+        closeBtn.addEventListener('click', hideMindPalace);
     }
 
     if (backdrop) {
-        backdrop.addEventListener('click', hideDeckViewer);
+        backdrop.addEventListener('click', hideMindPalace);
     }
 
     // Keyboard navigation
-    document.addEventListener('keydown', handleDeckViewerKeydown);
+    document.addEventListener('keydown', handleMindPalaceKeydown);
 }
 
-function cleanupDeckViewerEventListeners() {
-    const closeBtn = document.getElementById('deckViewerCloseBtn');
-    const backdrop = document.getElementById('deckViewerBackdrop');
+function cleanupMindPalaceEventListeners() {
+    const closeBtn = document.getElementById('mindPalaceCloseBtn');
+    const backdrop = document.getElementById('mindPalaceBackdrop');
 
     if (closeBtn) {
-        closeBtn.removeEventListener('click', hideDeckViewer);
+        closeBtn.removeEventListener('click', hideMindPalace);
     }
 
     if (backdrop) {
-        backdrop.removeEventListener('click', hideDeckViewer);
+        backdrop.removeEventListener('click', hideMindPalace);
     }
 
-    document.removeEventListener('keydown', handleDeckViewerKeydown);
+    document.removeEventListener('keydown', handleMindPalaceKeydown);
 }
 
-function handleDeckViewerKeydown(event) {
-    const deckViewerModal = document.getElementById('deckViewerModal');
-    if (!deckViewerModal || deckViewerModal.classList.contains('hidden')) {
+function handleMindPalaceKeydown(event) {
+    const mindPalaceModal = document.getElementById('mindPalaceModal');
+    if (!mindPalaceModal || mindPalaceModal.classList.contains('hidden')) {
         return;
     }
 
     if (event.key === 'Escape') {
-        hideDeckViewer();
+        hideMindPalace();
     }
 }
