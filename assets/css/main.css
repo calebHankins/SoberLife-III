@@ -580,8 +580,7 @@ label {
     }
 }
 
-/* N
-irvana Mode Debug Animation */
+/* Nirvana Mode Debug Animation */
 @keyframes popupFade {
     0% {
         opacity: 0;
