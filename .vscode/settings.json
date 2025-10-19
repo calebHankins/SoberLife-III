@@ -26,5 +26,8 @@
         "tappable",
         "viewports"
     ],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.markdownlint": "always"
+    }
 }
