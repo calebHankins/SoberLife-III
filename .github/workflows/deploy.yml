@@ -45,6 +45,15 @@ jobs:
 
           echo "All validation checks passed!"
 
+      - name: Run Node.js test files
+        run: |
+          echo "Running Node.js test files in tests/..."
+          for testfile in tests/*.test.js; do
+            echo "Running $testfile..."
+            node "$testfile"
+          done
+          echo "All Node.js tests completed."
+
   # Deploy job only for main/master branch pushes
   deploy:
     # Only run deploy job on main/master branch pushes (not PRs)
