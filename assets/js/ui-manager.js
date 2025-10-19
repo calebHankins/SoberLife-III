@@ -2256,22 +2256,43 @@ function updateMindPalaceContent() {
         // Update upgrade history
         const upgradeHistoryContent = document.getElementById('upgradeHistoryContent');
         if (upgradeHistoryContent) {
-            let historyHtml = '<p>Base deck: 4 Aces + 48 Regular Cards</p>';
+            let historyHtml = '<p class="growth-base">Base deck: 4 Aces + 48 Regular Cards</p>';
+            let hasAnyUpgrades = false;
 
+            // Deck upgrades section
             if (jokersAdded > 0) {
-                historyHtml += `<p>✨ Added ${jokersAdded} Wild Joker${jokersAdded > 1 ? 's' : ''}</p>`;
+                historyHtml += `<p class="growth-joker">✨ Added ${jokersAdded} Wild Joker${jokersAdded > 1 ? 's' : ''}</p>`;
+                hasAnyUpgrades = true;
             }
 
             if (acesAdded > 0) {
-                historyHtml += `<p>🂡 Added ${acesAdded} extra Ace${acesAdded > 1 ? 's' : ''}</p>`;
+                historyHtml += `<p class="growth-ace">🂡 Added ${acesAdded} extra Ace${acesAdded > 1 ? 's' : ''}</p>`;
+                hasAnyUpgrades = true;
             }
 
+            // Premium activities section
+            const unlockedActivities = [];
+            if (activityState.availableActivities?.mindfulBreathing) {
+                unlockedActivities.push('🌸 Mindful Breathing');
+                hasAnyUpgrades = true;
+            }
+            if (activityState.availableActivities?.compartmentalize) {
+                unlockedActivities.push('🧠 Compartmentalize');
+                hasAnyUpgrades = true;
+            }
+
+            if (unlockedActivities.length > 0) {
+                historyHtml += `<p class="growth-technique">🧘 Mastered advanced techniques: ${unlockedActivities.join(', ')}</p>`;
+            }
+
+            // Total investment
             if (totalSpent > 0) {
-                historyHtml += `<p>💎 Total zen points invested: ${totalSpent}</p>`;
+                historyHtml += `<p class="growth-investment">💎 Total zen points invested: ${totalSpent}</p>`;
             }
 
-            if (jokersAdded === 0 && acesAdded === 0) {
-                historyHtml += '<p>No upgrades purchased yet. Visit the shop to enhance your deck!</p>';
+            // No upgrades message
+            if (!hasAnyUpgrades) {
+                historyHtml += '<p>No upgrades purchased yet. Visit the shop to enhance your deck and unlock advanced techniques!</p>';
             }
 
             upgradeHistoryContent.innerHTML = historyHtml;

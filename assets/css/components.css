@@ -1658,6 +1658,68 @@ ive Flavor Text Animations */
     border-left: 3px solid #9C27B0;
 }
 
+/* Growth Journey specific styling */
+#upgradeHistoryContent p {
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+#upgradeHistoryContent p:first-child {
+    border-left-color: #4CAF50;
+    /* Base deck - green */
+}
+
+#upgradeHistoryContent p:has-text("Wild Joker") {
+    border-left-color: #FFD700;
+    /* Jokers - gold */
+}
+
+#upgradeHistoryContent p:has-text("Ace") {
+    border-left-color: #FF6B6B;
+    /* Aces - red */
+}
+
+#upgradeHistoryContent p:has-text("advanced techniques") {
+    border-left-color: #9C27B0;
+    /* Advanced techniques - purple */
+}
+
+#upgradeHistoryContent p:has-text("zen points invested") {
+    border-left-color: #00BCD4;
+    /* Investment - cyan */
+}
+
+/* Class-based styling for better browser support */
+.growth-base {
+    border-left-color: #4CAF50 !important;
+    /* Base deck - green */
+}
+
+.growth-joker {
+    border-left-color: #FFD700 !important;
+    /* Jokers - gold */
+}
+
+.growth-ace {
+    border-left-color: #FF6B6B !important;
+    /* Aces - red */
+}
+
+.growth-technique {
+    border-left-color: #9C27B0 !important;
+    /* Advanced techniques - purple */
+}
+
+.growth-investment {
+    border-left-color: #00BCD4 !important;
+    /* Investment - cyan */
+}
+
 /* Responsive adjustments for Mind Palace sections */
 @media (max-width: 767px) {
     .mind-palace-section {
