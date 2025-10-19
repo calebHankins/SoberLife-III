@@ -1,5 +1,5 @@
 {
-    "kiroAgent.configureMCP": "Disabled",
+    "kiroAgent.configureMCP": "Enabled",
     "chat.tools.edits.autoApprove":{
         "**/*": true,
         "**/.vscode/*.json": false,
@@ -24,5 +24,6 @@
         "soberlife",
         "tappable",
         "viewports"
-    ]
+    ],
+    "editor.formatOnSave": true
 }
