@@ -126,7 +126,7 @@ class AudioManager {
 
         // Initialize components
         this.musicPlayer = new MusicPlayer(this.audioContext);
-        this.soundEffects = new SoundEffects(this.audioContext);
+        this.soundEffects = new SoundEffects(this.audioContext, this);
         this.audioControls = new AudioControls(this);
 
         // Apply saved preferences
@@ -149,7 +149,7 @@ class AudioManager {
         console.log('AudioManager: Initializing HTML5 Audio fallback...');
         // Simple fallback implementation
         this.musicPlayer = new SimpleMusicPlayer();
-        this.soundEffects = new SimpleSoundEffects();
+        this.soundEffects = new SimpleSoundEffects(this);
         this.audioControls = new AudioControls(this);
         this.applyPreferences();
     }
@@ -196,7 +196,7 @@ class AudioManager {
 
         // Create fallback components
         this.musicPlayer = new SimpleMusicPlayer();
-        this.soundEffects = new SimpleSoundEffects();
+        this.soundEffects = new SimpleSoundEffects(this);
         this.audioControls = new AudioControls(this);
     }
 
@@ -843,8 +843,9 @@ class SimpleMusicPlayer {
  * Generates programmatic sound effects using Web Audio API
  */
 class SoundEffects {
-    constructor(audioContext) {
+    constructor(audioContext, audioManager) {
         this.audioContext = audioContext;
+        this.audioManager = audioManager;
         this.masterGain = null;
         this.volume = audioConfig.effects.defaultVolume;
 
@@ -868,6 +869,11 @@ class SoundEffects {
      */
     play(soundName) {
         if (!this.audioContext || !this.masterGain) return;
+
+        // Check if audio is enabled
+        if (this.audioManager && !this.audioManager.preferences.audioEnabled) {
+            return; // Don't play sound effects when audio is disabled
+        }
 
         const soundConfig = audioConfig.effects.sounds[soundName];
         if (!soundConfig) {
@@ -1014,12 +1020,17 @@ class SoundEffects {
  * For browsers without Web Audio API support
  */
 class SimpleSoundEffects {
-    constructor() {
+    constructor(audioManager) {
+        this.audioManager = audioManager;
         this.volume = audioConfig.effects.defaultVolume;
         console.log('SimpleSoundEffects: Using fallback sound effects');
     }
 
     play(soundName) {
+        // Check if audio is enabled
+        if (this.audioManager && !this.audioManager.preferences.audioEnabled) {
+            return; // Don't play sound effects when audio is disabled
+        }
         console.log(`SimpleSoundEffects: Playing ${soundName} (fallback mode)`);
     }
 
