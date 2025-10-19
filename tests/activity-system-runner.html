@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity System Test Runner</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2C3E50;
+        }
+
+        .test-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2C3E50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #3498DB;
+            border-radius: 10px;
+            background: #F8F9FA;
+        }
+
+        .test-section h2 {
+            color: #2980B9;
+            margin-top: 0;
+        }
+
+        .test-button {
+            background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .test-button:disabled {
+            background: #BDC3C7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .run-all-button {
+            background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+            font-size: 18px;
+            padding: 15px 30px;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .test-output {
+            background: #2C3E50;
+            color: #ECF0F1;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .test-results.success {
+            background: #D5EDDA;
+            color: #155724;
+            border: 1px solid #C3E6CB;
+        }
+
+        .test-results.failure {
+            background: #F8D7DA;
+            color: #721C24;
+            border: 1px solid #F5C6CB;
+        }
+
+        .test-results.running {
+            background: #D1ECF1;
+            color: #0C5460;
+            border: 1px solid #BEE5EB;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🧪 Activity System Test Runner</h1>
+        <p>Comprehensive testing for the Activity System Revamp including cooldown logic, premium activities, and
+            compartmentalize functionality.</p>
+
+        <button class="test-button run-all-button" onclick="runAllTests()">🚀 Run All Tests</button>
+
+        <div class="test-section">
+            <h2>Activity Cooldown Tests</h2>
+            <p>Tests for one-activity-per-hand limitation, cooldown reset, and activity validation.</p>
+            <button class="test-button" onclick="runActivityCooldownTests()">Run Activity Cooldown Tests</button>
+        </div>
+
+        <div class="test-section">
+            <h2>Compartmentalize System Tests</h2>
+            <p>Integration tests for compartmentalize functionality and split hand mechanics.</p>
+            <button class="test-button" onclick="runCompartmentalizeTests()">Run Compartmentalize Tests</button>
+        </div>
+
+        <div class="test-section">
+            <h2>Premium Activity Shop Tests</h2>
+            <p>Tests for premium activity purchasing, shop UI, and persistence.</p>
+            <button class="test-button" onclick="runPremiumActivityShopTests()">Run Shop Tests</button>
+        </div>
+
+        <div id="testResults" class="test-results" style="display: none;"></div>
+        <div id="testOutput" class="test-output" style="display: none;"></div>
+    </div>
+
+    <!-- Import all test modules -->
+    <script type="module">
+        // Import game modules
+        import '../assets/js/game-state.js';
+        import '../assets/js/stress-system.js';
+        import '../assets/js/shop-system.js';
+        import '../assets/js/card-system.js';
+        import '../assets/js/zen-points-manager.js';
+
+        // Import test modules
+        import { runActivityCooldownTests } from './activity-system.test.js';
+        import { runCompartmentalizeTests } from './compartmentalize-system.test.js';
+        import { runPremiumActivityShopTests } from './premium-activity-shop.test.js';
+
+        // Make test functions globally available
+        window.runActivityCooldownTests = runActivityCooldownTests;
+        window.runCompartmentalizeTests = runCompartmentalizeTests;
+        window.runPremiumActivityShopTests = runPremiumActivityShopTests;
+
+        // Global test runner functions
+        window.runAllTests = async function () {
+            showTestResults('running', 'Running all activity system tests...');
+            showTestOutput('🧪 Starting comprehensive activity system tests...\n\n');
+
+            const results = [];
+            let totalPassed = 0;
+            let totalFailed = 0;
+
+            // Capture console output
+            const originalLog = console.log;
+            const originalError = console.error;
+            let output = '';
+
+            console.log = (...args) => {
+                output += args.join(' ') + '\n';
+                originalLog(...args);
+            };
+
+            console.error = (...args) => {
+                output += 'ERROR: ' + args.join(' ') + '\n';
+                originalError(...args);
+            };
+
+            try {
+                // Run activity cooldown tests
+                appendTestOutput('🔄 Running Activity Cooldown Tests...\n');
+                const cooldownResult = runActivityCooldownTests();
+                results.push({ name: 'Activity Cooldown', passed: cooldownResult });
+
+                // Run compartmentalize tests
+                appendTestOutput('\n🧠 Running Compartmentalize Tests...\n');
+                const compartmentalizeResult = runCompartmentalizeTests();
+                results.push({ name: 'Compartmentalize System', passed: compartmentalizeResult });
+
+                // Run shop tests
+                appendTestOutput('\n🛒 Running Premium Activity Shop Tests...\n');
+                const shopResult = runPremiumActivityShopTests();
+                results.push({ name: 'Premium Activity Shop', passed: shopResult });
+
+                // Calculate totals
+                const passedSuites = results.filter(r => r.passed).length;
+                const failedSuites = results.filter(r => !r.passed).length;
+
+                // Show final results
+                const allPassed = failedSuites === 0;
+                const resultMessage = `\n🏁 All Tests Complete!\n\nTest Suites: ${passedSuites} passed, ${failedSuites} failed\n\n` +
+                    results.map(r => `${r.passed ? '✅' : '❌'} ${r.name}`).join('\n');
+
+                appendTestOutput(resultMessage);
+
+                showTestResults(
+                    allPassed ? 'success' : 'failure',
+                    allPassed ?
+                        `🎉 All tests passed! The activity system is working correctly.` :
+                        `⚠️ Some tests failed. Check the output for details.`
+                );
+
+            } catch (error) {
+                appendTestOutput(`\n💥 Test runner error: ${error.message}\n`);
+                showTestResults('failure', `Test runner encountered an error: ${error.message}`);
+            } finally {
+                // Restore console
+                console.log = originalLog;
+                console.error = originalError;
+
+                // Show captured output
+                appendTestOutput('\n' + output);
+            }
+        };
+
+        // Individual test runners with UI feedback
+        window.runActivityCooldownTests = function () {
+            showTestResults('running', 'Running activity cooldown tests...');
+            showTestOutput('');
+
+            try {
+                const result = runActivityCooldownTests();
+                showTestResults(
+                    result ? 'success' : 'failure',
+                    result ? 'Activity cooldown tests passed!' : 'Activity cooldown tests failed!'
+                );
+            } catch (error) {
+                showTestResults('failure', `Test error: ${error.message}`);
+            }
+        };
+
+        window.runCompartmentalizeTests = function () {
+            showTestResults('running', 'Running compartmentalize tests...');
+            showTestOutput('');
+
+            try {
+                const result = runCompartmentalizeTests();
+                showTestResults(
+                    result ? 'success' : 'failure',
+                    result ? 'Compartmentalize tests passed!' : 'Compartmentalize tests failed!'
+                );
+            } catch (error) {
+                showTestResults('failure', `Test error: ${error.message}`);
+            }
+        };
+
+        window.runPremiumActivityShopTests = function () {
+            showTestResults('running', 'Running premium activity shop tests...');
+            showTestOutput('');
+
+            try {
+                const result = runPremiumActivityShopTests();
+                showTestResults(
+                    result ? 'success' : 'failure',
+                    result ? 'Premium activity shop tests passed!' : 'Premium activity shop tests failed!'
+                );
+            } catch (error) {
+                showTestResults('failure', `Test error: ${error.message}`);
+            }
+        };
+
+        // UI helper functions
+        function showTestResults(type, message) {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.className = `test-results ${type}`;
+            resultsDiv.textContent = message;
+            resultsDiv.style.display = 'block';
+        }
+
+        function showTestOutput(content) {
+            const outputDiv = document.getElementById('testOutput');
+            outputDiv.textContent = content;
+            outputDiv.style.display = 'block';
+        }
+
+        function appendTestOutput(content) {
+            const outputDiv = document.getElementById('testOutput');
+            outputDiv.textContent += content;
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+
+        console.log('🎯 Activity System Test Runner loaded successfully!');
+    </script>
+</body>
+
+</html>

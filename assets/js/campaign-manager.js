@@ -1,7 +1,7 @@
 // SoberLife III - Campaign Manager
 // Campaign state coordination and navigation flow
 
-import { campaignState, updateCampaignState, loadCampaignProgress, resetCampaignState, resetGameState, updateGameState } from './game-state.js';
+import { campaignState, updateCampaignState, loadCampaignProgress, resetCampaignState, resetGameState, updateGameState, loadActivityStateFromCampaign } from './game-state.js';
 import { taskDefinitions, getTaskDefinition, isTaskUnlocked, getNextAvailableTask } from './task-definitions.js';
 import { openShop, updateShopUI, validateShopState } from './shop-system.js';
 import { hideElement, showElement, updateDisplay } from './ui-manager.js';
@@ -30,6 +30,9 @@ export function initializeCampaign() {
 
         // Initialize zen points balance for campaign mode
         ZenPointsManager.initializeCampaignBalance();
+
+        // Load activity state from campaign
+        loadActivityStateFromCampaign();
 
         // Update campaign mode flag
         updateCampaignState({ campaignMode: true });

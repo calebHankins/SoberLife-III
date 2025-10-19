@@ -83,7 +83,8 @@
     overflow: hidden;
     animation: taskHighlight 0.8s ease-out;
     z-index: 10;
-    transform: translateZ(0); /* Create stacking context */
+    transform: translateZ(0);
+    /* Create stacking context */
 }
 
 .task-info::before {
@@ -351,6 +352,251 @@
     font-size: 11px;
     margin-top: 5px;
     opacity: 0.9;
+}
+
+/* Activity Status and Cooldown */
+.activity-status {
+    background: rgba(52, 152, 219, 0.1);
+    border: 1px solid #3498DB;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.activity-usage-indicator {
+    font-size: 14px;
+    color: #2C3E50;
+    font-weight: bold;
+}
+
+.activity-usage-indicator.cooldown-active {
+    color: #E74C3C;
+}
+
+.usage-count {
+    background: #3498DB;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.cooldown-active .usage-count {
+    background: #E74C3C;
+}
+
+/* Activity Sections */
+.activity-section {
+    margin-bottom: 20px;
+}
+
+.activity-section h4 {
+    color: #27AE60;
+    font-size: 16px;
+    margin-bottom: 10px;
+    text-align: center;
+    border-bottom: 2px solid #2ECC71;
+    padding-bottom: 5px;
+}
+
+.premium-activities h4 {
+    color: #8E44AD;
+    border-bottom-color: #9B59B6;
+}
+
+/* Premium Activity Styling */
+.activity-btn.premium-activity {
+    background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+    border: 2px solid #8E44AD;
+    position: relative;
+}
+
+.activity-btn.premium-activity::before {
+    content: "✨";
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #F39C12;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border: 2px solid white;
+}
+
+.activity-btn.reactive-activity {
+    background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
+    border: 2px solid #D35400;
+}
+
+.activity-btn.reactive-activity::before {
+    content: "⚡";
+    background: #E74C3C;
+}
+
+/* Activity Button States */
+.activity-btn.on-cooldown {
+    background: #95A5A6;
+    border-color: #7F8C8D;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.activity-btn.on-cooldown::after {
+    content: "Cooldown";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.activity-btn.insufficient-funds {
+    background: #E74C3C;
+    border-color: #C0392B;
+    opacity: 0.7;
+}
+
+/* Split Hands UI */
+.split-hands-container {
+    background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+    border: 2px solid #6C757D;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 10px 0;
+}
+
+.split-hands-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.split-hands-header h3 {
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.split-hands-header p {
+    color: #6C757D;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.split-hands-display {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.split-hand {
+    background: white;
+    border: 2px solid #DEE2E6;
+    border-radius: 10px;
+    padding: 15px;
+    min-width: 200px;
+    text-align: center;
+}
+
+.split-hand.active {
+    border-color: #28A745;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+}
+
+.split-hand-header {
+    margin-bottom: 10px;
+}
+
+.split-hand-header h4 {
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.hand-status {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.hand-status.active {
+    background: #28A745;
+    color: white;
+}
+
+.hand-status.waiting {
+    background: #FFC107;
+    color: #212529;
+}
+
+.hand-status.completed {
+    background: #6C757D;
+    color: white;
+}
+
+.split-hand-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.split-progress {
+    font-size: 14px;
+    color: #495057;
+    font-weight: bold;
+}
+
+/* Shop Premium Activities */
+.upgrade-section {
+    margin-bottom: 30px;
+}
+
+.upgrade-section h3 {
+    color: #2C3E50;
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 2px solid #3498DB;
+    padding-bottom: 8px;
+}
+
+.upgrade-card.premium-activity {
+    border-color: #9B59B6;
+    background: linear-gradient(135deg, #F8F9FA 0%, #E8E2F0 100%);
+}
+
+.upgrade-card.premium-activity .upgrade-icon {
+    background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+}
+
+.upgrade-card.unlocked {
+    border-color: #28A745;
+    background: linear-gradient(135deg, #F8F9FA 0%, #E8F5E8 100%);
+}
+
+.upgrade-card.unlocked .upgrade-icon {
+    background: linear-gradient(135deg, #28A745 0%, #20A83A 100%);
+}
+
+.status-unlocked {
+    color: #28A745;
+    font-weight: bold;
+}
+
+.status-locked {
+    color: #E74C3C;
+    font-weight: bold;
 }
 
 /* Game Over Screen */
@@ -649,6 +895,7 @@
         opacity: 0;
         transform: scale(0.9) translateY(-20px);
     }
+
     100% {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -678,11 +925,13 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0);
     }
 }
+
 /* Progress
 ive Flavor Text Animations */
 @keyframes fadeInSlide {
@@ -690,6 +939,7 @@ ive Flavor Text Animations */
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -701,6 +951,7 @@ ive Flavor Text Animations */
         opacity: 0;
         transform: translateX(100%);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -732,6 +983,7 @@ ive Flavor Text Animations */
     from {
         height: 0;
     }
+
     to {
         height: 100%;
     }
@@ -761,6 +1013,7 @@ ive Flavor Text Animations */
     from {
         width: 0;
     }
+
     to {
         width: 100%;
     }
@@ -836,6 +1089,7 @@ ive Flavor Text Animations */
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -846,6 +1100,7 @@ ive Flavor Text Animations */
         opacity: 0;
         transform: translateY(30px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -853,9 +1108,12 @@ ive Flavor Text Animations */
 }
 
 @keyframes modalBorderGlow {
-    0%, 100% {
+
+    0%,
+    100% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
@@ -866,23 +1124,23 @@ ive Flavor Text Animations */
     .initial-flavor-modal-overlay {
         padding: 15px;
     }
-    
+
     .initial-flavor-modal-content {
         max-height: 85vh;
         overflow-y: auto;
     }
-    
+
     .initial-flavor-modal-content h2 {
         font-size: 16px !important;
         margin-bottom: 8px !important;
     }
-    
+
     .initial-flavor-modal-content p {
         font-size: 12px !important;
         line-height: 1.3 !important;
         margin-bottom: 8px !important;
     }
-    
+
     .initial-flavor-modal-content button {
         font-size: 13px !important;
         padding: 8px 16px !important;
@@ -896,15 +1154,15 @@ ive Flavor Text Animations */
         border: 4px solid #000;
         background: #fff;
     }
-    
+
     .initial-flavor-modal-content h2 {
         color: #000 !important;
     }
-    
+
     .initial-flavor-modal-content p {
         color: #000 !important;
     }
-    
+
     .initial-flavor-modal-content button {
         background: #000 !important;
         color: #fff !important;
@@ -917,19 +1175,19 @@ ive Flavor Text Animations */
     .initial-flavor-modal-overlay {
         animation: none;
     }
-    
+
     .initial-flavor-modal-content {
         animation: none;
     }
-    
+
     .initial-flavor-modal-content::before {
         animation: none;
     }
-    
+
     .initial-flavor-modal-content button {
         transition: none;
     }
-    
+
     .initial-flavor-modal-content button::before {
         transition: none;
     }
@@ -1154,7 +1412,7 @@ ive Flavor Text Animations */
         align-items: flex-start;
         padding-top: 20px;
     }
-    
+
     .deck-viewer-content {
         max-width: 95%;
         margin: 0;
@@ -1164,104 +1422,104 @@ ive Flavor Text Animations */
         flex-direction: column;
         overflow: hidden;
     }
-    
+
     .deck-viewer-header {
         padding: 12px 15px;
         flex-shrink: 0;
     }
-    
+
     .deck-viewer-header h2 {
         font-size: 18px;
     }
-    
+
     .deck-viewer-close-btn {
         width: 32px;
         height: 32px;
         font-size: 18px;
     }
-    
+
     .deck-viewer-body {
         padding: 10px 15px;
         flex: 1;
         overflow-y: auto;
         min-height: 0;
     }
-    
+
     .deck-stats {
         gap: 10px;
         margin-bottom: 15px;
     }
-    
+
     .card-type-stat {
         flex-direction: row;
         text-align: left;
         gap: 12px;
         padding: 12px;
     }
-    
+
     .card-type-icon {
         font-size: 32px;
         min-width: 45px;
     }
-    
+
     .card-type-info h3 {
         font-size: 16px;
         margin-bottom: 4px;
     }
-    
+
     .card-count {
         font-size: 22px;
     }
-    
+
     .card-description {
         font-size: 11px;
         line-height: 1.3;
     }
-    
+
     .deck-power-section {
         padding: 12px;
         margin-bottom: 15px;
     }
-    
+
     .deck-power-section h3 {
         font-size: 16px;
         margin-bottom: 10px;
     }
-    
+
     .power-meter {
         height: 14px;
     }
-    
+
     #deckPowerText {
         font-size: 13px;
     }
-    
+
     .upgrade-history {
         padding: 12px;
         margin-bottom: 10px;
     }
-    
+
     .upgrade-history h3 {
         font-size: 15px;
         margin-bottom: 8px;
     }
-    
+
     #upgradeHistoryContent {
         font-size: 12px;
         line-height: 1.4;
     }
-    
+
     #upgradeHistoryContent p {
         margin: 4px 0;
     }
-    
+
     .deck-viewer-actions {
         padding: 12px 15px;
         flex-shrink: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
         background: rgba(255, 255, 255, 0.05);
     }
-    
+
     .deck-viewer-actions button {
         width: 100%;
         max-width: none;
@@ -1269,6 +1527,7 @@ ive Flavor Text Animations */
         font-size: 16px;
     }
 }
+
 /* Campaign Interface Styles */
 
 /* Game Mode Selection */
@@ -1547,7 +1806,7 @@ ive Flavor Text Animations */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.shop-content > p {
+.shop-content>p {
     text-align: center;
     font-size: 16px;
     margin-bottom: 25px;
@@ -1694,77 +1953,78 @@ ive Flavor Text Animations */
 
 /* Responsive Design for Campaign Interface */
 @media (max-width: 767px) {
+
     /* Campaign Overview Mobile Optimizations */
     .campaign-overview {
         margin: 5px 0;
         padding: 15px;
         border-radius: 15px;
     }
-    
+
     .campaign-overview h2 {
         font-size: 24px;
         margin-bottom: 15px;
     }
-    
+
     .mode-options {
         flex-direction: column;
         align-items: center;
         gap: 15px;
     }
-    
+
     .mode-card {
         max-width: 100%;
         min-width: auto;
         padding: 20px;
     }
-    
+
     .campaign-progress {
         flex-direction: column;
         gap: 15px;
         margin-bottom: 20px;
     }
-    
+
     .deck-status,
     .total-progress {
         min-width: auto;
         padding: 15px;
     }
-    
+
     .deck-status h4,
     .total-progress h4 {
         font-size: 16px;
     }
-    
+
     .task-list {
         gap: 12px;
         margin-bottom: 20px;
     }
-    
+
     .task-card {
         flex-direction: column;
         text-align: center;
         gap: 15px;
         padding: 15px;
     }
-    
+
     .task-info-section h4 {
         font-size: 18px;
     }
-    
+
     .task-info-section p {
         font-size: 13px;
     }
-    
+
     .task-status {
         justify-content: center;
     }
-    
+
     .task-btn {
         min-width: 80px;
         padding: 8px 16px;
         font-size: 13px;
     }
-    
+
     /* Campaign Actions Mobile */
     .campaign-actions {
         display: flex;
@@ -1772,77 +2032,77 @@ ive Flavor Text Animations */
         gap: 10px;
         align-items: center;
     }
-    
+
     .campaign-actions button {
         width: 100%;
         max-width: 280px;
         padding: 12px 20px;
         font-size: 14px;
     }
-    
+
     /* Shop Mobile Optimizations */
     .upgrade-shop {
         padding: 10px;
     }
-    
+
     .shop-content {
         padding: 20px;
         max-height: 85vh;
         margin: 10px;
     }
-    
+
     .shop-content h2 {
         font-size: 24px;
     }
-    
+
     .zen-balance {
         padding: 15px;
         margin-bottom: 20px;
     }
-    
+
     .zen-balance h3 {
         font-size: 20px;
     }
-    
+
     .upgrade-card {
         padding: 20px;
     }
-    
+
     .upgrade-card h3 {
         font-size: 20px;
     }
-    
+
     .upgrade-card p {
         font-size: 13px;
     }
-    
+
     .upgrade-stats {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .upgrade-btn {
         font-size: 14px;
         padding: 10px 20px;
     }
-    
+
     .shop-actions {
         flex-direction: column;
         align-items: center;
         gap: 10px;
     }
-    
+
     .shop-actions button {
         width: 100%;
         max-width: 200px;
     }
-    
+
     .success-actions {
         flex-direction: column;
         align-items: center;
         gap: 10px;
     }
-    
+
     .success-actions button {
         width: 100%;
         max-width: 200px;
@@ -1855,10 +2115,12 @@ ive Flavor Text Animations */
         transform: scale(1);
         box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
     }
+
     50% {
         transform: scale(1.02);
         box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
     }
+
     100% {
         transform: scale(1);
         box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
@@ -1866,19 +2128,25 @@ ive Flavor Text Animations */
 }
 
 @keyframes borderGlow {
-    0%, 100% {
+
+    0%,
+    100% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
 }
 
 @keyframes taskPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
         box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
     }
+
     50% {
         transform: scale(1.01);
         box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
@@ -1890,10 +2158,12 @@ ive Flavor Text Animations */
         transform: scale(1) rotateY(0deg);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.05) rotateY(5deg);
         opacity: 0.8;
     }
+
     100% {
         transform: scale(1) rotateY(0deg);
         opacity: 1;
@@ -1901,15 +2171,38 @@ ive Flavor Text Animations */
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
 
 @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
 }
 
 /* Joker Card Animations */
@@ -1917,19 +2210,24 @@ ive Flavor Text Animations */
     0% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
+
     100% {
         background-position: 0% 50%;
     }
 }
 
 @keyframes joker-border-glow {
-    0%, 100% {
+
+    0%,
+    100% {
         background-position: 0% 50%;
         opacity: 0.8;
     }
+
     50% {
         background-position: 100% 50%;
         opacity: 1;
@@ -1940,15 +2238,19 @@ ive Flavor Text Animations */
     0% {
         transform: scale(1) rotate(0deg);
     }
+
     25% {
         transform: scale(1.1) rotate(2deg);
     }
+
     50% {
         transform: scale(1.05) rotate(-1deg);
     }
+
     75% {
         transform: scale(1.08) rotate(1deg);
     }
+
     100% {
         transform: scale(1) rotate(0deg);
     }
@@ -1958,18 +2260,23 @@ ive Flavor Text Animations */
     0% {
         transform: scale(1);
     }
+
     20% {
         transform: scale(1.2) rotate(5deg);
     }
+
     40% {
         transform: scale(1.1) rotate(-3deg);
     }
+
     60% {
         transform: scale(1.15) rotate(2deg);
     }
+
     80% {
         transform: scale(1.05) rotate(-1deg);
     }
+
     100% {
         transform: scale(1) rotate(0deg);
     }
@@ -1980,10 +2287,12 @@ ive Flavor Text Animations */
         transform: scale(0);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.3);
         opacity: 1;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;
@@ -1996,6 +2305,7 @@ ive Flavor Text Animations */
         transform: translateY(0) scale(1);
         opacity: 1;
     }
+
     100% {
         transform: translateY(-50px) scale(0.5);
         opacity: 0;
@@ -2018,10 +2328,12 @@ ive Flavor Text Animations */
         transform: scale(0.9);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.05);
         opacity: 1;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;
@@ -2033,10 +2345,12 @@ ive Flavor Text Animations */
         transform: scale(0.5) rotate(-5deg);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.1) rotate(2deg);
         opacity: 1;
     }
+
     100% {
         transform: scale(1) rotate(0deg);
         opacity: 1;
@@ -2049,25 +2363,25 @@ ive Flavor Text Animations */
         animation: none;
         background: linear-gradient(45deg, #4ecdc4, #45b7d1);
     }
-    
+
     .card.joker::before {
         animation: none;
     }
-    
+
     .card.joker.calculating,
     .card.joker.perfect-score {
         animation: none;
     }
-    
+
     .joker-value-indicator {
         animation: none;
     }
-    
+
     .joker-celebration-particle {
         animation: none;
         display: none;
     }
-    
+
     .joker-feedback {
         animation: none;
     }

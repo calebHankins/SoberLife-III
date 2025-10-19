@@ -1,10 +1,11 @@
 // SoberLife III - UI Manager
 // DOM manipulation and visual updates
 
-import { gameState, campaignState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText } from './game-state.js';
+import { gameState, campaignState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText, activityState, canUseActivity, loadActivityStateFromCampaign } from './game-state.js';
 import { calculateScore } from './card-system.js';
 import { isCampaignMode, getCurrentTask } from './campaign-manager.js';
 import { ZenPointsManager } from './zen-points-manager.js';
+import { zenActivities } from './stress-system.js';
 
 // Utility functions for showing/hiding elements
 // Debug: Add 1000 zen points instantly
@@ -458,21 +459,213 @@ function generateTaskSpecificStats() {
 
 // Update zen activities button states
 export function updateZenActivities() {
-    const breathBtn = document.getElementById('breathBtn');
-    const stretchBtn = document.getElementById('stretchBtn');
-    const meditationBtn = document.getElementById('meditationBtn');
 
     // Use zen points manager to get current balance
     const currentBalance = ZenPointsManager.getCurrentBalance();
 
-    if (breathBtn) {
-        breathBtn.disabled = currentBalance < 10;
+    // Update activity usage indicator
+    updateActivityUsageIndicator();
+
+    // Update default activity buttons
+    updateActivityButton('breath', zenActivities.breath, currentBalance);
+    updateActivityButton('stretch', zenActivities.stretch, currentBalance);
+    updateActivityButton('meditation', zenActivities.meditation, currentBalance);
+
+    // Update premium activity buttons
+    updatePremiumActivityButton('mindfulBreathing', zenActivities.mindfulBreathing, currentBalance);
+    updatePremiumActivityButton('compartmentalize', zenActivities.compartmentalize, currentBalance);
+}
+
+// Update individual activity button
+function updateActivityButton(activityId, activityConfig, currentBalance) {
+    const button = document.getElementById(`${activityId}Btn`);
+    if (!button) return;
+    const canUse = canUseActivity(activityId) && currentBalance >= activityConfig.cost;
+
+    button.disabled = !canUse;
+
+    // Add visual feedback for cooldown
+    if (!canUse) {
+        if (currentBalance < activityConfig.cost) {
+            button.classList.add('insufficient-funds');
+            button.classList.remove('on-cooldown');
+        } else {
+            button.classList.add('on-cooldown');
+            button.classList.remove('insufficient-funds');
+        }
+    } else {
+        button.classList.remove('on-cooldown', 'insufficient-funds');
     }
-    if (stretchBtn) {
-        stretchBtn.disabled = currentBalance < 25;
+}
+
+// Update premium activity button
+function updatePremiumActivityButton(activityId, activityConfig, currentBalance) {
+    const button = document.getElementById(`${activityId}ActivityBtn`);
+    if (!button) return;
+
+    // Check if activity is unlocked
+    const isUnlocked = campaignState.unlockedActivities && campaignState.unlockedActivities[activityId];
+
+    if (isUnlocked) {
+        button.style.display = 'inline-block';
+
+        const canUse = canUseActivity(activityId) && currentBalance >= activityConfig.cost;
+        button.disabled = !canUse;
+
+        // Add visual feedback
+        if (!canUse) {
+            if (currentBalance < activityConfig.cost) {
+                button.classList.add('insufficient-funds');
+                button.classList.remove('on-cooldown');
+            } else {
+                button.classList.add('on-cooldown');
+                button.classList.remove('insufficient-funds');
+            }
+        } else {
+            button.classList.remove('on-cooldown', 'insufficient-funds');
+        }
+    } else {
+        button.style.display = 'none';
     }
-    if (meditationBtn) {
-        meditationBtn.disabled = currentBalance < 50;
+}
+
+// Update activity usage indicator
+function updateActivityUsageIndicator() {
+
+    const indicator = document.getElementById('activityUsageIndicator');
+    const countElement = document.getElementById('activityUsageCount');
+
+    if (indicator && countElement) {
+        const usedCount = activityState.usedThisHand ? 1 : 0;
+        countElement.textContent = `${usedCount}/1`;
+
+        if (activityState.usedThisHand) {
+            indicator.classList.add('cooldown-active');
+            indicator.title = 'Activities are on cooldown until next hand';
+        } else {
+            indicator.classList.remove('cooldown-active');
+            indicator.title = 'You can use 1 activity this hand';
+        }
+    }
+}
+
+// Load and display premium activities based on campaign state
+export function loadPremiumActivities() {
+
+    // Load activity state from campaign
+    loadActivityStateFromCampaign();
+
+    // Update activity display
+    updateZenActivities();
+}
+
+// Show split hands UI for compartmentalize
+export function showSplitHandsUI(splitHands) {
+    const regularContainer = document.getElementById('regularCardsContainer');
+    const splitContainer = document.getElementById('splitHandsContainer');
+
+    if (regularContainer && splitContainer) {
+        regularContainer.classList.add('hidden');
+        splitContainer.classList.remove('hidden');
+
+        // Update split hand displays
+        updateSplitHandDisplay(splitHands);
+    }
+}
+
+// Hide split hands UI and return to regular display
+export function hideSplitHandsUI() {
+    const regularContainer = document.getElementById('regularCardsContainer');
+    const splitContainer = document.getElementById('splitHandsContainer');
+
+    if (regularContainer && splitContainer) {
+        regularContainer.classList.remove('hidden');
+        splitContainer.classList.add('hidden');
+    }
+}
+
+// Update split hand display
+export function updateSplitHandDisplay(splitHands) {
+    if (!splitHands) return;
+
+    // Update hand 1
+    updateSplitHandCards('splitHand1Cards', splitHands.hand1.cards);
+    updateSplitHandScore('splitHand1Score', splitHands.hand1.cards);
+    updateSplitHandStatus('hand1Status', splitHands.hand1, splitHands.currentHand === 0);
+
+    // Update hand 2
+    updateSplitHandCards('splitHand2Cards', splitHands.hand2.cards);
+    updateSplitHandScore('splitHand2Score', splitHands.hand2.cards);
+    updateSplitHandStatus('hand2Status', splitHands.hand2, splitHands.currentHand === 1);
+
+    // Update progress text
+    const progressText = document.getElementById('splitProgressText');
+    if (progressText) {
+        const currentHandNum = splitHands.currentHand + 1;
+        const handStatus = splitHands.currentHand === 0 ?
+            (splitHands.hand1.completed ? 'Completed' : 'Active') :
+            (splitHands.hand2.completed ? 'Completed' : 'Active');
+        progressText.textContent = `Hand ${currentHandNum} - ${handStatus}`;
+    }
+
+    // Update switch button
+    const switchBtn = document.getElementById('switchHandBtn');
+    if (switchBtn) {
+        const otherHand = splitHands.currentHand === 0 ? splitHands.hand2 : splitHands.hand1;
+        if (otherHand.completed) {
+            switchBtn.disabled = true;
+            switchBtn.textContent = 'Other Hand Completed';
+        } else {
+            switchBtn.disabled = false;
+            switchBtn.textContent = `Switch to Hand ${splitHands.currentHand === 0 ? 2 : 1}`;
+        }
+    }
+}
+
+// Update individual split hand cards
+function updateSplitHandCards(containerId, cards) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    cards.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'card';
+        cardElement.textContent = `${card.value}${card.suit}`;
+        container.appendChild(cardElement);
+    });
+}
+
+// Update individual split hand score
+function updateSplitHandScore(scoreId, cards) {
+    const scoreElement = document.getElementById(scoreId);
+    if (scoreElement) {
+        const score = calculateScore(cards);
+        scoreElement.textContent = `Score: ${score}`;
+
+        // Add visual feedback for bust
+        if (score > 21) {
+            scoreElement.classList.add('bust');
+        } else {
+            scoreElement.classList.remove('bust');
+        }
+    }
+}
+
+// Update split hand status indicator
+function updateSplitHandStatus(statusId, handData, isActive) {
+    const statusElement = document.getElementById(statusId);
+    if (!statusElement) return;
+
+    if (handData.completed) {
+        statusElement.textContent = `(${handData.outcome || 'Completed'})`;
+        statusElement.className = 'hand-status completed';
+    } else if (isActive) {
+        statusElement.textContent = '(Active)';
+        statusElement.className = 'hand-status active';
+    } else {
+        statusElement.textContent = '(Waiting)';
+        statusElement.className = 'hand-status waiting';
     }
 }
 

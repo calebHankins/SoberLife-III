@@ -1,12 +1,12 @@
 // SoberLife III - Main Game Controller
 // Game initialization and coordination
 
-import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState } from './game-state.js';
+import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity } from './game-state.js';
 import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showDeckViewer, hideDeckViewer, showJokerCalculationFeedback, showJokerPerfectScoreFeedback } from './ui-manager.js';
-import { calculateSurveyStress, updateStressLevel } from './stress-system.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showDeckViewer, hideDeckViewer, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI } from './ui-manager.js';
+import { calculateSurveyStress, updateStressLevel, switchSplitHand, showZenActivityFeedback, useZenActivity, zenActivities, completeSplitHand, getActiveSplitHand } from './stress-system.js';
 import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
-import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback } from './shop-system.js';
+import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback, purchasePremiumActivityWrapper } from './shop-system.js';
 import { getTaskDefinition } from './task-definitions.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 
@@ -268,6 +268,11 @@ export function startTask() {
         initialFlavorTextShown: false // Reset flavor text for new task
     });
 
+    // Load activity state from campaign if in campaign mode
+    if (isCampaignMode()) {
+        loadActivityStateFromCampaign();
+    }
+
     // Hide survey and show game elements
     hideElement('surveySection');
     showElement('taskInfo');
@@ -405,6 +410,12 @@ export function startNewRound() {
 export function hit() {
     if (!gameState.gameInProgress || gameState.deck.length === 0) return;
 
+    // Handle split hand hit
+    if (activityState.compartmentalizeInProgress) {
+        handleSplitHandHit();
+        return;
+    }
+
     try {
         // Increment hit count for progressive messaging
         incrementHitCount();
@@ -435,8 +446,13 @@ export function hit() {
 
         const playerScore = calculateScore(gameState.playerCards);
         if (playerScore > 21) {
-            // Player exceeded 21 - use DMV-themed messaging
-            endRound('bust');
+            // Check if compartmentalize is available
+            if (checkCompartmentalizeAvailable()) {
+                offerCompartmentalize();
+            } else {
+                // Player exceeded 21 - use DMV-themed messaging
+                endRound('bust');
+            }
         }
 
     } catch (error) {
@@ -447,7 +463,12 @@ export function hit() {
             updateCards();
             const playerScore = calculateScore(gameState.playerCards);
             if (playerScore > 21) {
-                endRound('bust');
+                // Check if compartmentalize is available
+                if (checkCompartmentalizeAvailable()) {
+                    offerCompartmentalize();
+                } else {
+                    endRound('bust');
+                }
             }
         }
     }
@@ -456,6 +477,12 @@ export function hit() {
 // Player stands (ends their turn)
 export function stand() {
     if (!gameState.gameInProgress) return;
+
+    // Handle split hand stand
+    if (activityState.compartmentalizeInProgress) {
+        handleSplitHandStand();
+        return;
+    }
 
     try {
         // Set last action for tracking
@@ -778,6 +805,170 @@ export function openCampaignShop() {
     }
 }
 
+// Wrapper function for switching split hands
+// Check if compartmentalize is available
+function checkCompartmentalizeAvailable() {
+
+    return activityState.availableActivities.compartmentalize &&
+        canUseActivity('compartmentalize') &&
+        ZenPointsManager.getCurrentBalance() >= zenActivities.compartmentalize.cost;
+}
+
+// Offer compartmentalize option to player
+function offerCompartmentalize() {
+    // Show compartmentalize option UI
+    const gameArea = document.getElementById('gameArea');
+    if (gameArea) {
+        const compartmentalizeOffer = document.createElement('div');
+        compartmentalizeOffer.className = 'compartmentalize-offer';
+        compartmentalizeOffer.innerHTML = `
+            <div class="compartmentalize-content">
+                <h3>🧠 Compartmentalize Available!</h3>
+                <p>You've busted, but you can use Compartmentalize to split this overwhelming situation into manageable parts.</p>
+                <div class="compartmentalize-actions">
+                    <button onclick="useCompartmentalizeWrapper()" class="primary-btn">Use Compartmentalize (100 zen)</button>
+                    <button onclick="declineCompartmentalize()" class="secondary-btn">Accept Bust</button>
+                </div>
+            </div>
+        `;
+        gameArea.appendChild(compartmentalizeOffer);
+    }
+}
+
+// Wrapper for using compartmentalize
+export function useCompartmentalizeWrapper() {
+
+    const result = useZenActivity('compartmentalize', true);
+
+    if (result.success) {
+        // Remove compartmentalize offer
+        const offer = document.querySelector('.compartmentalize-offer');
+        if (offer) offer.remove();
+
+        // Show split hands UI
+        showSplitHandsUI(result.splitHands);
+
+        // Update display
+        updateDisplay();
+        updateZenActivities();
+
+        // Show feedback
+        showZenActivityFeedback('Compartmentalize', result.stressReduction || 25);
+    } else {
+        console.error('Failed to use compartmentalize:', result);
+        declineCompartmentalize();
+    }
+}
+
+// Decline compartmentalize and proceed with bust
+export function declineCompartmentalize() {
+    // Remove compartmentalize offer
+    const offer = document.querySelector('.compartmentalize-offer');
+    if (offer) offer.remove();
+
+    // Proceed with normal bust
+    endRound('bust');
+}
+
+// Handle hit action for split hands
+function handleSplitHandHit() {
+
+    if (!activityState.compartmentalizeInProgress) return false;
+
+    const activeHand = getActiveSplitHand();
+    if (!activeHand || activeHand.completed) return false;
+
+    // Add card to active hand
+    if (gameState.deck.length > 0) {
+        const newCard = gameState.deck.pop();
+        activeHand.cards.push(newCard);
+
+        // Update game state to reflect active hand
+        updateGameState({
+            playerCards: activeHand.cards
+        });
+
+        // Check for bust
+        const score = calculateScore(activeHand.cards);
+        if (score > 21) {
+            const result = completeSplitHand('bust');
+            if (result && result.completed) {
+                // Both hands completed, finalize
+                finalizeSplitHandGame(result);
+            } else {
+                // Update split hand display
+                updateSplitHandDisplay(activityState.splitHands);
+            }
+        } else {
+            // Update display
+            updateCards();
+            updateSplitHandDisplay(activityState.splitHands);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+// Handle stand action for split hands
+function handleSplitHandStand() {
+
+    if (!activityState.compartmentalizeInProgress) return false;
+
+    const activeHand = getActiveSplitHand();
+    if (!activeHand || activeHand.completed) return false;
+
+    // Play house hand and determine outcome
+    playHouseHand();
+
+    const playerScore = calculateScore(activeHand.cards);
+    const houseScore = calculateScore(gameState.houseCards);
+
+    let outcome;
+    if (houseScore > 21) {
+        outcome = 'house_bust';
+    } else if (playerScore > houseScore) {
+        outcome = 'win';
+    } else if (playerScore === houseScore) {
+        outcome = 'tie';
+    } else {
+        outcome = 'lose';
+    }
+
+    const result = completeSplitHand(outcome);
+    if (result && result.completed) {
+        // Both hands completed, finalize
+        finalizeSplitHandGame(result);
+    } else {
+        // Update split hand display
+        updateSplitHandDisplay(activityState.splitHands);
+    }
+
+    return true;
+}
+
+// Finalize split hand game and return to normal gameplay
+function finalizeSplitHandGame(result) {
+
+    // Hide split hands UI
+    hideSplitHandsUI();
+
+    // End round with overall outcome
+    endRound(result.overallOutcome);
+
+    // Show compartmentalize completion message
+    showZenActivityFeedback('Compartmentalize Complete', 0);
+}
+
+export function switchSplitHandWrapper() {
+    if (switchSplitHand()) {
+        updateSplitHandDisplay(activityState.splitHands);
+        return true;
+    }
+    return false;
+}
+
 export function purchaseJoker() {
     try {
         // Validate campaign mode
@@ -895,6 +1086,10 @@ if (typeof window !== 'undefined') {
     window.openCampaignShop = openCampaignShop;
     window.openShop = openShopWithZen;
     window.purchaseJokerUpgrade = purchaseJoker;
+    window.purchasePremiumActivityWrapper = purchasePremiumActivityWrapper;
+    window.switchSplitHandWrapper = switchSplitHandWrapper;
+    window.useCompartmentalizeWrapper = useCompartmentalizeWrapper;
+    window.declineCompartmentalize = declineCompartmentalize;
     window.continueCampaign = continueCampaign;
     window.closeShopToCampaign = closeShopToCampaign;
     window.viewDeckComposition = viewDeckComposition;
