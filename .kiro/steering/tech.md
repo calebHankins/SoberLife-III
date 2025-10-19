@@ -82,6 +82,40 @@ npx serve . -p 8000          # Node.js
 - **Manual testing**: User experience and edge case validation
 - **Error simulation**: Testing recovery mechanisms and fallbacks
 
+## Debugging & QA Guidelines
+
+### Zen Points System Debugging
+The zen points system is critical for campaign progression. When debugging zen point issues:
+
+1. **Check Console Logs**: All zen point transactions are logged with transaction type and new balance
+2. **Verify Manager State**: Use `ZenPointsManager.getCurrentBalance()` to get authoritative balance
+3. **Campaign State Sync**: Ensure `campaignState.zenPointBalance` matches manager balance
+4. **UI Synchronization**: Verify header display matches backend state after navigation
+
+### Common Zen Points Issues
+- **Completion Bonus Not Persisting**: Check task completion flow order - bonus must be awarded before `completeCurrentTask()` call
+- **UI Desync**: Missing `updateDisplay()` calls in navigation functions (campaign-manager.js)
+- **Shop Purchase Issues**: Verify `ZenPointsManager.spend()` is called before updating campaign state
+- **Balance Mismatch**: Check for race conditions between zen points manager and campaign state updates
+
+### Critical Testing Scenarios
+1. **End-to-End Campaign Flow**: Complete task → earn completion bonus → visit shop → make purchase → return to campaign → verify all balances match
+2. **Cross-Session Persistence**: Complete actions → refresh browser → verify state persists correctly
+3. **UI Consistency**: Navigate between all screens and verify header zen points display is always accurate
+4. **Error Recovery**: Test with corrupted localStorage data to ensure graceful fallbacks
+
+### State Management Architecture
+- **ZenPointsManager**: Authoritative source for zen point balance across all modes
+- **Campaign State**: Persistent storage layer that syncs with zen points manager
+- **Game State**: Temporary state for current gameplay session
+- **UI Layer**: Always reads from ZenPointsManager for display consistency
+
+### Debugging Tools
+- Browser console logs show all zen point transactions with context
+- `ZenPointsManager.getCurrentBalance()` provides authoritative balance
+- Campaign state validation runs automatically on load with repair mechanisms
+- localStorage inspection shows raw persistence data
+
 ## Performance Considerations
 - **Lazy loading**: Task definitions loaded as needed
 - **Efficient rendering**: Minimal DOM manipulation and smart updates

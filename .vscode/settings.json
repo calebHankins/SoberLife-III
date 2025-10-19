@@ -1,6 +1,6 @@
 {
-    "kiroAgent.configureMCP": "Disabled",
-    "chat.tools.edits.autoApprove":{
+    "kiroAgent.configureMCP": "Enabled",
+    "chat.tools.edits.autoApprove": {
         "**/*": true,
         "**/.vscode/*.json": false,
         "**/.git/**": false,
@@ -9,6 +9,7 @@
     },
     "chat.agent.maxRequests": 100,
     "cSpell.words": [
+        "Desync",
         "flexbox",
         "gamified",
         "insightfully",
@@ -24,5 +25,6 @@
         "soberlife",
         "tappable",
         "viewports"
-    ]
+    ],
+    "editor.formatOnSave": true
 }

@@ -2,9 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 permissions:
   contents: read
@@ -16,7 +16,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Test job for all branches/PRs
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate HTML
+        run: |
+          echo "Running basic validation checks..."
+          # Check if index.html exists
+          if [ ! -f "index.html" ]; then
+            echo "Error: index.html not found"
+            exit 1
+          fi
+          echo "✓ index.html found"
+
+          # Check if required JS modules exist
+          required_files=("assets/js/main.js" "assets/js/game-state.js" "assets/js/ui-manager.js")
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Error: Required file $file not found"
+              exit 1
+            fi
+            echo "✓ $file found"
+          done
+
+          echo "All validation checks passed!"
+
+  # Deploy job only for main/master branch pushes
   deploy:
+    # Only run deploy job on main/master branch pushes (not PRs)
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    needs: test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -24,15 +57,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
-      
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
-      
+          path: "."
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

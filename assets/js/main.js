@@ -8,13 +8,14 @@ import { calculateSurveyStress, updateStressLevel } from './stress-system.js';
 import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
 import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback } from './shop-system.js';
 import { getTaskDefinition } from './task-definitions.js';
+import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 
 // Initialize the game when page loads
 export function initializeGame() {
     // Set up survey validation
     const surveyInputs = document.querySelectorAll('input[type="radio"]');
     const startTaskBtn = document.getElementById('startTaskBtn');
-    
+
     if (surveyInputs && startTaskBtn) {
         surveyInputs.forEach(input => {
             input.addEventListener('change', validateSurvey);
@@ -50,7 +51,7 @@ function setupHelpModal() {
     // Help button click
     if (helpBtn) {
         helpBtn.addEventListener('click', showHelp);
-        
+
         // Keyboard navigation for help button
         helpBtn.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -63,7 +64,7 @@ function setupHelpModal() {
     // Close button click
     if (helpCloseBtn) {
         helpCloseBtn.addEventListener('click', hideHelp);
-        
+
         // Keyboard navigation for close button
         helpCloseBtn.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -173,9 +174,9 @@ function showPopupNotification(message, type = 'default') {
     const popup = document.createElement('div');
     popup.className = `popup-notification ${type}`;
     popup.textContent = message;
-    
+
     document.body.appendChild(popup);
-    
+
     // Remove popup after animation completes
     setTimeout(() => {
         if (popup.parentNode) {
@@ -188,18 +189,18 @@ function showPopupNotification(message, type = 'default') {
 export function startSingleTaskMode() {
     // Set up single task mode
     updateGameState({ campaignMode: false });
-    
+
     // Hide mode selection and show survey
     hideElement('gameModeSelection');
     hideElement('campaignOverview');
     showElement('surveySection');
-    
+
     // Update survey for DMV context
     const surveyDescription = document.getElementById('surveyDescription');
     if (surveyDescription) {
         surveyDescription.textContent = 'Before we begin your DMV visit, let\'s assess your current stress level:';
     }
-    
+
     const preparedQuestion = document.getElementById('preparedQuestion');
     if (preparedQuestion) {
         preparedQuestion.textContent = 'How prepared do you feel for the DMV?';
@@ -244,12 +245,25 @@ export function startTask() {
         return;
     }
 
-    // Calculate initial stress and zen points from survey
+    // Calculate initial stress from survey
     const surveyResults = calculateSurveyStress();
+
+    // In campaign mode, preserve existing zen points and add start bonus
+    // In single task mode, use survey-based zen points plus start bonus
+    if (isCampaignMode()) {
+        // Award start bonus to existing balance (this updates the balance internally)
+        const taskId = campaignState.currentTask || 'unknown';
+        ZenPointsManager.awardTaskStartBonus(taskId, 1.0);
+    } else {
+        // Single task mode: set survey result as base, then add start bonus
+        ZenPointsManager.setBalance(surveyResults.zenPoints);
+        ZenPointsManager.awardTaskStartBonus('single-task', 1.0);
+    }
+
     updateGameState({
         currentStep: 0, // Reset to step 0 for new task
         stressLevel: surveyResults.stressLevel,
-        zenPoints: surveyResults.zenPoints,
+        // Don't set zenPoints here - let the zen points manager handle it
         surveyCompleted: true,
         initialFlavorTextShown: false // Reset flavor text for new task
     });
@@ -274,7 +288,7 @@ export function startNewRound() {
     try {
         // Reset hand state for fresh progressive flavor text
         resetHandState();
-        
+
         // Create deck based on mode (custom for campaign, standard for single task)
         let playerDeck, houseDeck;
         if (isCampaignMode()) {
@@ -335,12 +349,12 @@ export function startNewRound() {
         const hitBtn = document.getElementById('hitBtn');
         const standBtn = document.getElementById('standBtn');
         const nextStepBtn = document.getElementById('nextStepBtn');
-        
+
         if (shouldShowFlavorText) {
             // Disable game buttons until flavor text is acknowledged
             if (hitBtn) hitBtn.disabled = true;
             if (standBtn) standBtn.disabled = true;
-            
+
             // Show initial flavor text modal
             setTimeout(() => {
                 showInitialFlavorText(gameState.currentStep);
@@ -350,23 +364,23 @@ export function startNewRound() {
             if (hitBtn) hitBtn.disabled = false;
             if (standBtn) standBtn.disabled = false;
         }
-        
+
         if (nextStepBtn) nextStepBtn.classList.add('hidden');
 
         // Clear previous round result
         const roundResult = document.getElementById('roundResult');
         if (roundResult) roundResult.innerHTML = '';
-        
+
         // Log hand state for debugging
         console.log(`New round started - Hand ID: ${handState.currentHand}, Hit count reset to: ${handState.hitCount}`);
-        
+
     } catch (error) {
         console.error('Error starting new round:', error);
-        
+
         // Fallback behavior - basic round setup
         const deck = createDeck();
         shuffleDeck(deck);
-        
+
         updateGameState({
             deck: deck,
             playerCards: [],
@@ -394,14 +408,14 @@ export function hit() {
     try {
         // Increment hit count for progressive messaging
         incrementHitCount();
-        
+
         // Show progressive flavor text based on hit count
         showFlavorText('hit');
 
         // Add card to player's hand
         const newCard = gameState.deck.pop();
         gameState.playerCards.push(newCard);
-        
+
         // Show Joker feedback if the new card is a Joker
         if (newCard.isJoker) {
             const playerScore = calculateScore(gameState.playerCards);
@@ -416,7 +430,7 @@ export function hit() {
                 }
             }, 500);
         }
-        
+
         updateCards();
 
         const playerScore = calculateScore(gameState.playerCards);
@@ -424,7 +438,7 @@ export function hit() {
             // Player exceeded 21 - use DMV-themed messaging
             endRound('bust');
         }
-        
+
     } catch (error) {
         console.error('Error in hit action:', error);
         // Fallback behavior - still add card but without progressive messaging
@@ -446,7 +460,7 @@ export function stand() {
     try {
         // Set last action for tracking
         setLastAction('stand');
-        
+
         // Show contextual flavor text
         showFlavorText('stand');
 
@@ -477,7 +491,7 @@ export function stand() {
         } else {
             endRound('tie');
         }
-        
+
     } catch (error) {
         console.error('Error in stand action:', error);
         // Fallback behavior - still play house hand
@@ -506,24 +520,26 @@ export function stand() {
 export function endRound(result) {
     try {
         updateGameState({ gameInProgress: false });
-        
+
         const hitBtn = document.getElementById('hitBtn');
         const standBtn = document.getElementById('standBtn');
         const nextStepBtn = document.getElementById('nextStepBtn');
-        
+
         if (hitBtn) hitBtn.disabled = true;
         if (standBtn) standBtn.disabled = true;
-        
+
         updateCards();
 
         // Calculate zen and stress changes based on outcome
         let zenChange = 0;
         let stressChange = 0;
+        let transactionType = ZEN_TRANSACTION_TYPES.ADMIN_ADJUSTMENT;
 
         switch (result) {
             case 'win':
                 zenChange = 15;
                 stressChange = -5;
+                transactionType = ZEN_TRANSACTION_TYPES.ROUND_WIN;
                 break;
             case 'lose':
                 stressChange = 15;
@@ -531,6 +547,7 @@ export function endRound(result) {
             case 'tie':
                 zenChange = 5;
                 stressChange = 5;
+                transactionType = ZEN_TRANSACTION_TYPES.ROUND_TIE;
                 break;
             case 'bust':
                 stressChange = 30;
@@ -538,12 +555,20 @@ export function endRound(result) {
             case 'house_bust':
                 zenChange = 15;
                 stressChange = -5;
+                transactionType = ZEN_TRANSACTION_TYPES.HOUSE_BUST;
                 break;
         }
 
-        // Apply changes to game state
+        // Apply zen point changes using the manager
+        if (zenChange > 0) {
+            ZenPointsManager.addPoints(zenChange, transactionType, true, {
+                roundResult: result,
+                stressChange: stressChange
+            });
+        }
+
+        // Apply stress changes
         updateGameState({
-            zenPoints: Math.max(0, gameState.zenPoints + zenChange),
             stressLevel: Math.max(0, Math.min(100, gameState.stressLevel + stressChange))
         });
 
@@ -553,16 +578,11 @@ export function endRound(result) {
 
         // Show DMV-themed outcome message with educational content
         updateOutcomeMessage(result);
-        
+
         // Show stress management tip after a brief delay
         setTimeout(() => {
             showStressManagementTip(result);
         }, 1000);
-
-        // Show popup notifications for changes
-        if (zenChange > 0) {
-            showPopupNotification(`+${zenChange} Zen Points!`, 'zen-gain');
-        }
         if (stressChange !== 0) {
             const stressType = stressChange > 0 ? 'stress-change' : 'stress-decrease';
             const stressText = stressChange > 0 ? `+${stressChange}% Stress` : `${stressChange}% Stress`;
@@ -580,24 +600,24 @@ export function endRound(result) {
             nextStepBtn.textContent = 'Next Step';
             nextStepBtn.classList.remove('hidden');
         }
-        
+
     } catch (error) {
         console.error('Error in endRound:', error);
-        
+
         // Fallback behavior - basic game state updates
         updateGameState({ gameInProgress: false });
-        
+
         const hitBtn = document.getElementById('hitBtn');
         const standBtn = document.getElementById('standBtn');
         const nextStepBtn = document.getElementById('nextStepBtn');
-        
+
         if (hitBtn) hitBtn.disabled = true;
         if (standBtn) standBtn.disabled = true;
-        
+
         updateCards();
         updateDisplay();
         updateZenActivities();
-        
+
         // Show basic fallback message
         const roundResult = document.getElementById('roundResult');
         if (roundResult) {
@@ -607,7 +627,7 @@ export function endRound(result) {
                 </p>
             `;
         }
-        
+
         if (nextStepBtn) {
             nextStepBtn.textContent = 'Next Step';
             nextStepBtn.classList.remove('hidden');
@@ -625,26 +645,45 @@ export function nextStep() {
     } else {
         currentSteps = steps;
     }
-    
+
     // Always advance to next step
-    updateGameState({ 
+    updateGameState({
         currentStep: gameState.currentStep + 1,
         initialFlavorTextShown: false // Reset for new step
     });
-    
+
     if (gameState.currentStep >= currentSteps.length) {
         // Task completed successfully!
+
+        // Award completion bonus based on final stress level
+        const completionBonus = ZenPointsManager.awardCompletionBonus(
+            gameState.stressLevel,
+            isCampaignMode() ? campaignState.currentTask : 'single-task'
+        );
+
         if (isCampaignMode()) {
-            // Complete campaign task
-            completeCurrentTask(gameState.zenPoints);
+            // Get the final balance after completion bonus
+            const finalBalance = ZenPointsManager.getCurrentBalance();
+            console.log(`Task completion: Final balance after bonus: ${finalBalance}`);
+
+            // Complete campaign task with final zen points (AFTER completion bonus is awarded)
+            completeCurrentTask(finalBalance);
         }
-        setTimeout(() => showGameSuccess(), 1000);
+
+        // Show success screen with completion bonus information
+        setTimeout(() => {
+            showGameSuccess();
+            // Show completion bonus celebration after success screen appears
+            setTimeout(() => {
+                showCompletionBonusCelebration(completionBonus);
+            }, 500);
+        }, 1000);
         return;
     }
-    
+
     // Start new round for next step with extra emphasis
     startNewRound();
-    
+
     // Add extra emphasis when advancing steps
     setTimeout(() => {
         emphasizeTaskInfo();
@@ -654,12 +693,12 @@ export function nextStep() {
 // Restart the game
 export function restartGame() {
     resetGameState();
-    
+
     // Hide game over/success screens
     hideElement('gameOverScreen');
     hideElement('gameSuccessScreen');
     hideElement('upgradeShop');
-    
+
     if (isCampaignMode()) {
         // Return to campaign overview
         returnToCampaign();
@@ -672,14 +711,14 @@ export function restartGame() {
         hideElement('gameArea');
         hideElement('campaignOverview');
     }
-    
+
     // Reset survey
     const surveyInputs = document.querySelectorAll('input[type="radio"]');
     surveyInputs.forEach(input => input.checked = false);
-    
+
     const startTaskBtn = document.getElementById('startTaskBtn');
     if (startTaskBtn) startTaskBtn.disabled = true;
-    
+
     // Update display
     updateDisplay();
     updateZenActivities();
@@ -690,10 +729,10 @@ export function enableGameControls() {
     try {
         const hitBtn = document.getElementById('hitBtn');
         const standBtn = document.getElementById('standBtn');
-        
+
         if (hitBtn) hitBtn.disabled = false;
         if (standBtn) standBtn.disabled = false;
-        
+
         console.log('Game controls enabled after flavor text acknowledgment');
     } catch (error) {
         console.error('Error enabling game controls:', error);
@@ -721,17 +760,17 @@ export function openCampaignShop() {
             console.warn('Cannot open campaign shop - not in campaign mode');
             return;
         }
-        
-        // Validate zen points
-        const zenPoints = gameState.zenPoints || 0;
+
+        // Get zen points from the manager
+        const zenPoints = ZenPointsManager.getCurrentBalance();
         if (zenPoints < 0) {
             console.warn('Invalid zen points value, using 0');
-            updateGameState({ zenPoints: 0 });
+            ZenPointsManager.setBalance(0);
         }
-        
-        // Open shop with current zen points from game state
+
+        // Open shop with current zen points from zen points manager
         openShop(zenPoints);
-        
+
     } catch (error) {
         console.error('Error opening campaign shop:', error);
         // Show user-friendly error message
@@ -750,37 +789,38 @@ export function purchaseJoker() {
             });
             return;
         }
-        
-        // Validate zen points
-        const zenPoints = gameState.zenPoints || 0;
+
+        // Get zen points from the manager
+        const zenPoints = ZenPointsManager.getCurrentBalance();
         if (zenPoints < 0) {
             console.warn('Invalid zen points for purchase');
-            updateGameState({ zenPoints: 0 });
+            ZenPointsManager.setBalance(0);
             showPurchaseFeedback({
                 success: false,
                 message: 'Invalid zen points balance'
             });
             return;
         }
-        
+
         const result = purchaseJokerUpgrade(zenPoints);
-        
+
         if (result.success) {
-            // Update game state
-            updateGameState({ zenPoints: result.zenPointsRemaining });
-            
+            // Update game state with new balance from zen points manager
+            const newBalance = ZenPointsManager.getCurrentBalance();
+            updateGameState({ zenPoints: newBalance });
+
             // Update UI elements
             try {
-                updateShopUI(result.zenPointsRemaining);
+                updateShopUI(newBalance);
                 updateCampaignUI();
             } catch (uiError) {
                 console.warn('Error updating UI after purchase:', uiError);
                 // Purchase was successful, so don't fail completely
             }
         }
-        
+
         showPurchaseFeedback(result);
-        
+
     } catch (error) {
         console.error('Error purchasing Joker:', error);
         showPurchaseFeedback({
@@ -812,24 +852,24 @@ export function closeShopToCampaign() {
 export function viewDeckComposition() {
     try {
         console.log('viewDeckComposition called');
-        
+
         // Validate campaign mode
         if (!isCampaignMode()) {
             console.warn('Deck viewer only available in campaign mode');
             showPopupNotification('Deck viewer only available in campaign mode', 'error');
             return;
         }
-        
+
         // Validate campaign state
         if (!campaignState.deckComposition) {
             console.error('Invalid campaign state - missing deck composition');
             showPopupNotification('Unable to load deck information', 'error');
             return;
         }
-        
+
         console.log('Current campaign state before showing deck viewer:', campaignState);
         showDeckViewer();
-        
+
     } catch (error) {
         console.error('Error opening deck viewer:', error);
         showPopupNotification('Unable to open deck viewer. Please try again.', 'error');
@@ -862,10 +902,18 @@ if (typeof window !== 'undefined') {
     window.startCampaignTask = startCampaignTask;
     window.resetCampaign = resetCampaign;
     window.returnToCampaign = returnToCampaign;
-    
+
     // Make campaign functions available for game-state.js (needed for internal module communication)
     window.isCampaignMode = isCampaignMode;
     window.getCurrentTask = getCurrentTask;
+
+    // Make UI functions available for zen points manager
+    window.showZenPointAnimation = (amount, type, direction) => {
+        import('./ui-manager.js').then(ui => ui.showZenPointAnimation(amount, type, direction));
+    };
+    window.showCompletionBonusCelebration = (breakdown) => {
+        import('./ui-manager.js').then(ui => ui.showCompletionBonusCelebration(breakdown));
+    };
 }
 
 // Initialize when DOM is loaded
