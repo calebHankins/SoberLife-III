@@ -652,8 +652,8 @@ export function updateSplitHandDisplay(splitHands) {
         }
     }
 
-    // Update house cards display
-    updateCards();
+    // Update house cards display for split hands
+    updateSplitHouseCards();
 }
 
 // Update individual split hand cards
@@ -702,6 +702,47 @@ function updateSplitHandStatus(statusId, handData, isActive) {
     } else {
         statusElement.textContent = '(Waiting)';
         statusElement.className = 'hand-status waiting';
+    }
+}
+
+// Update house cards for split hands display
+function updateSplitHouseCards() {
+    const container = document.getElementById('splitHouseCards');
+    const scoreElement = document.getElementById('splitHouseScore');
+
+    if (!container || !scoreElement) return;
+
+    container.innerHTML = '';
+
+    // Show house cards (hide hole card if game is in progress)
+    gameState.houseCards.forEach((card, index) => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'card';
+
+        if (index === 1 && gameState.gameInProgress) {
+            // Hide hole card during active play
+            cardElement.textContent = '?';
+            cardElement.style.background = 'linear-gradient(135deg, #34495E, #2C3E50)';
+            cardElement.style.color = 'white';
+        } else {
+            const fullCardEl = createCardElement(card);
+            cardElement.className = fullCardEl.className;
+            cardElement.innerHTML = fullCardEl.innerHTML;
+            cardElement.style.cssText = fullCardEl.style.cssText;
+            // Adjust size for split display
+            cardElement.style.width = '40px';
+            cardElement.style.height = '56px';
+            cardElement.style.fontSize = '12px';
+        }
+        container.appendChild(cardElement);
+    });
+
+    // Update house score
+    if (gameState.gameInProgress && gameState.houseCards.length > 1) {
+        scoreElement.textContent = 'Score: ?';
+    } else {
+        const houseScore = calculateScore(gameState.houseCards);
+        scoreElement.textContent = `Score: ${houseScore}`;
     }
 }
 

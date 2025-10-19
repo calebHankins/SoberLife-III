@@ -191,7 +191,9 @@
             <div class="split-hands-container hidden" id="splitHandsContainer">
                 <div class="split-hands-header">
                     <h3>🧠 Compartmentalized Hands</h3>
-                    <p>Playing each hand separately to manage the overwhelming situation</p>
+                    <div class="split-progress">
+                        <span id="splitProgressText">Playing Hand 1 of 2</span>
+                    </div>
                 </div>
 
                 <div class="split-hands-display">
@@ -212,21 +214,19 @@
                     </div>
                 </div>
 
-                <div class="split-hand-controls">
-                    <button id="switchHandBtn" onclick="switchSplitHandWrapper()" class="secondary-btn">Switch to Other
-                        Hand</button>
-                    <button id="completeBothHandsBtn" onclick="completeBothHandsWrapper()"
-                        class="primary-btn hidden">Complete Both Hands</button>
-                    <div class="split-progress">
-                        <span id="splitProgressText">Playing Hand 1 of 2</span>
+                <!-- Compact House display -->
+                <div class="split-house-area">
+                    <div class="split-house-info">
+                        <h4>House <span id="splitHouseScore">Score: ?</span></h4>
+                        <div class="cards" id="splitHouseCards"></div>
                     </div>
                 </div>
 
-                <!-- House area for split hands -->
-                <div class="house-area">
-                    <h3>House</h3>
-                    <div class="cards" id="splitHouseCards"></div>
-                    <div class="score" id="splitHouseScore">Score: ?</div>
+                <div class="split-hand-controls">
+                    <button id="switchHandBtn" onclick="switchSplitHandWrapper()" class="secondary-btn">Switch
+                        Hand</button>
+                    <button id="completeBothHandsBtn" onclick="completeBothHandsWrapper()"
+                        class="primary-btn hidden">Complete Both</button>
                 </div>
             </div>
 
