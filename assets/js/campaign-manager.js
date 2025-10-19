@@ -1,37 +1,41 @@
 // SoberLife III - Campaign Manager
 // Campaign state coordination and navigation flow
 
-import { campaignState, updateCampaignState, loadCampaignProgress, resetCampaignState, resetGameState } from './game-state.js';
+import { campaignState, updateCampaignState, loadCampaignProgress, resetCampaignState, resetGameState, updateGameState } from './game-state.js';
 import { taskDefinitions, getTaskDefinition, isTaskUnlocked, getNextAvailableTask } from './task-definitions.js';
 import { openShop, updateShopUI, validateShopState } from './shop-system.js';
-import { hideElement, showElement } from './ui-manager.js';
+import { hideElement, showElement, updateDisplay } from './ui-manager.js';
+import { ZenPointsManager } from './zen-points-manager.js';
 
 // Initialize campaign system
 export function initializeCampaign() {
     try {
         // Load saved campaign progress
         const loaded = loadCampaignProgress();
-        
+
         if (loaded) {
             console.log('Campaign progress loaded from storage');
-            
+
             // Validate and repair campaign state if needed
             if (!validateCampaignState()) {
                 console.warn('Campaign state validation failed, attempting repair');
                 repairCampaignState();
             }
-            
+
             validateShopState(); // Ensure shop state is consistent
         } else {
             console.log('Starting new campaign');
             resetCampaignState();
         }
-        
+
+        // Initialize zen points balance for campaign mode
+        ZenPointsManager.initializeCampaignBalance();
+
         // Update campaign mode flag
         updateCampaignState({ campaignMode: true });
-        
+
         return true;
-        
+
     } catch (error) {
         console.error('Error initializing campaign:', error);
         // Fallback to fresh campaign state
@@ -58,15 +62,24 @@ export function showCampaignOverview() {
         hideElement('gameOverScreen');
         hideElement('gameSuccessScreen');
         hideElement('upgradeShop');
-        
+
+        // Sync zen points from campaign state to game state for UI display
+        const currentBalance = ZenPointsManager.getCurrentBalance();
+        console.log(`showCampaignOverview: Current balance from ZenPointsManager: ${currentBalance}`);
+        console.log(`showCampaignOverview: Campaign state zenPointBalance: ${campaignState.zenPointBalance}`);
+        updateGameState({ zenPoints: currentBalance });
+
+        // Update the header display with current zen points
+        updateDisplay();
+
         // Show campaign overview
         showElement('campaignOverview');
-        
+
         // Update campaign UI
         updateCampaignUI();
-        
+
         console.log('Campaign overview displayed');
-        
+
     } catch (error) {
         console.error('Error showing campaign overview:', error);
     }
@@ -85,7 +98,7 @@ export function updateCampaignUI() {
                 deckCompositionElement.textContent = `Aces: ${aces} / ${totalCards} Cards`;
             }
         }
-        
+
         // Update campaign progress
         const campaignProgressElement = document.getElementById('campaignProgress');
         if (campaignProgressElement) {
@@ -93,10 +106,10 @@ export function updateCampaignUI() {
             const completedCount = campaignState.completedTasks.length;
             campaignProgressElement.textContent = `Tasks Completed: ${completedCount}/${totalTasks}`;
         }
-        
+
         // Update task list
         updateTaskList();
-        
+
     } catch (error) {
         console.error('Error updating campaign UI:', error);
     }
@@ -107,16 +120,16 @@ export function updateTaskList() {
     try {
         const taskListElement = document.getElementById('taskList');
         if (!taskListElement) return;
-        
+
         // Clear existing task cards
         taskListElement.innerHTML = '';
-        
+
         // Create task cards for each task
         Object.values(taskDefinitions).forEach(task => {
             const taskCard = createTaskCard(task);
             taskListElement.appendChild(taskCard);
         });
-        
+
     } catch (error) {
         console.error('Error updating task list:', error);
     }
@@ -126,10 +139,10 @@ export function updateTaskList() {
 function createTaskCard(task) {
     const isCompleted = campaignState.completedTasks.includes(task.id);
     const isUnlocked = isTaskUnlocked(task.id, campaignState.completedTasks);
-    
+
     const taskCard = document.createElement('div');
     taskCard.className = `task-card ${isCompleted ? 'completed' : ''} ${!isUnlocked ? 'locked' : ''}`;
-    
+
     taskCard.innerHTML = `
         <div class="task-info-section">
             <h4>${task.name}</h4>
@@ -148,7 +161,7 @@ function createTaskCard(task) {
             </button>
         </div>
     `;
-    
+
     return taskCard;
 }
 
@@ -160,26 +173,26 @@ export function startCampaignTask(taskId) {
             console.error(`Task not found: ${taskId}`);
             return false;
         }
-        
+
         // Check if task is unlocked
         if (!isTaskUnlocked(taskId, campaignState.completedTasks)) {
             console.warn(`Task ${taskId} is not unlocked yet`);
             return false;
         }
-        
+
         // Set current task and reset game state for fresh start
         updateCampaignState({ currentTask: taskId });
         resetGameState(); // Reset game state for new task
-        
+
         // Hide campaign overview
         hideElement('campaignOverview');
-        
+
         // Show survey for task preparation
         showTaskSurvey(task);
-        
+
         console.log(`Starting campaign task: ${task.name}`);
         return true;
-        
+
     } catch (error) {
         console.error('Error starting campaign task:', error);
         return false;
@@ -194,7 +207,7 @@ function showTaskSurvey(task) {
         if (surveyDescription) {
             surveyDescription.textContent = `Before we begin your ${task.name.toLowerCase()}, let's assess your current stress level:`;
         }
-        
+
         // Update prepared question for task context
         const preparedQuestion = document.getElementById('preparedQuestion');
         if (preparedQuestion) {
@@ -206,20 +219,20 @@ function showTaskSurvey(task) {
                 preparedQuestion.textContent = 'How prepared do you feel for this task?';
             }
         }
-        
+
         // Show survey section
         showElement('surveySection');
-        
+
         // Reset survey inputs
         const surveyInputs = document.querySelectorAll('input[type="radio"]');
         surveyInputs.forEach(input => input.checked = false);
-        
+
         // Disable start button until survey is complete
         const startTaskBtn = document.getElementById('startTaskBtn');
         if (startTaskBtn) {
             startTaskBtn.disabled = true;
         }
-        
+
     } catch (error) {
         console.error('Error showing task survey:', error);
     }
@@ -233,29 +246,43 @@ export function completeCurrentTask(zenPointsEarned) {
             console.warn('No current task to complete');
             return false;
         }
-        
+
+        // Get the current zen point balance from the manager (this includes completion bonus)
+        const currentBalance = ZenPointsManager.getCurrentBalance();
+
+        console.log(`completeCurrentTask called with zenPointsEarned: ${zenPointsEarned}`);
+        console.log(`Current balance from ZenPointsManager: ${currentBalance}`);
+        console.log(`Campaign state zenPointBalance before update: ${campaignState.zenPointBalance}`);
+
         // Add to completed tasks if not already completed
         if (!campaignState.completedTasks.includes(currentTaskId)) {
             const newCompletedTasks = [...campaignState.completedTasks, currentTaskId];
-            updateCampaignState({ 
+            updateCampaignState({
                 completedTasks: newCompletedTasks,
-                totalZenEarned: campaignState.totalZenEarned + zenPointsEarned
+                totalZenEarned: campaignState.totalZenEarned + zenPointsEarned,
+                zenPointBalance: currentBalance // Ensure the balance is saved
+            });
+        } else {
+            // Even if task was already completed, save the current balance
+            updateCampaignState({
+                zenPointBalance: currentBalance
             });
         }
-        
-        console.log(`Task ${currentTaskId} completed! Zen earned: ${zenPointsEarned}`);
-        
+
+        console.log(`Task ${currentTaskId} completed! Balance saved: ${currentBalance}`);
+        console.log(`Campaign state zenPointBalance after update: ${campaignState.zenPointBalance}`);
+
         // Check if campaign is complete
         const totalTasks = Object.keys(taskDefinitions).length;
         if (campaignState.completedTasks.length >= totalTasks) {
             showCampaignComplete();
             return true;
         }
-        
+
         // Show post-task options (shop or continue)
-        showPostTaskOptions(zenPointsEarned);
+        showPostTaskOptions(currentBalance);
         return true;
-        
+
     } catch (error) {
         console.error('Error completing current task:', error);
         return false;
@@ -269,22 +296,22 @@ function showPostTaskOptions(zenPointsRemaining) {
         const continueToShopBtn = document.getElementById('continueToShopBtn');
         const continueCampaignBtn = document.getElementById('continueCampaignBtn');
         const playAgainBtn = document.getElementById('playAgainBtn');
-        
+
         if (continueToShopBtn) {
             continueToShopBtn.classList.remove('hidden');
-            continueToShopBtn.onclick = () => openShop(zenPointsRemaining);
+            continueToShopBtn.onclick = () => openShop(ZenPointsManager.getCurrentBalance());
         }
-        
+
         if (continueCampaignBtn) {
             continueCampaignBtn.classList.remove('hidden');
             continueCampaignBtn.onclick = () => returnToCampaign();
         }
-        
+
         if (playAgainBtn) {
             playAgainBtn.textContent = 'Replay Task';
             playAgainBtn.onclick = () => replayCurrentTask();
         }
-        
+
     } catch (error) {
         console.error('Error showing post-task options:', error);
     }
@@ -301,12 +328,12 @@ export function returnToCampaign() {
         hideElement('taskInfo');
         hideElement('zenActivities');
         hideElement('gameArea');
-        
+
         // Show campaign overview
         showCampaignOverview();
-        
+
         console.log('Returned to campaign overview');
-        
+
     } catch (error) {
         console.error('Error returning to campaign:', error);
     }
@@ -333,15 +360,15 @@ function showCampaignComplete() {
         const successMessage = document.getElementById('successMessage');
         const successSubtext = document.getElementById('successSubtext');
         const successStats = document.getElementById('successStats');
-        
+
         if (successMessage) {
             successMessage.textContent = '🎉 Campaign Complete! 🎉';
         }
-        
+
         if (successSubtext) {
             successSubtext.textContent = 'You\'ve mastered stress management across all scenarios!';
         }
-        
+
         if (successStats) {
             const { aces } = campaignState.deckComposition;
             const { totalSpent } = campaignState.shopUpgrades;
@@ -351,12 +378,12 @@ function showCampaignComplete() {
                 <p>Total Zen Invested: ${totalSpent} Points</p>
             `;
         }
-        
+
         // Update buttons for campaign completion
         const continueToShopBtn = document.getElementById('continueToShopBtn');
         const continueCampaignBtn = document.getElementById('continueCampaignBtn');
         const playAgainBtn = document.getElementById('playAgainBtn');
-        
+
         if (continueToShopBtn) continueToShopBtn.classList.add('hidden');
         if (continueCampaignBtn) {
             continueCampaignBtn.textContent = 'View Campaign';
@@ -366,9 +393,9 @@ function showCampaignComplete() {
             playAgainBtn.textContent = 'New Campaign';
             playAgainBtn.onclick = () => startNewCampaign();
         }
-        
+
         console.log('Campaign completed!');
-        
+
     } catch (error) {
         console.error('Error showing campaign completion:', error);
     }
@@ -390,14 +417,14 @@ export function startNewCampaign() {
 export function resetCampaign() {
     try {
         const confirmed = confirm('Are you sure you want to reset your campaign progress? This will delete all completed tasks and deck upgrades.');
-        
+
         if (confirmed) {
             resetCampaignState();
             resetGameState(); // Also reset the game state
             updateCampaignUI();
             console.log('Campaign progress reset');
         }
-        
+
     } catch (error) {
         console.error('Error resetting campaign:', error);
     }
@@ -409,7 +436,7 @@ export function getCampaignStatistics() {
         const totalTasks = Object.keys(taskDefinitions).length;
         const completedTasks = campaignState.completedTasks.length;
         const completionPercentage = Math.round((completedTasks / totalTasks) * 100);
-        
+
         return {
             totalTasks,
             completedTasks,
@@ -418,7 +445,7 @@ export function getCampaignStatistics() {
             deckPower: campaignState.deckComposition.aces,
             upgradesOwned: campaignState.shopUpgrades.acesAdded
         };
-        
+
     } catch (error) {
         console.error('Error getting campaign statistics:', error);
         return null;
@@ -449,54 +476,54 @@ function validateCampaignState() {
                 return false;
             }
         }
-        
+
         // Validate data types
         if (typeof campaignState.currentTask !== 'number' && typeof campaignState.currentTask !== 'string') {
             console.warn('Invalid currentTask type');
             return false;
         }
-        
+
         if (!Array.isArray(campaignState.completedTasks)) {
             console.warn('completedTasks is not an array');
             return false;
         }
-        
+
         if (typeof campaignState.totalZenEarned !== 'number' || campaignState.totalZenEarned < 0) {
             console.warn('Invalid totalZenEarned');
             return false;
         }
-        
+
         // Validate deck composition
         const { deckComposition } = campaignState;
         if (!deckComposition || typeof deckComposition.aces !== 'number' || typeof deckComposition.totalCards !== 'number') {
             console.warn('Invalid deck composition');
             return false;
         }
-        
+
         if (deckComposition.aces < 4 || deckComposition.aces > deckComposition.totalCards) {
             console.warn('Invalid ace count in deck composition');
             return false;
         }
-        
+
         // Validate shop upgrades
         const { shopUpgrades } = campaignState;
         if (!shopUpgrades || typeof shopUpgrades.acesAdded !== 'number' || typeof shopUpgrades.totalSpent !== 'number') {
             console.warn('Invalid shop upgrades');
             return false;
         }
-        
+
         if (shopUpgrades.acesAdded < 0 || shopUpgrades.totalSpent < 0) {
             console.warn('Negative values in shop upgrades');
             return false;
         }
-        
+
         // Validate consistency between aces and upgrades
         const expectedAces = 4 + shopUpgrades.acesAdded;
         if (deckComposition.aces !== expectedAces) {
             console.warn('Inconsistency between deck aces and shop upgrades');
             return false;
         }
-        
+
         // Validate completed tasks contain valid task IDs
         for (const taskId of campaignState.completedTasks) {
             if (!getTaskDefinition(taskId)) {
@@ -504,9 +531,9 @@ function validateCampaignState() {
                 return false;
             }
         }
-        
+
         return true;
-        
+
     } catch (error) {
         console.error('Error validating campaign state:', error);
         return false;
@@ -517,20 +544,20 @@ function validateCampaignState() {
 function repairCampaignState() {
     try {
         console.log('Attempting to repair campaign state...');
-        
+
         // Repair missing or invalid properties
         if (typeof campaignState.currentTask !== 'number' && typeof campaignState.currentTask !== 'string') {
             campaignState.currentTask = 0;
         }
-        
+
         if (!Array.isArray(campaignState.completedTasks)) {
             campaignState.completedTasks = [];
         }
-        
+
         if (typeof campaignState.totalZenEarned !== 'number' || campaignState.totalZenEarned < 0) {
             campaignState.totalZenEarned = 0;
         }
-        
+
         // Repair deck composition
         if (!campaignState.deckComposition || typeof campaignState.deckComposition !== 'object') {
             campaignState.deckComposition = { aces: 4, totalCards: 52 };
@@ -542,7 +569,7 @@ function repairCampaignState() {
                 campaignState.deckComposition.totalCards = 52;
             }
         }
-        
+
         // Repair shop upgrades
         if (!campaignState.shopUpgrades || typeof campaignState.shopUpgrades !== 'object') {
             campaignState.shopUpgrades = { acesAdded: 0, totalSpent: 0 };
@@ -554,29 +581,29 @@ function repairCampaignState() {
                 campaignState.shopUpgrades.totalSpent = 0;
             }
         }
-        
+
         // Ensure consistency between aces and upgrades
         const expectedAces = 4 + campaignState.shopUpgrades.acesAdded;
         if (campaignState.deckComposition.aces !== expectedAces) {
             campaignState.deckComposition.aces = expectedAces;
         }
-        
+
         // Filter out invalid completed tasks
         campaignState.completedTasks = campaignState.completedTasks.filter(taskId => {
             return getTaskDefinition(taskId) !== null;
         });
-        
+
         // Ensure task progress object exists
         if (!campaignState.taskProgress || typeof campaignState.taskProgress !== 'object') {
             campaignState.taskProgress = {};
         }
-        
+
         // Save repaired state
         updateCampaignState({});
-        
+
         console.log('Campaign state repaired successfully');
         return true;
-        
+
     } catch (error) {
         console.error('Error repairing campaign state:', error);
         return false;
@@ -590,11 +617,11 @@ export function createCampaignBackup() {
             timestamp: Date.now(),
             campaignState: JSON.parse(JSON.stringify(campaignState))
         };
-        
+
         localStorage.setItem('soberlife-campaign-backup', JSON.stringify(backup));
         console.log('Campaign backup created');
         return true;
-        
+
     } catch (error) {
         console.error('Error creating campaign backup:', error);
         return false;
@@ -609,20 +636,20 @@ export function restoreCampaignBackup() {
             console.warn('No campaign backup found');
             return false;
         }
-        
+
         const backup = JSON.parse(backupData);
         if (!backup.campaignState) {
             console.warn('Invalid backup data');
             return false;
         }
-        
+
         // Restore campaign state
         Object.assign(campaignState, backup.campaignState);
         updateCampaignState({});
-        
+
         console.log('Campaign restored from backup');
         return true;
-        
+
     } catch (error) {
         console.error('Error restoring campaign backup:', error);
         return false;
@@ -636,21 +663,21 @@ export function emergencyResetCampaign() {
             'EMERGENCY RESET: This will completely reset your campaign progress and cannot be undone. ' +
             'Are you absolutely sure you want to continue?'
         );
-        
+
         if (confirmed) {
             // Clear all campaign data
             localStorage.removeItem('soberlife-campaign');
             localStorage.removeItem('soberlife-campaign-backup');
-            
+
             // Reset to default state
             resetCampaignState();
-            
+
             console.log('Emergency campaign reset completed');
             return true;
         }
-        
+
         return false;
-        
+
     } catch (error) {
         console.error('Error performing emergency reset:', error);
         return false;

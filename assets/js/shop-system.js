@@ -3,6 +3,7 @@
 
 import { campaignState, updateCampaignState } from './game-state.js';
 import { hideElement, showElement } from './ui-manager.js';
+import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 
 // Shop configuration
 export const shopConfig = {
@@ -36,7 +37,7 @@ export function canPurchaseJokerUpgrade(zenPoints) {
     const cost = getJokerUpgradeCost();
     const currentJokers = campaignState.deckComposition.jokers;
     const currentAces = campaignState.deckComposition.aces;
-    
+
     return (
         zenPoints >= cost &&
         currentJokers < shopConfig.jokerUpgrade.maxJokers &&
@@ -48,7 +49,7 @@ export function canPurchaseJokerUpgrade(zenPoints) {
 export function canPurchaseAceUpgrade(zenPoints) {
     const cost = getAceUpgradeCost();
     const currentAces = campaignState.deckComposition.aces;
-    
+
     return (
         zenPoints >= cost &&
         currentAces < shopConfig.aceUpgrade.maxAces &&
@@ -60,7 +61,7 @@ export function canPurchaseAceUpgrade(zenPoints) {
 export function purchaseJokerUpgrade(currentZenPoints) {
     try {
         const cost = getJokerUpgradeCost();
-        
+
         // Validate purchase
         if (!canPurchaseJokerUpgrade(currentZenPoints)) {
             console.warn('Cannot purchase joker upgrade - insufficient funds or max jokers reached');
@@ -70,11 +71,24 @@ export function purchaseJokerUpgrade(currentZenPoints) {
                 zenPointsRemaining: currentZenPoints
             };
         }
-        
-        // Process purchase
-        const newZenPoints = currentZenPoints - cost;
+
+        // Process purchase using zen points manager
+        const purchaseSuccess = ZenPointsManager.spendPoints(cost, ZEN_TRANSACTION_TYPES.SHOP_PURCHASE, true, {
+            item: 'joker',
+            cost: cost
+        });
+
+        if (!purchaseSuccess) {
+            return {
+                success: false,
+                message: 'Failed to process zen point transaction',
+                zenPointsRemaining: currentZenPoints
+            };
+        }
+
         const newJokerCount = campaignState.deckComposition.jokers + 1;
-        
+        const newZenPoints = ZenPointsManager.getCurrentBalance();
+
         // Update campaign state
         updateCampaignState({
             deckComposition: {
@@ -87,10 +101,10 @@ export function purchaseJokerUpgrade(currentZenPoints) {
                 totalSpent: campaignState.shopUpgrades.totalSpent + cost
             }
         });
-        
+
         console.log(`Joker upgrade purchased! New joker count: ${newJokerCount}, Cost: ${cost}, Remaining zen: ${newZenPoints}`);
         console.log('Campaign state after purchase:', campaignState);
-        
+
         return {
             success: true,
             message: `Joker added to your deck! (+1 Wild Joker for ${cost} zen points)`,
@@ -98,7 +112,7 @@ export function purchaseJokerUpgrade(currentZenPoints) {
             newJokerCount: newJokerCount,
             cost: cost
         };
-        
+
     } catch (error) {
         console.error('Error purchasing joker upgrade:', error);
         return {
@@ -113,7 +127,7 @@ export function purchaseJokerUpgrade(currentZenPoints) {
 export function purchaseAceUpgrade(currentZenPoints) {
     try {
         const cost = getAceUpgradeCost();
-        
+
         // Validate purchase
         if (!canPurchaseAceUpgrade(currentZenPoints)) {
             console.warn('Cannot purchase ace upgrade - insufficient funds or max aces reached');
@@ -123,11 +137,11 @@ export function purchaseAceUpgrade(currentZenPoints) {
                 zenPointsRemaining: currentZenPoints
             };
         }
-        
+
         // Process purchase
         const newZenPoints = currentZenPoints - cost;
         const newAceCount = campaignState.deckComposition.aces + 1;
-        
+
         // Update campaign state
         updateCampaignState({
             deckComposition: {
@@ -140,9 +154,9 @@ export function purchaseAceUpgrade(currentZenPoints) {
                 totalSpent: campaignState.shopUpgrades.totalSpent + cost
             }
         });
-        
+
         console.log(`Ace upgrade purchased! New ace count: ${newAceCount}, Cost: ${cost}, Remaining zen: ${newZenPoints}`);
-        
+
         return {
             success: true,
             message: `Ace added to your deck! (+1 Ace for ${cost} zen points)`,
@@ -150,7 +164,7 @@ export function purchaseAceUpgrade(currentZenPoints) {
             newAceCount: newAceCount,
             cost: cost
         };
-        
+
     } catch (error) {
         console.error('Error purchasing ace upgrade:', error);
         return {
@@ -169,29 +183,29 @@ export function updateShopUI(zenPoints) {
         if (shopZenPointsElement) {
             shopZenPointsElement.textContent = zenPoints;
         }
-        
+
         // Update joker upgrade information
         const cost = getJokerUpgradeCost();
         const currentJokers = campaignState.deckComposition.jokers;
         const canPurchase = canPurchaseJokerUpgrade(zenPoints);
-        
+
         // Update cost display (using joker elements)
         const costElement = document.getElementById('jokerUpgradeCost') || document.getElementById('aceUpgradeCost');
         if (costElement) {
             costElement.textContent = cost;
         }
-        
+
         // Update current jokers display
         const jokersElement = document.getElementById('currentJokers') || document.getElementById('currentAces');
         if (jokersElement) {
             jokersElement.textContent = currentJokers;
         }
-        
+
         // Update purchase button
         const purchaseButton = document.getElementById('jokerUpgradeBtn') || document.getElementById('aceUpgradeBtn');
         if (purchaseButton) {
             purchaseButton.disabled = !canPurchase;
-            
+
             if (!canPurchase) {
                 if (zenPoints < cost) {
                     purchaseButton.textContent = 'Insufficient Zen';
@@ -204,7 +218,7 @@ export function updateShopUI(zenPoints) {
                 purchaseButton.textContent = 'Purchase Joker';
             }
         }
-        
+
         // Update upgrade card styling based on availability
         const upgradeCard = document.getElementById('jokerUpgradeCard') || document.getElementById('aceUpgradeCard');
         if (upgradeCard) {
@@ -214,7 +228,7 @@ export function updateShopUI(zenPoints) {
                 upgradeCard.classList.add('unavailable');
             }
         }
-        
+
     } catch (error) {
         console.error('Error updating shop UI:', error);
     }
@@ -225,15 +239,15 @@ export function openShop(zenPoints) {
     try {
         updateShopUI(zenPoints);
         showElement('upgradeShop');
-        
+
         // Focus on shop for accessibility
         const shopElement = document.getElementById('upgradeShop');
         if (shopElement) {
             shopElement.focus();
         }
-        
+
         console.log(`Shop opened with ${zenPoints} zen points`);
-        
+
     } catch (error) {
         console.error('Error opening shop:', error);
     }
@@ -256,12 +270,12 @@ export function showPurchaseFeedback(result) {
         const feedback = document.createElement('div');
         feedback.className = `purchase-feedback ${result.success ? 'success' : 'error'}`;
         feedback.textContent = result.message;
-        
+
         // Add to shop content
         const shopContent = document.querySelector('.shop-content');
         if (shopContent) {
             shopContent.appendChild(feedback);
-            
+
             // Remove after animation
             setTimeout(() => {
                 if (feedback.parentNode) {
@@ -269,10 +283,10 @@ export function showPurchaseFeedback(result) {
                 }
             }, 3000);
         }
-        
+
         // Also show as popup notification
         showPopupNotification(result.message, result.success ? 'success' : 'error');
-        
+
     } catch (error) {
         console.error('Error showing purchase feedback:', error);
     }
@@ -284,7 +298,7 @@ function showPopupNotification(message, type = 'default') {
         const popup = document.createElement('div');
         popup.className = `popup-notification ${type}`;
         popup.textContent = message;
-        
+
         // Style the popup
         popup.style.cssText = `
             position: fixed;
@@ -299,16 +313,16 @@ function showPopupNotification(message, type = 'default') {
             animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-out 2.7s;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         `;
-        
+
         document.body.appendChild(popup);
-        
+
         // Remove popup after animation
         setTimeout(() => {
             if (popup.parentNode) {
                 popup.parentNode.removeChild(popup);
             }
         }, 3000);
-        
+
     } catch (error) {
         console.error('Error showing popup notification:', error);
     }
@@ -318,7 +332,7 @@ function showPopupNotification(message, type = 'default') {
 export function getShopStatistics() {
     const { aces, jokers } = campaignState.deckComposition;
     const { acesAdded, jokersAdded, totalSpent } = campaignState.shopUpgrades;
-    
+
     return {
         totalAcesAdded: acesAdded,
         totalJokersAdded: jokersAdded,
@@ -349,7 +363,7 @@ export function resetShopUpgrades() {
 export function validateShopState() {
     try {
         const { deckComposition, shopUpgrades } = campaignState;
-        
+
         // Ensure valid deck composition
         if (!deckComposition || typeof deckComposition.aces !== 'number' || typeof deckComposition.totalCards !== 'number') {
             console.warn('Invalid deck composition, resetting to defaults');
@@ -361,7 +375,7 @@ export function validateShopState() {
                 }
             });
         }
-        
+
         // Ensure jokers property exists
         if (typeof deckComposition.jokers !== 'number') {
             console.warn('Missing jokers in deck composition, adding default');
@@ -372,7 +386,7 @@ export function validateShopState() {
                 }
             });
         }
-        
+
         // Ensure valid shop upgrades
         if (!shopUpgrades || typeof shopUpgrades.totalSpent !== 'number') {
             console.warn('Invalid shop upgrades, resetting to defaults');
@@ -384,7 +398,7 @@ export function validateShopState() {
                 }
             });
         }
-        
+
         // Ensure jokersAdded property exists
         if (typeof shopUpgrades.jokersAdded !== 'number') {
             console.warn('Missing jokersAdded in shop upgrades, adding default');
@@ -395,7 +409,7 @@ export function validateShopState() {
                 }
             });
         }
-        
+
         // Ensure acesAdded property exists (for backward compatibility)
         if (typeof shopUpgrades.acesAdded !== 'number') {
             console.warn('Missing acesAdded in shop upgrades, adding default');
@@ -406,11 +420,11 @@ export function validateShopState() {
                 }
             });
         }
-        
+
         // Validate special card count consistency
         const expectedAces = 4 + (shopUpgrades?.acesAdded || 0);
         const expectedJokers = shopUpgrades?.jokersAdded || 0;
-        
+
         if (deckComposition?.aces !== expectedAces) {
             console.warn('Ace count inconsistency detected, correcting');
             updateCampaignState({
@@ -420,7 +434,7 @@ export function validateShopState() {
                 }
             });
         }
-        
+
         if (deckComposition?.jokers !== expectedJokers) {
             console.warn('Joker count inconsistency detected, correcting');
             updateCampaignState({
@@ -430,9 +444,9 @@ export function validateShopState() {
                 }
             });
         }
-        
+
         return true;
-        
+
     } catch (error) {
         console.error('Error validating shop state:', error);
         return false;

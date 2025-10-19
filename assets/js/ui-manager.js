@@ -4,6 +4,7 @@
 import { gameState, campaignState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText } from './game-state.js';
 import { calculateScore } from './card-system.js';
 import { isCampaignMode, getCurrentTask } from './campaign-manager.js';
+import { ZenPointsManager } from './zen-points-manager.js';
 
 // Utility functions for showing/hiding elements
 // Debug: Add 1000 zen points instantly
@@ -27,19 +28,20 @@ export function showElement(id) {
 
 // Update main game display (zen points, stress meter, avatar)
 export function updateDisplay() {
-    // Update zen points
+    // Update zen points using the manager
     const zenPointsEl = document.getElementById('zenPoints');
     if (zenPointsEl) {
-        zenPointsEl.textContent = `Zen Points: ${gameState.zenPoints}`;
+        const currentBalance = ZenPointsManager.getCurrentBalance();
+        zenPointsEl.textContent = `Zen Points: ${currentBalance}`;
     }
 
     // Update stress meter
     const stressFill = document.getElementById('stressFill');
     const stressPercent = gameState.stressLevel;
-    
+
     if (stressFill) {
         stressFill.style.width = `${stressPercent}%`;
-        
+
         // Color coding for stress levels
         if (stressPercent < 30) {
             stressFill.style.background = 'linear-gradient(90deg, #2ECC71, #27AE60)';
@@ -79,7 +81,7 @@ export function updateCards() {
 
     if (playerCardsEl) {
         playerCardsEl.innerHTML = '';
-        
+
         // Player cards
         gameState.playerCards.forEach(card => {
             const cardEl = createCardElement(card);
@@ -89,12 +91,12 @@ export function updateCards() {
 
     if (houseCardsEl) {
         houseCardsEl.innerHTML = '';
-        
+
         // House cards (hide hole card only if game is still in progress)
         gameState.houseCards.forEach((card, index) => {
             const cardEl = document.createElement('div');
             cardEl.className = 'card';
-            
+
             if (index === 1 && gameState.gameInProgress) {
                 // Hide hole card during active play
                 cardEl.textContent = '?';
@@ -194,14 +196,14 @@ function updateScoreDisplays() {
     const playerScoreEl = document.getElementById('playerScore');
     if (playerScoreEl) {
         let scoreText = `Score: ${playerScore}`;
-        
+
         // Add Joker contribution info
         const jokers = gameState.playerCards.filter(card => card.isJoker);
         if (jokers.length > 0) {
             const jokerValues = jokers.map(j => j.getCurrentValue()).join(', ');
             scoreText += ` (Jokers: ${jokerValues})`;
         }
-        
+
         playerScoreEl.textContent = scoreText;
     }
 
@@ -212,14 +214,14 @@ function updateScoreDisplays() {
         } else {
             const houseScore = calculateScore(gameState.houseCards);
             let scoreText = `Score: ${houseScore}`;
-            
+
             // Add Joker contribution info for house
             const houseJokers = gameState.houseCards.filter(card => card.isJoker);
             if (houseJokers.length > 0) {
                 const jokerValues = houseJokers.map(j => j.getCurrentValue()).join(', ');
                 scoreText += ` (Jokers: ${jokerValues})`;
             }
-            
+
             houseScoreEl.textContent = scoreText;
         }
     }
@@ -233,39 +235,39 @@ function createJokerCelebrationParticles(cardElement) {
             console.warn('Invalid card element for celebration particles');
             return;
         }
-        
+
         const rect = cardElement.getBoundingClientRect();
-        
+
         // Validate rect dimensions
         if (rect.width === 0 || rect.height === 0) {
             console.warn('Card element has no dimensions for particles');
             return;
         }
-        
+
         const particleCount = 8;
-        
+
         for (let i = 0; i < particleCount; i++) {
             try {
                 const particle = document.createElement('div');
                 particle.className = 'joker-celebration-particle';
-                
+
                 // Position particle at card location
                 particle.style.position = 'fixed';
                 particle.style.left = `${rect.left + rect.width / 2}px`;
                 particle.style.top = `${rect.top + rect.height / 2}px`;
                 particle.style.zIndex = '1001';
-                
+
                 // Random direction and distance
                 const angle = (i / particleCount) * 2 * Math.PI;
                 const distance = 30 + Math.random() * 20;
                 const finalX = rect.left + rect.width / 2 + Math.cos(angle) * distance;
                 const finalY = rect.top + rect.height / 2 + Math.sin(angle) * distance;
-                
+
                 particle.style.setProperty('--final-x', `${finalX}px`);
                 particle.style.setProperty('--final-y', `${finalY}px`);
-                
+
                 document.body.appendChild(particle);
-                
+
                 // Remove particle after animation
                 setTimeout(() => {
                     try {
@@ -276,7 +278,7 @@ function createJokerCelebrationParticles(cardElement) {
                         console.warn('Error removing celebration particle:', removeError);
                     }
                 }, 1000);
-                
+
             } catch (particleError) {
                 console.warn('Error creating individual particle:', particleError);
                 // Continue with other particles
@@ -292,13 +294,13 @@ export function showJokerCalculationFeedback(joker, calculatedValue, isOptimal) 
     try {
         const roundResult = document.getElementById('roundResult');
         if (!roundResult) return;
-        
+
         const feedbackDiv = document.createElement('div');
         feedbackDiv.className = 'joker-feedback';
-        
+
         let message = `🃏 Wild Joker calculated value: ${calculatedValue}`;
         let emoji = '✨';
-        
+
         if (isOptimal) {
             if (calculatedValue === 11) {
                 message += ' (Perfect for 21!)';
@@ -311,7 +313,7 @@ export function showJokerCalculationFeedback(joker, calculatedValue, isOptimal) 
                 emoji = '⭐';
             }
         }
-        
+
         feedbackDiv.innerHTML = `
             <p style="
                 font-weight: bold;
@@ -326,16 +328,16 @@ export function showJokerCalculationFeedback(joker, calculatedValue, isOptimal) 
                 box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
             ">${emoji} ${message}</p>
         `;
-        
+
         roundResult.appendChild(feedbackDiv);
-        
+
         // Remove feedback after 4 seconds (longer for Joker feedback)
         setTimeout(() => {
             if (feedbackDiv.parentNode) {
                 feedbackDiv.style.opacity = '0';
                 feedbackDiv.style.transform = 'translateY(-10px)';
                 feedbackDiv.style.transition = 'all 0.3s ease-out';
-                
+
                 setTimeout(() => {
                     if (feedbackDiv.parentNode) {
                         feedbackDiv.parentNode.removeChild(feedbackDiv);
@@ -343,7 +345,7 @@ export function showJokerCalculationFeedback(joker, calculatedValue, isOptimal) 
                 }, 300);
             }
         }, 4000);
-        
+
     } catch (error) {
         console.error('Error showing Joker calculation feedback:', error);
     }
@@ -354,10 +356,10 @@ export function showJokerPerfectScoreFeedback() {
     try {
         const roundResult = document.getElementById('roundResult');
         if (!roundResult) return;
-        
+
         const celebrationDiv = document.createElement('div');
         celebrationDiv.className = 'joker-perfect-celebration';
-        
+
         celebrationDiv.innerHTML = `
             <div style="
                 background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
@@ -379,16 +381,16 @@ export function showJokerPerfectScoreFeedback() {
                 <small style="font-size: 14px; opacity: 0.9;">Your Wild Joker made the perfect play!</small>
             </div>
         `;
-        
+
         roundResult.appendChild(celebrationDiv);
-        
+
         // Remove celebration after 5 seconds
         setTimeout(() => {
             if (celebrationDiv.parentNode) {
                 celebrationDiv.style.opacity = '0';
                 celebrationDiv.style.transform = 'scale(0.8)';
                 celebrationDiv.style.transition = 'all 0.5s ease-out';
-                
+
                 setTimeout(() => {
                     if (celebrationDiv.parentNode) {
                         celebrationDiv.parentNode.removeChild(celebrationDiv);
@@ -396,7 +398,7 @@ export function showJokerPerfectScoreFeedback() {
                 }, 500);
             }
         }, 5000);
-        
+
     } catch (error) {
         console.error('Error showing Joker perfect score feedback:', error);
     }
@@ -413,10 +415,10 @@ function generateTaskSpecificSuccessMessage() {
                 return currentTask.successMessages[randomIndex];
             }
         }
-        
+
         // Fall back to default DMV messages
         return generateSuccessMessage();
-        
+
     } catch (error) {
         console.error('Error generating task-specific success message:', error);
         return generateSuccessMessage();
@@ -429,7 +431,7 @@ function generateTaskSpecificStats() {
         // Get current task info
         let taskName = 'DMV';
         let totalSteps = 5;
-        
+
         if (isCampaignMode()) {
             const currentTask = getCurrentTask();
             if (currentTask) {
@@ -437,13 +439,13 @@ function generateTaskSpecificStats() {
                 totalSteps = currentTask.steps.length;
             }
         }
-        
+
         return `
             <p>Final Stress Level: ${gameState.stressLevel}%</p>
             <p>Zen Points Remaining: ${gameState.zenPoints}</p>
             <p>${taskName} Steps Completed: ${gameState.currentStep}/${totalSteps}</p>
         `;
-        
+
     } catch (error) {
         console.error('Error generating task-specific stats:', error);
         return `
@@ -460,14 +462,17 @@ export function updateZenActivities() {
     const stretchBtn = document.getElementById('stretchBtn');
     const meditationBtn = document.getElementById('meditationBtn');
 
+    // Use zen points manager to get current balance
+    const currentBalance = ZenPointsManager.getCurrentBalance();
+
     if (breathBtn) {
-        breathBtn.disabled = gameState.zenPoints < 10;
+        breathBtn.disabled = currentBalance < 10;
     }
     if (stretchBtn) {
-        stretchBtn.disabled = gameState.zenPoints < 25;
+        stretchBtn.disabled = currentBalance < 25;
     }
     if (meditationBtn) {
-        meditationBtn.disabled = gameState.zenPoints < 50;
+        meditationBtn.disabled = currentBalance < 50;
     }
 }
 
@@ -524,20 +529,20 @@ export function showGameSuccess() {
     const gameSuccessScreen = document.getElementById('gameSuccessScreen');
     if (gameSuccessScreen) {
         gameSuccessScreen.classList.remove('hidden');
-        
+
         // Generate task-specific success message
         const message = generateTaskSpecificSuccessMessage();
-        
+
         const successMessageEl = document.getElementById('successMessage');
         if (successMessageEl) {
             successMessageEl.textContent = message.main;
         }
-        
+
         const successSubtextEl = document.getElementById('successSubtext');
         if (successSubtextEl) {
             successSubtextEl.textContent = message.sub;
         }
-        
+
         const successStatsEl = document.getElementById('successStats');
         if (successStatsEl) {
             // Generate task-specific stats
@@ -553,16 +558,16 @@ export function updateTaskDescription() {
         const taskDescEl = document.getElementById('taskDescription');
         const stepIndicatorEl = document.getElementById('stepIndicator');
         const taskInfoEl = document.getElementById('taskInfo');
-        
+
         if (!taskDescEl) {
             console.error('Task description element not found');
             return;
         }
-        
+
         // Get current task steps and info
         let currentSteps = steps;
         let taskName = 'DMV License Renewal & Real ID';
-        
+
         if (isCampaignMode()) {
             const currentTask = getCurrentTask();
             if (currentTask) {
@@ -570,7 +575,7 @@ export function updateTaskDescription() {
                 taskName = currentTask.name;
             }
         }
-        
+
         // Get step description with fallback
         let stepDescription = '';
         if (gameState.currentStep < currentSteps.length && currentSteps[gameState.currentStep]) {
@@ -579,13 +584,13 @@ export function updateTaskDescription() {
             console.warn(`Step description not found for step ${gameState.currentStep}, using fallback`);
             stepDescription = getFallbackStepDescription(gameState.currentStep);
         }
-        
+
         // Update task title if in campaign mode
         const taskTitleEl = taskInfoEl?.querySelector('h3');
         if (taskTitleEl && isCampaignMode()) {
             taskTitleEl.textContent = `🎯 Task: ${taskName}`;
         }
-        
+
         // Update step indicator with error handling
         if (stepIndicatorEl) {
             try {
@@ -594,10 +599,10 @@ export function updateTaskDescription() {
                 console.warn('Error updating step indicator:', error);
             }
         }
-        
+
         // Update task description
         taskDescEl.textContent = `Step ${gameState.currentStep + 1}: ${stepDescription}`;
-        
+
         // Trigger task change animation with error handling
         if (taskInfoEl) {
             try {
@@ -605,7 +610,7 @@ export function updateTaskDescription() {
                 // Force reflow to ensure class removal is processed
                 taskInfoEl.offsetHeight;
                 taskInfoEl.classList.add('task-changing');
-                
+
                 // Remove animation class after animation completes
                 setTimeout(() => {
                     try {
@@ -637,11 +642,11 @@ function getFallbackStepDescription(stepIndex) {
         "Complete photo and verification",
         "Finalize your DMV visit"
     ];
-    
+
     if (stepIndex >= 0 && stepIndex < fallbackSteps.length) {
         return fallbackSteps[stepIndex];
     }
-    
+
     return "Complete this DMV step";
 }
 
@@ -653,12 +658,12 @@ export function emphasizeTaskInfo() {
         document.getElementById('gameArea'),
         document.getElementById('avatar-container')
     ];
-    
+
     if (taskInfoEl) {
         // Make task info more prominent
         taskInfoEl.style.transform = 'scale(1.02)';
         taskInfoEl.style.zIndex = '15';
-        
+
         // Reduce prominence of other elements temporarily
         otherElements.forEach(el => {
             if (el) {
@@ -666,12 +671,12 @@ export function emphasizeTaskInfo() {
                 el.style.transform = 'scale(0.98)';
             }
         });
-        
+
         // Restore normal state after emphasis period
         setTimeout(() => {
             taskInfoEl.style.transform = '';
             taskInfoEl.style.zIndex = '';
-            
+
             otherElements.forEach(el => {
                 if (el) {
                     el.style.opacity = '';
@@ -693,12 +698,12 @@ export function showHelpModal() {
             console.error('Help modal element not found');
             return;
         }
-        
+
         // Store currently focused element
         previouslyFocusedElement = document.activeElement;
-        
+
         helpModal.classList.remove('hidden');
-        
+
         // Focus management for accessibility
         const closeBtn = document.getElementById('helpCloseBtn');
         if (closeBtn) {
@@ -713,7 +718,7 @@ export function showHelpModal() {
         } else {
             console.warn('Help close button not found');
         }
-        
+
         // Prevent body scroll when modal is open
         if (document.body) {
             document.body.style.overflow = 'hidden';
@@ -730,18 +735,18 @@ export function hideHelpModal() {
             console.error('Help modal element not found');
             return;
         }
-        
+
         helpModal.classList.add('hidden');
-            // Show Nirvana zone if debug mode (or always for now)
-            const nirvanaZone = helpModal.querySelector('.nirvana-zone');
-            if (nirvanaZone) {
-                nirvanaZone.style.display = '';
-                const nirvanaBtn = document.getElementById('nirvanaZenBtn');
-                if (nirvanaBtn) {
-                    nirvanaBtn.onclick = addZenPointsDebug;
-                }
+        // Show Nirvana zone if debug mode (or always for now)
+        const nirvanaZone = helpModal.querySelector('.nirvana-zone');
+        if (nirvanaZone) {
+            nirvanaZone.style.display = '';
+            const nirvanaBtn = document.getElementById('nirvanaZenBtn');
+            if (nirvanaBtn) {
+                nirvanaBtn.onclick = addZenPointsDebug;
             }
-        
+        }
+
         // Restore focus to previously focused element
         if (previouslyFocusedElement) {
             try {
@@ -751,7 +756,7 @@ export function hideHelpModal() {
             }
             previouslyFocusedElement = null;
         }
-        
+
         // Restore body scroll
         if (document.body) {
             document.body.style.overflow = '';
@@ -766,7 +771,7 @@ export function updateContextualButtons() {
     try {
         const hitBtn = document.getElementById('hitBtn');
         const standBtn = document.getElementById('standBtn');
-        
+
         if (hitBtn) {
             try {
                 const hitText = getContextualActionText('hit');
@@ -780,7 +785,7 @@ export function updateContextualButtons() {
         } else {
             console.warn('Hit button element not found');
         }
-        
+
         if (standBtn) {
             try {
                 const standText = getContextualActionText('stand');
@@ -799,6 +804,216 @@ export function updateContextualButtons() {
     }
 }
 
+// Show zen point animation with enhanced visual feedback
+export function showZenPointAnimation(amount, type, direction) {
+    try {
+        const popup = document.createElement('div');
+        popup.className = `zen-point-animation zen-${direction}`;
+
+        // Choose emoji based on transaction type and amount
+        let emoji = '✨';
+        if (type === 'task_start') emoji = '🎯';
+        else if (type === 'task_completion') emoji = '🏆';
+        else if (type === 'round_win') emoji = '🎉';
+        else if (type === 'house_bust') emoji = '🍀';
+        else if (type === 'zen_activity') emoji = '🧘';
+        else if (amount >= 100) emoji = '💎';
+
+        const sign = direction === 'gain' ? '+' : '-';
+        popup.innerHTML = `
+            <div class="zen-animation-content">
+                <span class="zen-emoji">${emoji}</span>
+                <span class="zen-amount">${sign}${amount}</span>
+                <span class="zen-label">Zen Points</span>
+            </div>
+        `;
+
+        // Enhanced styling for different amounts
+        const baseColor = direction === 'gain' ? '#2ECC71' : '#E74C3C';
+        const glowColor = amount >= 100 ? '#FFD700' : baseColor;
+
+        popup.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, ${baseColor}, ${baseColor}dd);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            z-index: 2000;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 20px ${glowColor}44;
+            animation: zenPointSlideIn 0.5s ease-out, zenPointFadeOut 0.5s ease-out 2.5s;
+            transform: translateX(100%);
+            border: 2px solid ${glowColor};
+        `;
+
+        // Add particle effects for large amounts
+        if (amount >= 100) {
+            popup.classList.add('zen-celebration');
+            setTimeout(() => createZenPointParticles(popup, Math.min(amount / 50, 10)), 200);
+        }
+
+        document.body.appendChild(popup);
+
+        // Animate the zen point counter
+        animateZenPointCounter();
+
+        // Remove popup after animation
+        setTimeout(() => {
+            if (popup.parentNode) {
+                popup.parentNode.removeChild(popup);
+            }
+        }, 3000);
+
+    } catch (error) {
+        console.error('Error showing zen point animation:', error);
+    }
+}
+
+// Show completion bonus celebration
+export function showCompletionBonusCelebration(bonusBreakdown) {
+    try {
+        const celebration = document.createElement('div');
+        celebration.className = 'completion-celebration';
+
+        celebration.innerHTML = `
+            <div class="celebration-content">
+                <h2>🎉 Task Complete! 🎉</h2>
+                <div class="bonus-breakdown">
+                    <div class="bonus-item">
+                        <span class="bonus-label">Base Completion Bonus:</span>
+                        <span class="bonus-value">+${bonusBreakdown.baseBonus} 💎</span>
+                    </div>
+                    <div class="bonus-item performance">
+                        <span class="bonus-label">Performance Bonus (${bonusBreakdown.performanceMultiplier}x):</span>
+                        <span class="bonus-value">+${bonusBreakdown.performanceBonus} ⭐</span>
+                    </div>
+                    <div class="bonus-total">
+                        <span class="bonus-label">Total Zen Earned:</span>
+                        <span class="bonus-value total">+${bonusBreakdown.totalBonus} ✨</span>
+                    </div>
+                </div>
+                <div class="stress-performance">
+                    Final Stress Level: ${bonusBreakdown.stressLevel}%
+                </div>
+            </div>
+        `;
+
+        celebration.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            font-family: 'Comic Sans MS', cursive;
+            z-index: 3000;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: celebrationBounce 0.8s ease-out;
+            text-align: center;
+            border: 3px solid #FFD700;
+            max-width: 400px;
+        `;
+
+        document.body.appendChild(celebration);
+
+        // Create celebration particles
+        setTimeout(() => createZenPointParticles(celebration, 15), 300);
+
+        // Auto-remove after 5 seconds or on click
+        const removeHandler = () => {
+            if (celebration.parentNode) {
+                celebration.style.animation = 'celebrationFadeOut 0.5s ease-out';
+                setTimeout(() => {
+                    if (celebration.parentNode) {
+                        celebration.parentNode.removeChild(celebration);
+                    }
+                }, 500);
+            }
+        };
+
+        celebration.addEventListener('click', removeHandler);
+        setTimeout(removeHandler, 5000);
+
+    } catch (error) {
+        console.error('Error showing completion celebration:', error);
+    }
+}
+
+// Animate zen point counter with smooth transitions
+export function animateZenPointCounter() {
+    try {
+        const zenPointsEl = document.getElementById('zenPoints');
+        if (!zenPointsEl) return;
+
+        // Add pulse animation
+        zenPointsEl.style.animation = 'zenCounterPulse 0.6s ease-out';
+
+        // Remove animation class after completion
+        setTimeout(() => {
+            zenPointsEl.style.animation = '';
+        }, 600);
+
+    } catch (error) {
+        console.error('Error animating zen point counter:', error);
+    }
+}
+
+// Create particle effects for zen point celebrations
+export function createZenPointParticles(element, count = 8) {
+    try {
+        if (!element || !element.getBoundingClientRect) return;
+
+        const rect = element.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        for (let i = 0; i < count; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'zen-particle';
+
+            // Random particle properties
+            const angle = (i / count) * 2 * Math.PI + (Math.random() - 0.5) * 0.5;
+            const distance = 50 + Math.random() * 100;
+            const size = 4 + Math.random() * 8;
+            const duration = 1000 + Math.random() * 1000;
+
+            const finalX = centerX + Math.cos(angle) * distance;
+            const finalY = centerY + Math.sin(angle) * distance;
+
+            particle.style.cssText = `
+                position: fixed;
+                left: ${centerX}px;
+                top: ${centerY}px;
+                width: ${size}px;
+                height: ${size}px;
+                background: linear-gradient(45deg, #FFD700, #FFA500);
+                border-radius: 50%;
+                z-index: 3001;
+                pointer-events: none;
+                animation: zenParticleFloat ${duration}ms ease-out forwards;
+                --final-x: ${finalX}px;
+                --final-y: ${finalY}px;
+            `;
+
+            document.body.appendChild(particle);
+
+            // Remove particle after animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, duration);
+        }
+
+    } catch (error) {
+        console.error('Error creating zen point particles:', error);
+    }
+}
+
 // Show progressive flavor text for actions with error handling
 export function showFlavorText(action) {
     try {
@@ -807,9 +1022,9 @@ export function showFlavorText(action) {
         if (!flavorText) {
             return; // No flavor text to show
         }
-        
+
         displayProgressiveFlavorText(flavorText);
-        
+
     } catch (error) {
         console.error('Error showing flavor text:', error);
         // Fallback to basic contextual flavor text
@@ -830,22 +1045,22 @@ export function displayProgressiveFlavorText(flavorText) {
         if (!flavorText || typeof flavorText !== 'string') {
             return;
         }
-        
+
         const roundResult = document.getElementById('roundResult');
         if (!roundResult) {
             console.warn('Round result element not found for flavor text');
             return;
         }
-        
+
         const flavorDiv = document.createElement('div');
         flavorDiv.className = 'flavor-text progressive-flavor';
-        
+
         // Sanitize the flavor text to prevent XSS
         const sanitizedText = flavorText.replace(/[<>]/g, '');
-        
+
         // Check if mobile viewport for responsive styling
         const isMobile = window.innerWidth <= 767;
-        
+
         if (isMobile) {
             flavorDiv.innerHTML = `
                 <p style="
@@ -881,9 +1096,9 @@ export function displayProgressiveFlavorText(flavorText) {
                 ">${sanitizedText}</p>
             `;
         }
-        
+
         roundResult.appendChild(flavorDiv);
-        
+
         // Remove flavor text after 4 seconds (slightly longer for progressive text)
         setTimeout(() => {
             try {
@@ -892,7 +1107,7 @@ export function displayProgressiveFlavorText(flavorText) {
                     flavorDiv.style.opacity = '0';
                     flavorDiv.style.transform = 'translateY(-10px)';
                     flavorDiv.style.transition = 'all 0.3s ease-out';
-                    
+
                     setTimeout(() => {
                         if (flavorDiv.parentNode) {
                             flavorDiv.parentNode.removeChild(flavorDiv);
@@ -903,7 +1118,7 @@ export function displayProgressiveFlavorText(flavorText) {
                 console.warn('Error removing progressive flavor text:', removeError);
             }
         }, 4000);
-        
+
     } catch (error) {
         console.error('Error displaying progressive flavor text:', error);
     }
@@ -914,23 +1129,23 @@ export function updateOutcomeMessage(outcome) {
     try {
         const dmvMessage = getDMVOutcomeMessage(outcome);
         const stressInsight = getStressManagementInsight(outcome);
-        
+
         const roundResult = document.getElementById('roundResult');
         if (!roundResult) {
             console.warn('Round result element not found for outcome message');
             return;
         }
-        
+
         // Clear previous content
         roundResult.innerHTML = '';
-        
+
         // Create outcome message container
         const outcomeDiv = document.createElement('div');
         outcomeDiv.className = 'outcome-message dmv-themed';
-        
+
         // Check if mobile viewport for responsive styling
         const isMobile = window.innerWidth <= 767;
-        
+
         if (isMobile) {
             outcomeDiv.innerHTML = `
                 <div style="
@@ -991,9 +1206,9 @@ export function updateOutcomeMessage(outcome) {
                 </div>
             `;
         }
-        
+
         roundResult.appendChild(outcomeDiv);
-        
+
     } catch (error) {
         console.error('Error updating outcome message:', error);
         // Fallback to basic message
@@ -1015,14 +1230,14 @@ export function showStressManagementTip(outcome) {
         if (!insight) {
             return;
         }
-        
+
         // Create a temporary tip display
         const tipDiv = document.createElement('div');
         tipDiv.className = 'stress-tip';
-        
+
         // Check if mobile viewport
         const isMobile = window.innerWidth <= 767;
-        
+
         if (isMobile) {
             tipDiv.style.cssText = `
                 position: fixed;
@@ -1061,21 +1276,21 @@ export function showStressManagementTip(outcome) {
                 animation: slideInRight 0.3s ease-out;
             `;
         }
-        
+
         tipDiv.innerHTML = `
             <strong>💡 Stress Management Tip:</strong><br>
             ${insight.replace(/[<>]/g, '')}
         `;
-        
+
         document.body.appendChild(tipDiv);
-        
+
         // Remove tip after 6 seconds
         setTimeout(() => {
             if (tipDiv.parentNode) {
                 tipDiv.style.opacity = '0';
                 tipDiv.style.transform = 'translateX(100%)';
                 tipDiv.style.transition = 'all 0.3s ease-out';
-                
+
                 setTimeout(() => {
                     if (tipDiv.parentNode) {
                         tipDiv.parentNode.removeChild(tipDiv);
@@ -1083,7 +1298,7 @@ export function showStressManagementTip(outcome) {
                 }, 300);
             }
         }, 6000);
-        
+
     } catch (error) {
         console.error('Error showing stress management tip:', error);
     }
@@ -1104,22 +1319,22 @@ export function showInitialFlavorText(stepIndex) {
             console.warn('No flavor text data available for step', stepIndex);
             return;
         }
-        
+
         // Store currently focused element
         previouslyFocusedElementForFlavorText = document.activeElement;
-        
+
         // Create modal overlay
         const modalOverlay = document.createElement('div');
         modalOverlay.id = 'initialFlavorTextModal';
         modalOverlay.className = 'initial-flavor-modal-overlay';
-        
+
         // Check if mobile viewport for responsive styling
         const isMobile = window.innerWidth <= 767;
-        
+
         // Create modal content
         const modalContent = document.createElement('div');
         modalContent.className = 'initial-flavor-modal-content';
-        
+
         if (isMobile) {
             modalOverlay.style.cssText = `
                 position: fixed;
@@ -1136,7 +1351,7 @@ export function showInitialFlavorText(stepIndex) {
                 box-sizing: border-box;
                 animation: fadeIn 0.3s ease-out;
             `;
-            
+
             modalContent.style.cssText = `
                 background: linear-gradient(135deg, #fff, #f8f9fa);
                 border-radius: 12px;
@@ -1164,7 +1379,7 @@ export function showInitialFlavorText(stepIndex) {
                 z-index: 2000;
                 animation: fadeIn 0.3s ease-out;
             `;
-            
+
             modalContent.style.cssText = `
                 background: linear-gradient(135deg, #fff, #f8f9fa);
                 border-radius: 16px;
@@ -1178,12 +1393,12 @@ export function showInitialFlavorText(stepIndex) {
                 font-family: 'Comic Sans MS', sans-serif;
             `;
         }
-        
+
         // Sanitize text content to prevent XSS
         const sanitizedTitle = flavorData.title.replace(/[<>]/g, '');
         const sanitizedText = flavorData.text.replace(/[<>]/g, '');
         const sanitizedTips = flavorData.tips.replace(/[<>]/g, '');
-        
+
         // Create modal HTML content
         if (isMobile) {
             modalContent.innerHTML = `
@@ -1286,7 +1501,7 @@ export function showInitialFlavorText(stepIndex) {
                 </div>
             `;
         }
-        
+
         // Add hover effect for continue button (desktop only)
         if (!isMobile) {
             const continueBtn = modalContent.querySelector('#continueFlavorTextBtn');
@@ -1301,19 +1516,19 @@ export function showInitialFlavorText(stepIndex) {
                 });
             }
         }
-        
+
         // Append modal to overlay and overlay to body
         modalOverlay.appendChild(modalContent);
         document.body.appendChild(modalOverlay);
-        
+
         // Prevent body scroll when modal is open
         document.body.style.overflow = 'hidden';
-        
+
         // Set up event listeners
         const continueBtn = document.getElementById('continueFlavorTextBtn');
         if (continueBtn) {
             continueBtn.addEventListener('click', hideInitialFlavorText);
-            
+
             // Focus the continue button for accessibility
             setTimeout(() => {
                 try {
@@ -1323,14 +1538,14 @@ export function showInitialFlavorText(stepIndex) {
                 }
             }, 100);
         }
-        
+
         // Close on backdrop click
         modalOverlay.addEventListener('click', (event) => {
             if (event.target === modalOverlay) {
                 hideInitialFlavorText();
             }
         });
-        
+
         // Keyboard navigation
         modalOverlay.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
@@ -1342,7 +1557,7 @@ export function showInitialFlavorText(stepIndex) {
                 }
             }
         });
-        
+
     } catch (error) {
         console.error('Error showing initial flavor text modal:', error);
         // Fallback: try to show a simple alert
@@ -1364,11 +1579,11 @@ export function hideInitialFlavorText() {
         if (!modal) {
             return;
         }
-        
+
         // Fade out animation
         modal.style.opacity = '0';
         modal.style.transition = 'opacity 0.3s ease-out';
-        
+
         setTimeout(() => {
             try {
                 if (modal.parentNode) {
@@ -1378,7 +1593,7 @@ export function hideInitialFlavorText() {
                 console.warn('Error removing initial flavor text modal:', removeError);
             }
         }, 300);
-        
+
         // Restore focus to previously focused element
         if (previouslyFocusedElementForFlavorText) {
             try {
@@ -1388,31 +1603,31 @@ export function hideInitialFlavorText() {
             }
             previouslyFocusedElementForFlavorText = null;
         }
-        
+
         // Restore body scroll
         document.body.style.overflow = '';
-        
+
         // Mark that initial flavor text has been shown for this step
         gameState.initialFlavorTextShown = true;
-        
+
         // Enable game controls
         if (window.enableGameControls) {
             window.enableGameControls();
         }
-        
+
     } catch (error) {
         console.error('Error hiding initial flavor text modal:', error);
-        
+
         // Fallback: try to remove modal directly
         const modal = document.getElementById('initialFlavorTextModal');
         if (modal && modal.parentNode) {
             modal.parentNode.removeChild(modal);
         }
-        
+
         // Restore body scroll
         document.body.style.overflow = '';
         gameState.initialFlavorTextShown = true;
-        
+
         // Enable game controls
         if (window.enableGameControls) {
             window.enableGameControls();
@@ -1428,15 +1643,15 @@ export function showDeckViewer() {
             console.error('Deck viewer modal element not found');
             return;
         }
-        
+
         // Store currently focused element
         previouslyFocusedElementForDeckViewer = document.activeElement;
-        
+
         // Update deck composition data
         updateDeckViewerContent();
-        
+
         deckViewerModal.classList.remove('hidden');
-        
+
         // Focus management for accessibility
         const closeBtn = document.getElementById('deckViewerCloseBtn');
         if (closeBtn) {
@@ -1448,15 +1663,15 @@ export function showDeckViewer() {
                 }
             }, 100);
         }
-        
+
         // Prevent body scroll when modal is open
         if (document.body) {
             document.body.style.overflow = 'hidden';
         }
-        
+
         // Set up event listeners
         setupDeckViewerEventListeners();
-        
+
     } catch (error) {
         console.error('Error showing deck viewer:', error);
     }
@@ -1469,9 +1684,9 @@ export function hideDeckViewer() {
             console.error('Deck viewer modal element not found');
             return;
         }
-        
+
         deckViewerModal.classList.add('hidden');
-        
+
         // Restore focus to previously focused element
         if (previouslyFocusedElementForDeckViewer) {
             try {
@@ -1481,15 +1696,15 @@ export function hideDeckViewer() {
             }
             previouslyFocusedElementForDeckViewer = null;
         }
-        
+
         // Restore body scroll
         if (document.body) {
             document.body.style.overflow = '';
         }
-        
+
         // Clean up event listeners
         cleanupDeckViewerEventListeners();
-        
+
     } catch (error) {
         console.error('Error hiding deck viewer:', error);
     }
@@ -1500,7 +1715,7 @@ function updateDeckViewerContent() {
         const { deckComposition, shopUpgrades } = campaignState;
         const { aces, jokers, totalCards } = deckComposition;
         const { acesAdded, jokersAdded, totalSpent } = shopUpgrades;
-        
+
         // Debug logging
         console.log('Updating deck viewer with:', {
             aces,
@@ -1509,7 +1724,7 @@ function updateDeckViewerContent() {
             jokersAdded,
             campaignState: campaignState
         });
-        
+
         // Update card counts
         const jokerCountEl = document.getElementById('jokerCount');
         if (jokerCountEl) {
@@ -1518,55 +1733,55 @@ function updateDeckViewerContent() {
         } else {
             console.error('jokerCount element not found');
         }
-        
+
         const aceCountEl = document.getElementById('aceCount');
         if (aceCountEl) {
             aceCountEl.textContent = aces;
         }
-        
+
         const regularCountEl = document.getElementById('regularCount');
         if (regularCountEl) {
             regularCountEl.textContent = totalCards - aces - jokers;
         }
-        
+
         // Update deck power level
         const specialCards = aces + jokers;
         const powerPercentage = Math.round((specialCards / totalCards) * 100);
-        
+
         const deckPowerFill = document.getElementById('deckPowerFill');
         if (deckPowerFill) {
             deckPowerFill.style.width = `${powerPercentage}%`;
         }
-        
+
         const deckPowerText = document.getElementById('deckPowerText');
         if (deckPowerText) {
             deckPowerText.textContent = `Power Level: ${powerPercentage}% (${specialCards} special cards out of ${totalCards})`;
         }
-        
+
         // Update upgrade history
         const upgradeHistoryContent = document.getElementById('upgradeHistoryContent');
         if (upgradeHistoryContent) {
             let historyHtml = '<p>Base deck: 4 Aces + 48 Regular Cards</p>';
-            
+
             if (jokersAdded > 0) {
                 historyHtml += `<p>✨ Added ${jokersAdded} Wild Joker${jokersAdded > 1 ? 's' : ''}</p>`;
             }
-            
+
             if (acesAdded > 0) {
                 historyHtml += `<p>🂡 Added ${acesAdded} extra Ace${acesAdded > 1 ? 's' : ''}</p>`;
             }
-            
+
             if (totalSpent > 0) {
                 historyHtml += `<p>💎 Total zen points invested: ${totalSpent}</p>`;
             }
-            
+
             if (jokersAdded === 0 && acesAdded === 0) {
                 historyHtml += '<p>No upgrades purchased yet. Visit the shop to enhance your deck!</p>';
             }
-            
+
             upgradeHistoryContent.innerHTML = historyHtml;
         }
-        
+
     } catch (error) {
         console.error('Error updating deck viewer content:', error);
     }
@@ -1575,15 +1790,15 @@ function updateDeckViewerContent() {
 function setupDeckViewerEventListeners() {
     const closeBtn = document.getElementById('deckViewerCloseBtn');
     const backdrop = document.getElementById('deckViewerBackdrop');
-    
+
     if (closeBtn) {
         closeBtn.addEventListener('click', hideDeckViewer);
     }
-    
+
     if (backdrop) {
         backdrop.addEventListener('click', hideDeckViewer);
     }
-    
+
     // Keyboard navigation
     document.addEventListener('keydown', handleDeckViewerKeydown);
 }
@@ -1591,15 +1806,15 @@ function setupDeckViewerEventListeners() {
 function cleanupDeckViewerEventListeners() {
     const closeBtn = document.getElementById('deckViewerCloseBtn');
     const backdrop = document.getElementById('deckViewerBackdrop');
-    
+
     if (closeBtn) {
         closeBtn.removeEventListener('click', hideDeckViewer);
     }
-    
+
     if (backdrop) {
         backdrop.removeEventListener('click', hideDeckViewer);
     }
-    
+
     document.removeEventListener('keydown', handleDeckViewerKeydown);
 }
 
@@ -1608,7 +1823,7 @@ function handleDeckViewerKeydown(event) {
     if (!deckViewerModal || deckViewerModal.classList.contains('hidden')) {
         return;
     }
-    
+
     if (event.key === 'Escape') {
         hideDeckViewer();
     }

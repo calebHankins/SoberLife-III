@@ -19,6 +19,8 @@ export let campaignState = {
     currentTask: 0,
     completedTasks: [],
     totalZenEarned: 0,
+    zenPointBalance: 0,        // Persistent zen point balance
+    lastBalanceUpdate: 0,      // Timestamp of last balance update
     campaignMode: false,
     deckComposition: {
         aces: 4,        // Starting aces
@@ -312,6 +314,8 @@ export function resetCampaignState() {
     campaignState.currentTask = 0;
     campaignState.completedTasks = [];
     campaignState.totalZenEarned = 0;
+    campaignState.zenPointBalance = 0;
+    campaignState.lastBalanceUpdate = 0;
     campaignState.campaignMode = false;
     campaignState.deckComposition = {
         aces: 4,
@@ -359,7 +363,7 @@ export function loadCampaignProgress() {
 export function migrateCampaignState() {
     try {
         let needsSave = false;
-        
+
         // Ensure deckComposition has jokers property
         if (!campaignState.deckComposition) {
             campaignState.deckComposition = { aces: 4, jokers: 0, totalCards: 52 };
@@ -370,7 +374,7 @@ export function migrateCampaignState() {
                 needsSave = true;
             }
         }
-        
+
         // Ensure shopUpgrades has jokersAdded property
         if (!campaignState.shopUpgrades) {
             campaignState.shopUpgrades = { acesAdded: 0, jokersAdded: 0, totalSpent: 0 };
@@ -386,13 +390,13 @@ export function migrateCampaignState() {
                 needsSave = true;
             }
         }
-        
+
         // Save migrated state if changes were made
         if (needsSave) {
             saveCampaignProgress();
             console.log('Campaign state migrated to support Joker system');
         }
-        
+
     } catch (error) {
         console.error('Error migrating campaign state:', error);
         // Reset to safe defaults on migration failure
@@ -419,7 +423,7 @@ export function getCurrentContextualActions() {
     try {
         // Import campaign functions dynamically to avoid circular dependency
         let currentStepActions;
-        
+
         // Check if we're in campaign mode and get task-specific actions
         if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
             const currentTask = window.getCurrentTask && window.getCurrentTask();
@@ -427,12 +431,12 @@ export function getCurrentContextualActions() {
                 currentStepActions = currentTask.contextualActions[gameState.currentStep];
             }
         }
-        
+
         // Fall back to DMV actions if no task-specific actions found
         if (!currentStepActions) {
             currentStepActions = contextualActions[gameState.currentStep];
         }
-        
+
         if (!currentStepActions || typeof currentStepActions !== 'object') {
             console.warn(`No contextual actions found for step ${gameState.currentStep}, using fallback`);
             return getFallbackActions();
@@ -534,7 +538,7 @@ export function getProgressiveFlavorText(action, step, hitCount) {
         // Get current task steps for validation
         let currentSteps = steps;
         let currentProgressiveFlavorText = progressiveFlavorText;
-        
+
         // Check if we're in campaign mode and get task-specific content
         if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
             const currentTask = window.getCurrentTask && window.getCurrentTask();
@@ -545,28 +549,28 @@ export function getProgressiveFlavorText(action, step, hitCount) {
                 }
             }
         }
-        
+
         // Validate inputs
         if (typeof step !== 'number' || step < 0 || step >= currentSteps.length) {
             console.warn(`Invalid step index: ${step}, using fallback`);
             return getFallbackProgressiveFlavorText(action, hitCount);
         }
-        
+
         if (!currentProgressiveFlavorText[step] || !currentProgressiveFlavorText[step][action]) {
             console.warn(`No progressive flavor text found for step ${step}, action ${action}`);
             return getFallbackProgressiveFlavorText(action, hitCount);
         }
-        
+
         const flavorArray = currentProgressiveFlavorText[step][action];
         if (!Array.isArray(flavorArray) || flavorArray.length === 0) {
             console.warn(`Invalid flavor text array for step ${step}, action ${action}`);
             return getFallbackProgressiveFlavorText(action, hitCount);
         }
-        
+
         // Use hit count to select appropriate flavor text, cycling if needed
         const index = Math.min(hitCount, flavorArray.length - 1);
         return flavorArray[index];
-        
+
     } catch (error) {
         console.error('Error getting progressive flavor text:', error);
         return getFallbackProgressiveFlavorText(action, hitCount);
@@ -664,16 +668,16 @@ export function getStressManagementInsight(outcome) {
         if (!stressManagementInsights[outcome] || !Array.isArray(stressManagementInsights[outcome])) {
             return getFallbackStressManagementInsight(outcome);
         }
-        
+
         const insights = stressManagementInsights[outcome];
         if (insights.length === 0) {
             return getFallbackStressManagementInsight(outcome);
         }
-        
+
         // Return random insight for variety
         const randomIndex = Math.floor(Math.random() * insights.length);
         return insights[randomIndex];
-        
+
     } catch (error) {
         console.error('Error getting stress management insight:', error);
         return getFallbackStressManagementInsight(outcome);
@@ -688,7 +692,7 @@ function getFallbackStressManagementInsight(outcome) {
         bust: "When stress peaks, remember to breathe and use your zen techniques.",
         house_bust: "Sometimes staying calm creates unexpected positive outcomes!"
     };
-    
+
     return fallbackInsights[outcome] || "Each experience helps you develop better stress management skills.";
 }
 
@@ -698,7 +702,7 @@ export function getInitialFlavorText(stepIndex) {
         // Get current task steps and initial flavor text
         let currentSteps = steps;
         let currentInitialFlavorText = initialFlavorText;
-        
+
         // Check if we're in campaign mode and get task-specific content
         if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
             const currentTask = window.getCurrentTask && window.getCurrentTask();
@@ -709,19 +713,19 @@ export function getInitialFlavorText(stepIndex) {
                 }
             }
         }
-        
+
         if (typeof stepIndex !== 'number' || stepIndex < 0 || stepIndex >= currentSteps.length) {
             console.warn(`Invalid step index: ${stepIndex}, using fallback`);
             return getFallbackInitialFlavorText(stepIndex);
         }
-        
+
         if (!currentInitialFlavorText[stepIndex] || typeof currentInitialFlavorText[stepIndex] !== 'object') {
             console.warn(`No initial flavor text found for step ${stepIndex}, using fallback`);
             return getFallbackInitialFlavorText(stepIndex);
         }
-        
+
         return currentInitialFlavorText[stepIndex];
-        
+
     } catch (error) {
         console.error('Error getting initial flavor text:', error);
         return getFallbackInitialFlavorText(stepIndex);
@@ -762,11 +766,11 @@ function getFallbackInitialFlavorText(stepIndex) {
             tips: "You're in the final stretch. Stay focused and finish strong."
         }
     };
-    
+
     if (stepIndex >= 0 && stepIndex < Object.keys(fallbackTexts).length) {
         return fallbackTexts[stepIndex];
     }
-    
+
     return {
         title: "DMV Visit",
         text: "You're making progress through your DMV visit.",

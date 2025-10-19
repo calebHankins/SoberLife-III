@@ -3,23 +3,24 @@
 
 import { gameState, updateGameState } from './game-state.js';
 import { updateDisplay, updateZenActivities } from './ui-manager.js';
+import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 
 // Zen activity definitions
 export const zenActivities = {
-    breath: { 
-        cost: 10, 
+    breath: {
+        cost: 10,
         reduction: 10,
         name: 'Deep Breath',
         emoji: '🌬️'
     },
-    stretch: { 
-        cost: 25, 
+    stretch: {
+        cost: 25,
         reduction: 20,
         name: 'Quick Stretch',
         emoji: '🤸'
     },
-    meditation: { 
-        cost: 50, 
+    meditation: {
+        cost: 50,
         reduction: 35,
         name: 'Mini Meditation',
         emoji: '🧘'
@@ -34,14 +35,25 @@ export function useZenActivity(activity) {
     let cost = activityConfig.cost;
     let stressReduction = activityConfig.reduction;
 
-    // Check if player has enough zen points
-    if (gameState.zenPoints < cost) {
+    // Check if player has enough zen points using the manager
+    const currentBalance = ZenPointsManager.getCurrentBalance();
+    if (currentBalance < cost) {
         return;
     }
 
-    // Deduct zen points and reduce stress
+    // Spend zen points using the manager
+    const success = ZenPointsManager.spendPoints(cost, ZEN_TRANSACTION_TYPES.ZEN_ACTIVITY, true, {
+        activity: activity,
+        stressReduction: stressReduction
+    });
+
+    if (!success) {
+        console.warn('Failed to spend zen points for activity:', activity);
+        return;
+    }
+
+    // Reduce stress
     updateGameState({
-        zenPoints: Math.max(0, gameState.zenPoints - cost),
         stressLevel: Math.max(0, gameState.stressLevel - stressReduction)
     });
 
@@ -59,9 +71,9 @@ function showZenActivityFeedback(activityName, stressReduction) {
     const popup = document.createElement('div');
     popup.className = 'popup-notification stress-decrease';
     popup.textContent = `${activityName}: -${stressReduction}% stress!`;
-    
+
     document.body.appendChild(popup);
-    
+
     // Remove popup after animation completes
     setTimeout(() => {
         if (popup.parentNode) {
@@ -75,7 +87,7 @@ export function updateStressLevel(change) {
     const newStressLevel = Math.max(0, Math.min(100, gameState.stressLevel + change));
     updateGameState({ stressLevel: newStressLevel });
     updateDisplay();
-    
+
     // Check for game over condition
     if (newStressLevel >= 100) {
         return true; // Indicates game over
