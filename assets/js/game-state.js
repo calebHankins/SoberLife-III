@@ -8,10 +8,13 @@ export let gameState = {
     stressLevel: 0,
     gameInProgress: false,
     deck: [],
+    houseDeck: [], // House's separate deck for consistent gameplay
     playerCards: [],
     houseCards: [],
     surveyCompleted: false,
-    initialFlavorTextShown: false
+    initialFlavorTextShown: false,
+    showCompartmentalizedResult: false,
+    compartmentalizedHands: null
 };
 
 // Campaign state object for rogue-like progression
@@ -320,6 +323,7 @@ export function resetGameState() {
     gameState.stressLevel = 0;
     gameState.gameInProgress = false;
     gameState.deck = [];
+    gameState.houseDeck = []; // Reset house deck
     gameState.playerCards = [];
     gameState.houseCards = [];
     gameState.surveyCompleted = false;

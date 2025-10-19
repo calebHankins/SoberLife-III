@@ -314,9 +314,13 @@ export function startNewRound() {
 
         updateGameState({
             deck: playerDeck,
+            houseDeck: houseDeck, // Store house deck in game state
             playerCards: [],
             houseCards: [],
-            gameInProgress: true
+            gameInProgress: true,
+            // Clear compartmentalized state for new round
+            showCompartmentalizedResult: false,
+            compartmentalizedHands: null
         });
 
         // Deal initial cards

@@ -98,24 +98,26 @@ export function updateCards() {
     if (houseCardsEl) {
         houseCardsEl.innerHTML = '';
 
-        // House cards (hide hole card only if game is still in progress)
-        gameState.houseCards.forEach((card, index) => {
-            const cardEl = document.createElement('div');
-            cardEl.className = 'card';
+        // Always show house cards, regardless of compartmentalized state
+        if (gameState.houseCards && gameState.houseCards.length > 0) {
+            gameState.houseCards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card';
 
-            if (index === 1 && gameState.gameInProgress) {
-                // Hide hole card during active play
-                cardEl.textContent = '?';
-                cardEl.style.background = 'linear-gradient(135deg, #34495E, #2C3E50)';
-                cardEl.style.color = 'white';
-            } else {
-                const fullCardEl = createCardElement(card);
-                cardEl.className = fullCardEl.className;
-                cardEl.innerHTML = fullCardEl.innerHTML;
-                cardEl.style.cssText = fullCardEl.style.cssText;
-            }
-            houseCardsEl.appendChild(cardEl);
-        });
+                if (index === 1 && gameState.gameInProgress) {
+                    // Hide hole card during active play
+                    cardEl.textContent = '?';
+                    cardEl.style.background = 'linear-gradient(135deg, #34495E, #2C3E50)';
+                    cardEl.style.color = 'white';
+                } else {
+                    const fullCardEl = createCardElement(card);
+                    cardEl.className = fullCardEl.className;
+                    cardEl.innerHTML = fullCardEl.innerHTML;
+                    cardEl.style.cssText = fullCardEl.style.cssText;
+                }
+                houseCardsEl.appendChild(cardEl);
+            });
+        }
     }
 
     // Update scores with Joker value indicators
@@ -198,19 +200,26 @@ function createCardElement(card) {
 
 // Update score displays with Joker information
 function updateScoreDisplays() {
-    const playerScore = calculateScore(gameState.playerCards);
     const playerScoreEl = document.getElementById('playerScore');
     if (playerScoreEl) {
-        let scoreText = `Score: ${playerScore}`;
+        // Don't update player score if showing compartmentalized display
+        if (gameState.showCompartmentalizedResult && gameState.compartmentalizedHands) {
+            playerScoreEl.textContent = 'Compartmentalized Hands';
+            playerScoreEl.style.textAlign = 'center';
+        } else {
+            const playerScore = calculateScore(gameState.playerCards);
+            let scoreText = `Score: ${playerScore}`;
 
-        // Add Joker contribution info
-        const jokers = gameState.playerCards.filter(card => card.isJoker);
-        if (jokers.length > 0) {
-            const jokerValues = jokers.map(j => j.getCurrentValue()).join(', ');
-            scoreText += ` (Jokers: ${jokerValues})`;
+            // Add Joker contribution info
+            const jokers = gameState.playerCards.filter(card => card.isJoker);
+            if (jokers.length > 0) {
+                const jokerValues = jokers.map(j => j.getCurrentValue()).join(', ');
+                scoreText += ` (Jokers: ${jokerValues})`;
+            }
+
+            playerScoreEl.textContent = scoreText;
+            playerScoreEl.style.textAlign = '';
         }
-
-        playerScoreEl.textContent = scoreText;
     }
 
     const houseScoreEl = document.getElementById('houseScore');
