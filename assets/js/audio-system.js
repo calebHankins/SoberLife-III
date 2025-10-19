@@ -21,7 +21,20 @@ const audioConfig = {
             zenComplete: { frequencies: [523, 659, 784], duration: 500, type: 'chord' },
             handWin: { frequencies: [261, 329, 392], duration: 300, type: 'chord' },
             handLose: { frequency: 220, duration: 200, type: 'sine' },
-            cardDeal: { frequency: 1000, duration: 30, type: 'noise' }
+            cardDeal: { frequency: 1000, duration: 30, type: 'noise' },
+            taskComplete: {
+                type: 'celebration',
+                duration: 2000,
+                chordProgression: [
+                    [261.63, 329.63, 392.00, 523.25], // C Major 7th (C-E-G-B)
+                    [293.66, 369.99, 440.00, 587.33], // D Major 7th (D-F#-A-C#)
+                    [329.63, 415.30, 493.88, 659.25]  // E Major 7th (E-G#-B-D#)
+                ],
+                timing: [0, 0.4, 0.8], // Chord timing in seconds
+                fadeIn: 100,
+                fadeOut: 500,
+                arpeggiationDelay: 0.05 // Delay between notes in chord (seconds)
+            }
         },
         defaultVolume: 0.3
     },
@@ -893,6 +906,9 @@ class SoundEffects {
             case 'chord':
                 this.playChordSound(soundConfig);
                 break;
+            case 'celebration':
+                this.playCelebrationSound(soundConfig);
+                break;
             default:
                 console.warn(`SoundEffects: Unknown sound type "${soundConfig.type}"`);
         }
@@ -997,6 +1013,72 @@ class SoundEffects {
             // Play the note
             oscillator.start(currentTime + noteDelay);
             oscillator.stop(currentTime + noteDelay + duration);
+        });
+    }
+
+    /**
+     * Play a celebration sound effect (for task completion)
+     * Generates a chord progression with gentle arpeggiation
+     */
+    playCelebrationSound(config) {
+        const currentTime = this.audioContext.currentTime;
+        const totalDuration = config.duration / 1000; // Convert to seconds
+        const fadeInDuration = config.fadeIn / 1000;
+        const fadeOutDuration = config.fadeOut / 1000;
+        const arpeggiationDelay = config.arpeggiationDelay;
+
+        // Create low-pass filter for warmth
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(3000, currentTime);
+        filter.Q.setValueAtTime(0.5, currentTime);
+
+        // Create reverb gain for depth
+        const reverbGain = this.audioContext.createGain();
+        reverbGain.gain.setValueAtTime(0.2, currentTime);
+
+        // Connect filter and reverb to master gain
+        filter.connect(reverbGain);
+        reverbGain.connect(this.masterGain);
+
+        // Play each chord in the progression
+        config.chordProgression.forEach((chord, chordIndex) => {
+            const chordStartTime = currentTime + config.timing[chordIndex];
+
+            // Play each note in the chord with arpeggiation
+            chord.forEach((frequency, noteIndex) => {
+                const noteStartTime = chordStartTime + (noteIndex * arpeggiationDelay);
+                const noteDuration = totalDuration - config.timing[chordIndex];
+
+                // Create oscillator for each note
+                const oscillator = this.audioContext.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, noteStartTime);
+
+                // Create envelope for each note
+                const envelope = this.audioContext.createGain();
+                envelope.gain.setValueAtTime(0, noteStartTime);
+
+                // Gentle fade in
+                envelope.gain.linearRampToValueAtTime(0.12, noteStartTime + fadeInDuration);
+
+                // Sustain
+                const sustainEndTime = noteStartTime + noteDuration - fadeOutDuration;
+                if (sustainEndTime > noteStartTime + fadeInDuration) {
+                    envelope.gain.setValueAtTime(0.12, sustainEndTime);
+                }
+
+                // Gentle fade out
+                envelope.gain.exponentialRampToValueAtTime(0.001, noteStartTime + noteDuration);
+
+                // Connect audio graph
+                oscillator.connect(envelope);
+                envelope.connect(filter);
+
+                // Play the note
+                oscillator.start(noteStartTime);
+                oscillator.stop(noteStartTime + noteDuration);
+            });
         });
     }
 

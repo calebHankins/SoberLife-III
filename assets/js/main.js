@@ -756,6 +756,11 @@ export function nextStep() {
     if (gameState.currentStep >= currentSteps.length) {
         // Task completed successfully!
 
+        // Play celebration sound
+        if (audioManager && audioManager.soundEffects) {
+            audioManager.soundEffects.play('taskComplete');
+        }
+
         // Award completion bonus based on final stress level
         const completionBonus = ZenPointsManager.awardCompletionBonus(
             gameState.stressLevel,
