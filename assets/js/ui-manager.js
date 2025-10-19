@@ -4,14 +4,52 @@
 import { gameState, campaignState, steps, generateSuccessMessage, getContextualActionText, getContextualActionDescription, getContextualFlavorText, getProgressiveFlavorText, handState, getDMVOutcomeMessage, getStressManagementInsight, getInitialFlavorText, activityState, canUseActivity, loadActivityStateFromCampaign } from './game-state.js';
 import { calculateScore } from './card-system.js';
 import { isCampaignMode, getCurrentTask } from './campaign-manager.js';
-import { ZenPointsManager } from './zen-points-manager.js';
+import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 import { zenActivities } from './stress-system.js';
 
 // Utility functions for showing/hiding elements
 // Debug: Add 1000 zen points instantly
 export function addZenPointsDebug() {
-    gameState.zenPoints += 1000;
-    updateDisplay();
+    const success = ZenPointsManager.addPoints(1000, ZEN_TRANSACTION_TYPES.ADMIN_ADJUSTMENT, true, {
+        source: 'nirvana_mode_debug',
+        description: 'Debug zen points added via Nirvana Mode'
+    });
+
+    if (success) {
+        console.log('Nirvana Mode: Added 1000 zen points via ZenPointsManager');
+        updateDisplay();
+
+        // Show feedback to user
+        const popup = document.createElement('div');
+        popup.className = 'popup-notification zen-gain';
+        popup.textContent = '🧘 Nirvana Mode: +1000 Zen Points!';
+        popup.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: popupFade 2s ease-out forwards;
+        `;
+
+        document.body.appendChild(popup);
+
+        // Remove popup after animation
+        setTimeout(() => {
+            if (popup.parentNode) {
+                popup.parentNode.removeChild(popup);
+            }
+        }, 2000);
+    } else {
+        console.error('Nirvana Mode: Failed to add zen points');
+    }
 }
 export function hideElement(id) {
     const element = document.getElementById(id);

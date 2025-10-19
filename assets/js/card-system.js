@@ -271,40 +271,58 @@ export function calculateScore(cards) {
             aces--;
         }
 
-        // Now calculate optimal values for Jokers
+        // Calculate optimal values for Jokers collectively
         let currentScore = baseScore;
-        for (let joker of jokers) {
-            const optimalValue = joker.calculateOptimalValue(currentScore);
-            currentScore += optimalValue;
-        }
 
-        // CRITICAL FIX: Iterative adjustment of Aces and Jokers
-        // After adding jokers, we may need to adjust Aces, which may require joker recalculation
-        let previousScore = -1;
-        let iterations = 0;
-        const maxIterations = 5; // Prevent infinite loops
+        if (jokers.length > 0) {
+            // First, check if we can avoid busting with all jokers as 1
+            const minPossibleScore = currentScore + jokers.length; // All jokers = 1
 
-        while (currentScore !== previousScore && iterations < maxIterations) {
-            previousScore = currentScore;
-            iterations++;
-
-            // Adjust Aces if over 21
-            while (currentScore > 21 && aces > 0) {
-                currentScore -= 10;
-                aces--;
-            }
-
-            // If we adjusted Aces, recalculate jokers with the new base score
-            if (currentScore !== previousScore && jokers.length > 0) {
-                const newBaseScore = currentScore - jokers.reduce((sum, joker) => sum + joker.getCurrentValue(), 0);
-                currentScore = newBaseScore;
-
-                // Recalculate joker values with adjusted base
+            if (minPossibleScore > 21) {
+                // Even with all jokers as 1, we bust - set all to 1 (best we can do)
                 for (let joker of jokers) {
-                    const optimalValue = joker.calculateOptimalValue(currentScore);
-                    currentScore += optimalValue;
+                    joker.calculatedValue = 1;
+                    currentScore += 1;
+                }
+            } else {
+                // We can potentially avoid busting, calculate optimal values
+                for (let joker of jokers) {
+                    const remainingSpace = 21 - currentScore;
+
+                    if (remainingSpace >= 11) {
+                        // We have room for an 11
+                        joker.calculatedValue = 11;
+                        currentScore += 11;
+                    } else if (remainingSpace >= 1) {
+                        // Use exactly what we need (or can fit)
+                        joker.calculatedValue = Math.max(1, remainingSpace);
+                        currentScore += joker.calculatedValue;
+                    } else {
+                        // No room left, use 1
+                        joker.calculatedValue = 1;
+                        currentScore += 1;
+                    }
                 }
             }
+        }
+
+        // Final adjustment: if we're still over 21, try to reduce Aces first, then Jokers
+        while (currentScore > 21 && aces > 0) {
+            currentScore -= 10;
+            aces--;
+        }
+
+        // If still over 21, reduce Jokers to 1 (they should already be optimized, but double-check)
+        while (currentScore > 21 && jokers.length > 0) {
+            for (let joker of jokers) {
+                if (joker.calculatedValue > 1) {
+                    const reduction = Math.min(joker.calculatedValue - 1, currentScore - 21);
+                    joker.calculatedValue -= reduction;
+                    currentScore -= reduction;
+                    if (currentScore <= 21) break;
+                }
+            }
+            break; // Prevent infinite loop
         }
 
         return currentScore;

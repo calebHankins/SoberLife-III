@@ -1192,6 +1192,11 @@ if (typeof window !== 'undefined') {
     window.resetCampaign = resetCampaign;
     window.returnToCampaign = returnToCampaign;
 
+    // Make debug functions available
+    import('./ui-manager.js').then(ui => {
+        window.addZenPointsDebug = ui.addZenPointsDebug;
+    });
+
     // Make campaign functions available for game-state.js (needed for internal module communication)
     window.isCampaignMode = isCampaignMode;
     window.getCurrentTask = getCurrentTask;

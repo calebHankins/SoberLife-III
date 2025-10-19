@@ -655,6 +655,12 @@
                         if (nirvanaZone) {
                             nirvanaZone.style.display = 'block';
                             showNirvanaBtn.style.display = 'none';
+
+                            // Set up the nirvana zen button click handler
+                            const nirvanaZenBtn = document.getElementById('nirvanaZenBtn');
+                            if (nirvanaZenBtn && window.addZenPointsDebug) {
+                                nirvanaZenBtn.onclick = window.addZenPointsDebug;
+                            }
                         }
                     });
                 }
