@@ -422,7 +422,7 @@ label {
 
 /* Zen Point Animation Styles */
 .zen-point-animation {
-    font-family: 'Comic Sans MS', cursive;
+    font-family: 'Comic Sans MS';
     user-select: none;
     pointer-events: none;
 }
@@ -469,7 +469,7 @@ label {
 
 /* Completion Celebration Styles */
 .completion-celebration {
-    font-family: 'Comic Sans MS', cursive;
+    font-family: 'Comic Sans MS';
     user-select: none;
     cursor: pointer;
 }
