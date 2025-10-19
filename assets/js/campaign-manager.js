@@ -1,7 +1,7 @@
 // SoberLife III - Campaign Manager
 // Campaign state coordination and navigation flow
 
-import { campaignState, updateCampaignState, loadCampaignProgress, resetCampaignState, resetGameState, updateGameState, loadActivityStateFromCampaign } from './game-state.js';
+import { gameState, campaignState, updateCampaignState, loadCampaignProgress, resetCampaignState, resetGameState, updateGameState, loadActivityStateFromCampaign } from './game-state.js';
 import { taskDefinitions, getTaskDefinition, isTaskUnlocked, getNextAvailableTask } from './task-definitions.js';
 import { openShop, updateShopUI, validateShopState } from './shop-system.js';
 import { hideElement, showElement, updateDisplay } from './ui-manager.js';
@@ -253,8 +253,13 @@ export function completeCurrentTask(zenPointsEarned) {
         // Get the current zen point balance from the manager (this includes completion bonus)
         const currentBalance = ZenPointsManager.getCurrentBalance();
 
+        // Save the final stress level for carryover to next task
+        // gameState is already imported at the top of the file
+        const finalStressLevel = gameState.stressLevel || 0;
+
         console.log(`completeCurrentTask called with zenPointsEarned: ${zenPointsEarned}`);
         console.log(`Current balance from ZenPointsManager: ${currentBalance}`);
+        console.log(`Final stress level for carryover: ${finalStressLevel}`);
         console.log(`Campaign state zenPointBalance before update: ${campaignState.zenPointBalance}`);
 
         // Add to completed tasks if not already completed
@@ -263,16 +268,18 @@ export function completeCurrentTask(zenPointsEarned) {
             updateCampaignState({
                 completedTasks: newCompletedTasks,
                 totalZenEarned: campaignState.totalZenEarned + zenPointsEarned,
-                zenPointBalance: currentBalance // Ensure the balance is saved
+                zenPointBalance: currentBalance, // Ensure the balance is saved
+                previousStressLevel: finalStressLevel // Save stress for carryover
             });
         } else {
-            // Even if task was already completed, save the current balance
+            // Even if task was already completed, save the current balance and stress
             updateCampaignState({
-                zenPointBalance: currentBalance
+                zenPointBalance: currentBalance,
+                previousStressLevel: finalStressLevel
             });
         }
 
-        console.log(`Task ${currentTaskId} completed! Balance saved: ${currentBalance}`);
+        console.log(`Task ${currentTaskId} completed! Balance saved: ${currentBalance}, Stress saved: ${finalStressLevel}`);
         console.log(`Campaign state zenPointBalance after update: ${campaignState.zenPointBalance}`);
 
         // Check if campaign is complete
