@@ -792,8 +792,11 @@ label {
 /* Mobile responsive audio controls */
 @media (max-width: 768px) {
     .audio-controls {
-        bottom: 15px;
-        right: 15px;
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        top: auto !important;
+        left: auto !important;
     }
 
     .audio-fab {
@@ -856,41 +859,42 @@ label {
 /* Extra small mobile devices */
 @media (max-width: 480px) {
     .audio-controls {
-        width: 160px;
+        position: fixed !important;
+        bottom: 15px !important;
+        right: 15px !important;
+        top: auto !important;
+        left: auto !important;
+    }
+
+    .audio-fab {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    .audio-controls-panel {
+        bottom: 55px;
+        min-width: 160px;
         max-width: 160px;
-        transform: scale(0.8);
-        top: 2px;
-        right: 2px;
-    }
-
-    .audio-controls.minimized {
-        width: 45px;
-        max-width: 45px;
-        transform: scale(0.8);
-    }
-
-    .audio-controls-toggle {
-        font-size: 12px;
-    }
-
-    .audio-controls-header h3 {
-        font-size: 12px;
+        padding: 10px;
+        transform: translateY(10px) scale(0.8);
     }
 
     .audio-controls-panel h3 {
-        font-size: 11px;
+        font-size: 12px;
+        margin: 0 0 8px 0;
     }
 
     .audio-control-group label {
-        font-size: 9px;
+        font-size: 10px;
     }
 
     .mute-button {
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .audio-toggle-button {
-        font-size: 9px;
-        padding: 3px 6px;
+        font-size: 10px;
+        padding: 4px 8px;
     }
 }
