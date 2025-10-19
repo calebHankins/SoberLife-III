@@ -40,7 +40,6 @@ export const zenActivities = {
         name: 'Mindful Breathing',
         emoji: '🌸',
         type: 'premium',
-        purchaseCost: 1000,
         description: 'Advanced breathing technique with focused awareness for significant stress relief'
     },
     compartmentalize: {
@@ -49,7 +48,6 @@ export const zenActivities = {
         name: 'Compartmentalize',
         emoji: '🧠',
         type: 'reactive',
-        purchaseCost: 2000,
         description: 'Split overwhelming situations into manageable parts - can be used to recover from bust'
     }
 };
