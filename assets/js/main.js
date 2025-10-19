@@ -9,9 +9,25 @@ import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTas
 import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback, purchasePremiumActivityWrapper } from './shop-system.js';
 import { getTaskDefinition } from './task-definitions.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
+import { AudioManager } from './audio-system.js';
+
+// Global audio manager instance
+let audioManager = null;
 
 // Initialize the game when page loads
-export function initializeGame() {
+export async function initializeGame() {
+    // Initialize audio system
+    try {
+        audioManager = new AudioManager();
+        await audioManager.init();
+        console.log('Main: Audio system initialized');
+
+        // Make audio manager globally accessible
+        window.audioManager = audioManager;
+    } catch (error) {
+        console.error('Main: Failed to initialize audio system:', error);
+    }
+
     // Set up survey validation
     const surveyInputs = document.querySelectorAll('input[type="radio"]');
     const startTaskBtn = document.getElementById('startTaskBtn');
@@ -36,9 +52,43 @@ export function initializeGame() {
     hideElement('zenActivities');
     hideElement('gameArea');
 
+    // Set up global button click sound effects
+    setupButtonClickSounds();
+
     // Initial display update
     updateDisplay();
     updateZenActivities();
+}
+
+// Setup global button click sound effects
+function setupButtonClickSounds() {
+    document.addEventListener('click', (event) => {
+        // Check if the clicked element is a button or has button-like classes
+        const target = event.target;
+        const isButton = target.tagName === 'BUTTON' ||
+            target.classList.contains('btn') ||
+            target.classList.contains('primary-btn') ||
+            target.classList.contains('secondary-btn') ||
+            target.classList.contains('zen-btn') ||
+            target.classList.contains('card') ||
+            target.id === 'hitBtn' ||
+            target.id === 'standBtn' ||
+            target.id === 'nextStepBtn';
+
+        if (isButton && audioManager && audioManager.soundEffects) {
+            // Play different sounds for different types of interactions
+            if (target.classList.contains('card')) {
+                audioManager.soundEffects.play('cardClick');
+            } else {
+                audioManager.soundEffects.play('buttonClick');
+            }
+        }
+    });
+}
+
+// Get audio manager instance
+export function getAudioManager() {
+    return audioManager;
 }
 
 // Set up help modal functionality
@@ -273,6 +323,11 @@ export function startTask() {
         loadActivityStateFromCampaign();
     }
 
+    // Start background music if audio is enabled
+    if (audioManager && audioManager.initialized) {
+        audioManager.startMusic();
+    }
+
     // Hide survey and show game elements
     hideElement('surveySection');
     showElement('taskInfo');
@@ -430,6 +485,11 @@ export function hit() {
         // Add card to player's hand
         const newCard = gameState.deck.pop();
         gameState.playerCards.push(newCard);
+
+        // Play card deal sound effect
+        if (audioManager && audioManager.soundEffects) {
+            audioManager.soundEffects.play('cardDeal');
+        }
 
         // Show Joker feedback if the new card is a Joker
         if (newCard.isJoker) {
@@ -590,6 +650,16 @@ export function endRound(result) {
                 break;
         }
 
+        // Play appropriate sound effect based on result
+        if (audioManager && audioManager.soundEffects) {
+            if (result === 'win' || result === 'house_bust') {
+                audioManager.soundEffects.play('handWin');
+            } else if (result === 'lose' || result === 'bust') {
+                audioManager.soundEffects.play('handLose');
+            }
+            // No sound for tie - neutral outcome
+        }
+
         // Apply zen point changes using the manager
         if (zenChange > 0) {
             ZenPointsManager.addPoints(zenChange, transactionType, true, {
@@ -685,6 +755,11 @@ export function nextStep() {
 
     if (gameState.currentStep >= currentSteps.length) {
         // Task completed successfully!
+
+        // Play celebration sound
+        if (audioManager && audioManager.soundEffects) {
+            audioManager.soundEffects.play('taskComplete');
+        }
 
         // Award completion bonus based on final stress level
         const completionBonus = ZenPointsManager.awardCompletionBonus(

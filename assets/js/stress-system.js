@@ -113,6 +113,11 @@ export function useZenActivity(activity, isCompartmentalize = false) {
         stressLevel: Math.max(0, gameState.stressLevel - stressReduction)
     });
 
+    // Play zen completion sound effect
+    if (window.audioManager && window.audioManager.soundEffects) {
+        window.audioManager.soundEffects.play('zenComplete');
+    }
+
     // Update display
     updateDisplay();
     updateZenActivities();
