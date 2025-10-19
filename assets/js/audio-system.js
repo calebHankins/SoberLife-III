@@ -464,17 +464,37 @@ class MusicPlayer {
         this.audioContext = audioContext;
         this.oscillators = [];
         this.gainNodes = [];
+        this.filters = [];
         this.masterGain = null;
-        this.lfoOscillator = null;
-        this.lfoGain = null;
+        this.reverbGain = null;
+        this.delayNode = null;
+        this.lfoOscillators = [];
+        this.lfoGains = [];
         this.isPlaying = false;
         this.volume = audioConfig.music.defaultVolume;
+
+        // Musical progression state
+        this.currentChord = 0;
+        this.chordProgression = [
+            [220, 261.63, 329.63], // Am (A, C, E)
+            [196, 246.94, 293.66], // G (G, B, D)
+            [261.63, 329.63, 392],  // C (C, E, G)
+            [174.61, 220, 261.63]   // F (F, A, C)
+        ];
+        this.melodyNotes = [440, 523.25, 587.33, 659.25, 783.99]; // A, C, D, E, G
+        this.rhythmPattern = [1, 0, 0.5, 0, 0.7, 0, 0.3, 0]; // 8-beat pattern
+        this.currentBeat = 0;
+
+        // Timing
+        this.chordChangeInterval = null;
+        this.melodyInterval = null;
+        this.rhythmInterval = null;
 
         this.setupAudioGraph();
     }
 
     /**
-     * Setup the audio graph for ambient music generation
+     * Setup the audio graph for rich ambient music generation
      */
     setupAudioGraph() {
         if (!this.audioContext) return;
@@ -482,84 +502,241 @@ class MusicPlayer {
         // Create master gain node
         this.masterGain = this.audioContext.createGain();
         this.masterGain.gain.setValueAtTime(0, this.audioContext.currentTime);
+
+        // Create reverb effect using convolution
+        this.reverbGain = this.audioContext.createGain();
+        this.reverbGain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+
+        // Create delay effect for depth
+        this.delayNode = this.audioContext.createDelay(0.5);
+        this.delayNode.delayTime.setValueAtTime(0.2, this.audioContext.currentTime);
+        const delayGain = this.audioContext.createGain();
+        delayGain.gain.setValueAtTime(0.15, this.audioContext.currentTime);
+
+        // Create low-pass filter for warmth
+        const warmthFilter = this.audioContext.createBiquadFilter();
+        warmthFilter.type = 'lowpass';
+        warmthFilter.frequency.setValueAtTime(2000, this.audioContext.currentTime);
+        warmthFilter.Q.setValueAtTime(0.5, this.audioContext.currentTime);
+
+        // Connect effects chain
+        this.delayNode.connect(delayGain);
+        delayGain.connect(this.delayNode); // Feedback
+        delayGain.connect(this.reverbGain);
+
+        this.reverbGain.connect(warmthFilter);
+        warmthFilter.connect(this.masterGain);
         this.masterGain.connect(this.audioContext.destination);
 
-        // Create LFO for subtle modulation
-        this.lfoOscillator = this.audioContext.createOscillator();
-        this.lfoGain = this.audioContext.createGain();
+        // Create multiple LFOs for organic movement
+        this.createLFOs();
 
-        this.lfoOscillator.frequency.setValueAtTime(audioConfig.music.modulationRate, this.audioContext.currentTime);
-        this.lfoOscillator.type = 'sine';
-        this.lfoGain.gain.setValueAtTime(0.02, this.audioContext.currentTime); // Subtle modulation
+        // Create the initial chord
+        this.createChordOscillators();
 
-        this.lfoOscillator.connect(this.lfoGain);
-        this.lfoOscillator.start();
-
-        // Create harmonic oscillators for ambient sound
-        this.createHarmonicOscillators();
+        // Setup musical progression
+        this.setupMusicalProgression();
     }
 
     /**
-     * Create layered harmonic oscillators for rich ambient sound
+     * Create multiple LFOs for organic movement
      */
-    createHarmonicOscillators() {
-        const baseFreq = audioConfig.music.baseFrequency;
-        const harmonics = audioConfig.music.harmonics;
+    createLFOs() {
+        // Main LFO for gentle pitch modulation
+        const mainLFO = this.audioContext.createOscillator();
+        const mainLFOGain = this.audioContext.createGain();
+        mainLFO.frequency.setValueAtTime(0.1, this.audioContext.currentTime);
+        mainLFO.type = 'sine';
+        mainLFOGain.gain.setValueAtTime(2, this.audioContext.currentTime);
+        mainLFO.connect(mainLFOGain);
+        mainLFO.start();
 
-        harmonics.forEach((harmonic, index) => {
+        // Secondary LFO for amplitude modulation
+        const ampLFO = this.audioContext.createOscillator();
+        const ampLFOGain = this.audioContext.createGain();
+        ampLFO.frequency.setValueAtTime(0.05, this.audioContext.currentTime);
+        ampLFO.type = 'triangle';
+        ampLFOGain.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+        ampLFO.connect(ampLFOGain);
+        ampLFO.start();
+
+        // Filter LFO for timbral movement
+        const filterLFO = this.audioContext.createOscillator();
+        const filterLFOGain = this.audioContext.createGain();
+        filterLFO.frequency.setValueAtTime(0.03, this.audioContext.currentTime);
+        filterLFO.type = 'sawtooth';
+        filterLFOGain.gain.setValueAtTime(200, this.audioContext.currentTime);
+        filterLFO.connect(filterLFOGain);
+        filterLFO.start();
+
+        this.lfoOscillators = [mainLFO, ampLFO, filterLFO];
+        this.lfoGains = [mainLFOGain, ampLFOGain, filterLFOGain];
+    }
+
+    /**
+     * Create chord oscillators for harmonic foundation
+     */
+    createChordOscillators() {
+        const currentChordNotes = this.chordProgression[this.currentChord];
+
+        currentChordNotes.forEach((frequency, index) => {
+            // Create oscillator with different waveforms for texture
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
+            const filter = this.audioContext.createBiquadFilter();
 
-            // Set frequency based on harmonic ratio
-            const frequency = baseFreq * harmonic;
+            // Vary waveforms for richness
+            const waveforms = ['sine', 'triangle', 'sawtooth'];
+            oscillator.type = waveforms[index % waveforms.length];
             oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-            oscillator.type = 'sine';
 
-            // Set volume based on harmonic (higher harmonics are quieter)
-            const harmonicVolume = 1 / (index + 1) * 0.3;
-            gainNode.gain.setValueAtTime(harmonicVolume, this.audioContext.currentTime);
+            // Create gentle filter sweep
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(frequency * 4, this.audioContext.currentTime);
+            filter.Q.setValueAtTime(1, this.audioContext.currentTime);
 
-            // Connect LFO for subtle frequency modulation
-            this.lfoGain.connect(oscillator.frequency);
+            // Set volume with slight randomization
+            const baseVolume = 0.08 / (index + 1);
+            const randomVariation = (Math.random() - 0.5) * 0.02;
+            gainNode.gain.setValueAtTime(baseVolume + randomVariation, this.audioContext.currentTime);
 
-            // Connect to audio graph
-            oscillator.connect(gainNode);
-            gainNode.connect(this.masterGain);
+            // Connect LFO modulation
+            this.lfoGains[0].connect(oscillator.frequency); // Pitch modulation
+            this.lfoGains[1].connect(gainNode.gain); // Amplitude modulation
+            this.lfoGains[2].connect(filter.frequency); // Filter modulation
+
+            // Connect audio chain
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(this.reverbGain);
+            gainNode.connect(this.delayNode);
 
             // Store references
             this.oscillators.push(oscillator);
             this.gainNodes.push(gainNode);
+            this.filters.push(filter);
 
-            // Start oscillator
-            oscillator.start();
+            // Start with slight timing offset for organic feel
+            const startTime = this.audioContext.currentTime + (index * 0.01);
+            oscillator.start(startTime);
         });
-
-        // Add some subtle detuning for organic feel
-        this.addSubtleDetuning();
     }
 
     /**
-     * Add subtle random detuning to prevent perfect harmonics
+     * Setup musical progression and melody
      */
-    addSubtleDetuning() {
-        this.oscillators.forEach(oscillator => {
-            const detune = (Math.random() - 0.5) * 10; // ±5 cents
-            oscillator.detune.setValueAtTime(detune, this.audioContext.currentTime);
-        });
+    setupMusicalProgression() {
+        // Change chords every 8 seconds
+        this.chordChangeInterval = setInterval(() => {
+            if (this.isPlaying) {
+                this.changeChord();
+            }
+        }, 8000);
+
+        // Add occasional melody notes every 2-4 seconds
+        this.melodyInterval = setInterval(() => {
+            if (this.isPlaying && Math.random() > 0.3) {
+                this.playMelodyNote();
+            }
+        }, 2000 + Math.random() * 2000);
+
+        // Subtle rhythm pattern every 500ms
+        this.rhythmInterval = setInterval(() => {
+            if (this.isPlaying) {
+                this.updateRhythm();
+            }
+        }, 500);
     }
 
     /**
-     * Start playing background music with fade in
+     * Change to next chord in progression
+     */
+    changeChord() {
+        // Fade out current oscillators
+        this.oscillators.forEach((osc, index) => {
+            const gain = this.gainNodes[index];
+            if (gain) {
+                gain.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.5);
+            }
+        });
+
+        // Stop old oscillators after fade
+        setTimeout(() => {
+            this.oscillators.forEach(osc => {
+                try { osc.stop(); } catch (e) { }
+            });
+            this.oscillators = [];
+            this.gainNodes = [];
+            this.filters = [];
+
+            // Move to next chord
+            this.currentChord = (this.currentChord + 1) % this.chordProgression.length;
+
+            // Create new chord
+            this.createChordOscillators();
+        }, 500);
+    }
+
+    /**
+     * Play a random melody note
+     */
+    playMelodyNote() {
+        const frequency = this.melodyNotes[Math.floor(Math.random() * this.melodyNotes.length)];
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        const filter = this.audioContext.createBiquadFilter();
+
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(frequency * 2, this.audioContext.currentTime);
+        filter.Q.setValueAtTime(2, this.audioContext.currentTime);
+
+        // Gentle envelope
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.03, this.audioContext.currentTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 1.5);
+
+        // Connect with effects
+        oscillator.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(this.delayNode);
+        gainNode.connect(this.reverbGain);
+
+        oscillator.start();
+        oscillator.stop(this.audioContext.currentTime + 2);
+    }
+
+    /**
+     * Update rhythm pattern for subtle movement
+     */
+    updateRhythm() {
+        const intensity = this.rhythmPattern[this.currentBeat];
+        this.currentBeat = (this.currentBeat + 1) % this.rhythmPattern.length;
+
+        // Modulate master volume slightly based on rhythm
+        if (this.masterGain && intensity > 0) {
+            const currentGain = this.masterGain.gain.value;
+            const targetGain = this.volume * (0.9 + intensity * 0.1);
+            this.masterGain.gain.linearRampToValueAtTime(targetGain, this.audioContext.currentTime + 0.1);
+        }
+    }
+
+
+
+    /**
+     * Start playing rich background music with fade in
      */
     play() {
         if (!this.audioContext || this.isPlaying) return;
 
-        console.log('MusicPlayer: Starting background music');
+        console.log('MusicPlayer: Starting rich ambient music');
         this.isPlaying = true;
 
         // Fade in the music
         const currentTime = this.audioContext.currentTime;
-        const fadeInDuration = audioConfig.music.fadeInDuration / 1000; // Convert to seconds
+        const fadeInDuration = audioConfig.music.fadeInDuration / 1000;
 
         this.masterGain.gain.cancelScheduledValues(currentTime);
         this.masterGain.gain.setValueAtTime(0, currentTime);
@@ -572,16 +749,40 @@ class MusicPlayer {
     pause() {
         if (!this.audioContext || !this.isPlaying) return;
 
-        console.log('MusicPlayer: Pausing background music');
+        console.log('MusicPlayer: Pausing ambient music');
         this.isPlaying = false;
+
+        // Clear intervals
+        if (this.chordChangeInterval) {
+            clearInterval(this.chordChangeInterval);
+            this.chordChangeInterval = null;
+        }
+        if (this.melodyInterval) {
+            clearInterval(this.melodyInterval);
+            this.melodyInterval = null;
+        }
+        if (this.rhythmInterval) {
+            clearInterval(this.rhythmInterval);
+            this.rhythmInterval = null;
+        }
 
         // Fade out the music
         const currentTime = this.audioContext.currentTime;
-        const fadeOutDuration = audioConfig.music.fadeOutDuration / 1000; // Convert to seconds
+        const fadeOutDuration = audioConfig.music.fadeOutDuration / 1000;
 
         this.masterGain.gain.cancelScheduledValues(currentTime);
         this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, currentTime);
         this.masterGain.gain.linearRampToValueAtTime(0, currentTime + fadeOutDuration);
+
+        // Stop all oscillators after fade
+        setTimeout(() => {
+            this.oscillators.forEach(osc => {
+                try { osc.stop(); } catch (e) { }
+            });
+            this.lfoOscillators.forEach(lfo => {
+                try { lfo.stop(); } catch (e) { }
+            });
+        }, fadeOutDuration * 1000);
     }
 
     /**
