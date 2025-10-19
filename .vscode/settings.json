@@ -9,6 +9,7 @@
     },
     "chat.agent.maxRequests": 100,
     "cSpell.words": [
+        "autoplay",
         "cooldown",
         "Desync",
         "flexbox",
@@ -16,6 +17,7 @@
         "insightfully",
         "kiro",
         "LIFX",
+        "lofi",
         "Noticeability",
         "playtesting",
         "playthrough",
@@ -26,6 +28,7 @@
         "soberlife",
         "spammable",
         "tappable",
+        "unmute",
         "viewports"
     ],
     "editor.formatOnSave": true,
