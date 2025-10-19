@@ -9,7 +9,7 @@ import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js
 export const shopConfig = {
     jokerUpgrade: {
         baseCost: 75,        // Higher cost than Aces due to superior functionality
-        costIncrease: 50,    // Steeper cost increase
+        costIncrease: 200,    // Steeper cost increase
         maxJokers: 52         // Reasonable limit to maintain game balance
     },
     // Legacy ace upgrade (for backward compatibility)
@@ -24,7 +24,7 @@ export const shopConfig = {
 export const premiumActivities = {
     mindfulBreathing: {
         name: 'Mindful Breathing',
-        cost: 150,
+        cost: 1000,
         description: 'Unlock advanced breathing techniques for 50% stress reduction',
         emoji: '🌸',
         category: 'stress-relief',
@@ -32,7 +32,7 @@ export const premiumActivities = {
     },
     compartmentalize: {
         name: 'Compartmentalize',
-        cost: 200,
+        cost: 2000,
         description: 'Learn to split overwhelming situations into manageable parts',
         emoji: '🧠',
         category: 'reactive',
