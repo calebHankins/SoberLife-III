@@ -25,6 +25,7 @@ export let campaignState = {
     zenPointBalance: 0,        // Persistent zen point balance
     lastBalanceUpdate: 0,      // Timestamp of last balance update
     campaignMode: false,
+    previousStressLevel: 0,    // Stress level from previous task (for carryover)
     deckComposition: {
         aces: 4,        // Starting aces
         jokers: 0,      // Purchased jokers (wild cards)
@@ -344,6 +345,7 @@ export function resetCampaignState() {
     campaignState.zenPointBalance = 0;
     campaignState.lastBalanceUpdate = 0;
     campaignState.campaignMode = false;
+    campaignState.previousStressLevel = 0;
     campaignState.deckComposition = {
         aces: 4,
         jokers: 0,
@@ -446,10 +448,16 @@ export function migrateCampaignState() {
             needsSave = true;
         }
 
+        // Ensure previousStressLevel exists for stress carryover system
+        if (typeof campaignState.previousStressLevel !== 'number') {
+            campaignState.previousStressLevel = 0;
+            needsSave = true;
+        }
+
         // Save migrated state if changes were made
         if (needsSave) {
             saveCampaignProgress();
-            console.log('Campaign state migrated to support activity system');
+            console.log('Campaign state migrated to support stress carryover system');
         }
 
     } catch (error) {

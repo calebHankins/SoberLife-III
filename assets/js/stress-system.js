@@ -373,18 +373,38 @@ export function updateStressLevel(change) {
 // Calculate initial stress from survey responses
 export function calculateSurveyStress() {
     const surveyInputs = document.querySelectorAll('input[type="radio"]:checked');
-    let initialStress = 0;
+    let surveyStress = 0;
 
     surveyInputs.forEach(input => {
-        initialStress += parseInt(input.value);
+        surveyStress += parseInt(input.value);
     });
 
-    // Calculate zen points based on survey (inverse relationship with stress)
+    // Calculate base stress from survey (cap at 50%)
+    let baseStress = Math.min(surveyStress, 50);
+
+    // Add stress carryover from previous task in campaign mode
+    let carryoverStress = 0;
+    if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
+        // Access campaign state directly since it's already imported
+        // Calculate carryover as 30% of previous stress level
+        carryoverStress = Math.floor(campaignState.previousStressLevel * 0.3);
+
+        console.log(`Stress carryover: ${campaignState.previousStressLevel} → ${carryoverStress} (30%)`);
+    }
+
+    // Combine survey stress with carryover, but cap total at 60%
+    const totalStress = Math.min(baseStress + carryoverStress, 60);
+
+    // Calculate zen points based on survey only (not affected by carryover)
     const baseZenPoints = 150;
-    const zenPoints = Math.max(50, baseZenPoints - initialStress);
+    const zenPoints = Math.max(50, baseZenPoints - surveyStress);
+
+    console.log(`Stress calculation: Survey=${baseStress}, Carryover=${carryoverStress}, Total=${totalStress}`);
 
     return {
-        stressLevel: Math.min(initialStress, 50), // Cap initial stress at 50%
-        zenPoints: zenPoints
+        stressLevel: totalStress,
+        zenPoints: zenPoints,
+        surveyStress: baseStress,
+        carryoverStress: carryoverStress
     };
 }
