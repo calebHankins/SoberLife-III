@@ -573,9 +573,9 @@
 
 .upgrade-card.premium-activity {
     border-color: #9B59B6;
-    background: linear-gradient(135deg, #F8F9FA 0%, #E8E2F0 100%);
-    color: #2C3E50;
-    /* Ensure dark text on light background */
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    /* Match the standard upgrade card styling */
 }
 
 .upgrade-card.premium-activity .upgrade-icon {
@@ -583,20 +583,21 @@
 }
 
 .upgrade-card.premium-activity h3 {
-    color: #2C3E50;
-    /* Dark text for headings */
+    color: #fff;
+    /* White text for headings to match standard cards */
 }
 
 .upgrade-card.premium-activity p {
-    color: #34495E;
-    /* Slightly lighter dark text for descriptions */
+    color: #fff;
+    opacity: 0.9;
+    /* White text with slight opacity for descriptions */
 }
 
 .upgrade-card.unlocked {
     border-color: #28A745;
-    background: linear-gradient(135deg, #F8F9FA 0%, #E8F5E8 100%);
-    color: #2C3E50;
-    /* Ensure dark text on light background */
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    /* Match the standard upgrade card styling */
 }
 
 .upgrade-card.unlocked .upgrade-icon {
@@ -604,13 +605,14 @@
 }
 
 .upgrade-card.unlocked h3 {
-    color: #2C3E50;
-    /* Dark text for headings */
+    color: #fff;
+    /* White text for headings to match standard cards */
 }
 
 .upgrade-card.unlocked p {
-    color: #34495E;
-    /* Slightly lighter dark text for descriptions */
+    color: #fff;
+    opacity: 0.9;
+    /* White text with slight opacity for descriptions */
 }
 
 .status-unlocked {
