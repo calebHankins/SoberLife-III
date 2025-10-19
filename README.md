@@ -103,7 +103,37 @@ npx serve . -p 8000
 
 Then visit `http://localhost:8000` in your browser.
 
+## 💎 Zen Points System
+
+### Overview
+Zen points serve as the game's primary currency, earned through gameplay and spent on stress relief activities and permanent deck upgrades.
+
+### Earning Zen Points
+- **Task Start Bonus**: +100 zen points when beginning any task
+- **Round Wins**: +15 zen points for winning blackjack rounds
+- **House Bust**: +15 zen points when the house busts
+- **Task Completion**: +1000-2000 zen points based on performance (lower stress = higher bonus)
+
+### Spending Zen Points
+- **Stress Relief Activities**: Deep breathing (10), stretching (25), meditation (50)
+- **Deck Upgrades**: Add Aces (75, 125, 175, 225... progressive pricing)
+- **Joker Cards**: Add Wild Jokers (75, 125, 175... progressive pricing)
+
+### Persistence Architecture
+The zen points system uses a centralized manager (`ZenPointsManager`) that:
+- Maintains the authoritative balance across all game modes
+- Automatically syncs with campaign state for persistence
+- Handles all transactions with proper logging and validation
+- Ensures UI consistency across all screens
+
 ## 🔧 Recent Updates
+
+### Zen Points Persistence Fix (Critical)
+- **Root Issue**: Task completion bonuses weren't persisting when returning to campaign overview
+- **Cause**: Timing issue where completion bonus was awarded after campaign state was saved
+- **Solution**: Reordered task completion flow to award bonus before saving state
+- **UI Sync Fix**: Added `updateDisplay()` calls to campaign navigation functions
+- **Testing**: Comprehensive end-to-end testing of task completion → shop purchase → campaign return flow
 
 ### Campaign System Implementation
 
