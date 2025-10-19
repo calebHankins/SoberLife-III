@@ -860,9 +860,13 @@ class AudioControls {
             gameContainer.appendChild(this.controlsContainer);
         }
 
-        // Create controls HTML
+        // Create FAB and controls panel
         this.controlsContainer.innerHTML = `
-      <div class="audio-controls-panel">
+      <button id="audio-fab" class="audio-fab" title="Audio Controls">
+        🎵
+      </button>
+      
+      <div id="audio-controls-panel" class="audio-controls-panel">
         <h3>Audio Settings</h3>
         
         <div class="audio-control-group">
@@ -893,12 +897,16 @@ class AudioControls {
         this.musicMuteButton = document.getElementById('music-mute');
         this.effectsMuteButton = document.getElementById('effects-mute');
         this.audioToggleButton = document.getElementById('audio-toggle');
+        this.fabButton = document.getElementById('audio-fab');
+        this.controlsPanel = document.getElementById('audio-controls-panel');
 
         // Setup event listeners
         this.setupEventListeners();
 
         // Update UI to match current preferences
         this.updateUI();
+
+
     }
 
     /**
@@ -939,6 +947,18 @@ class AudioControls {
             }
             this.updateUI();
         });
+
+        // FAB button click
+        this.fabButton.addEventListener('click', () => {
+            this.toggleControlsPanel();
+        });
+
+        // Close panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!this.controlsContainer.contains(e.target)) {
+                this.hideControlsPanel();
+            }
+        });
     }
 
     /**
@@ -965,6 +985,9 @@ class AudioControls {
         this.effectsVolumeSlider.disabled = controlsDisabled;
         this.musicMuteButton.disabled = controlsDisabled;
         this.effectsMuteButton.disabled = controlsDisabled;
+
+        // Update FAB icon
+        this.updateFabIcon();
     }
 
     /**
@@ -991,6 +1014,59 @@ class AudioControls {
     hide() {
         if (this.controlsContainer) {
             this.controlsContainer.style.display = 'none';
+        }
+    }
+
+    /**
+     * Toggle controls panel visibility
+     */
+    toggleControlsPanel() {
+        if (this.controlsPanel) {
+            const isVisible = this.controlsPanel.classList.contains('visible');
+            if (isVisible) {
+                this.hideControlsPanel();
+            } else {
+                this.showControlsPanel();
+            }
+        }
+    }
+
+    /**
+     * Show controls panel
+     */
+    showControlsPanel() {
+        if (this.controlsPanel) {
+            this.controlsPanel.classList.add('visible');
+            this.fabButton.style.transform = 'rotate(45deg)';
+        }
+    }
+
+    /**
+     * Hide controls panel
+     */
+    hideControlsPanel() {
+        if (this.controlsPanel) {
+            this.controlsPanel.classList.remove('visible');
+            this.fabButton.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    /**
+     * Update FAB icon based on audio state
+     */
+    updateFabIcon() {
+        if (this.fabButton) {
+            const preferences = this.audioManager.getPreferences();
+            if (!preferences.audioEnabled) {
+                this.fabButton.textContent = '🔇';
+                this.fabButton.style.background = '#e74c3c';
+            } else if (preferences.musicMuted && preferences.effectsMuted) {
+                this.fabButton.textContent = '🔇';
+                this.fabButton.style.background = '#f39c12';
+            } else {
+                this.fabButton.textContent = '🎵';
+                this.fabButton.style.background = '#8e44ad';
+            }
         }
     }
 }
