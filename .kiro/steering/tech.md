@@ -60,6 +60,7 @@ npx serve . -p 8000          # Node.js (PREFERRED METHOD)
 
 ## Code Style
 - **Comic Sans MS font**: Maintains friendly, approachable aesthetic
+  - **DO NOT USE CURSIVE AS A FALLBACK FONT**: It is not legible on mobile devices
 - **Camel case**: JavaScript variables and functions
 - **Semantic naming**: Clear, descriptive identifiers
 - **External stylesheets**: CSS organized in separate files by purpose
