@@ -1439,7 +1439,7 @@ export function showCompletionBonusCelebration(bonusBreakdown) {
             color: white;
             padding: 30px;
             border-radius: 20px;
-            font-family: 'Comic Sans MS';
+            font-family: 'Comic Sans MS', sans-serif;
             z-index: 3000;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             animation: celebrationBounce 0.8s ease-out;

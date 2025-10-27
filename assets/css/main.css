@@ -422,7 +422,7 @@ label {
 
 /* Zen Point Animation Styles */
 .zen-point-animation {
-    font-family: 'Comic Sans MS';
+    font-family: 'Comic Sans MS', sans-serif;
     user-select: none;
     pointer-events: none;
 }
@@ -469,7 +469,7 @@ label {
 
 /* Completion Celebration Styles */
 .completion-celebration {
-    font-family: 'Comic Sans MS';
+    font-family: 'Comic Sans MS', sans-serif;
     user-select: none;
     cursor: pointer;
 }
@@ -613,7 +613,7 @@ label {
     bottom: 20px;
     right: 20px;
     z-index: 1000;
-    font-family: 'Comic Sans MS', cursive;
+    font-family: 'Comic Sans MS', sans-serif;
 }
 
 /* FAB Button */
@@ -762,7 +762,7 @@ label {
     border-radius: 8px;
     background: white;
     color: #8e44ad;
-    font-family: 'Comic Sans MS', cursive;
+    font-family: 'Comic Sans MS', sans-serif;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
