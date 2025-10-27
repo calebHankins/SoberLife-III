@@ -17,7 +17,8 @@
         "browser_take_screenshot",
         "browser_press_key",
         "browser_close",
-        "browser_resize"
+        "browser_resize",
+        "browser_type"
       ]
     }
   }

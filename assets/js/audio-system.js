@@ -4,6 +4,111 @@
  * Uses Web Audio API for programmatic sound generation
  */
 
+// Adaptive music configuration
+const adaptiveMusicConfig = {
+    stressLevels: {
+        calm: {
+            range: [0, 30],
+            tempo: 0.5, // Very slow and peaceful
+            harmonicComplexity: 'simple',
+            filterCutoff: 1200, // Very warm and muffled
+            reverbAmount: 0.5, // Very spacious and dreamy
+            melodyFrequency: 0.1, // Very few melody notes
+            rhythmIntensity: 0.3, // Very gentle rhythm
+            volume: 0.6, // Much quieter
+            chordProgression: [
+                [130.81, 164.81, 196], // C3 (C, E, G) - very low and peaceful
+                [146.83, 174.61, 220], // D3 (D, F, A) - gentle
+                [164.81, 196, 246.94], // E3 (E, G, B) - resolved
+                [146.83, 184.99, 220]  // D3 (D, F#, A) - warm major
+            ]
+        },
+        moderate: {
+            range: [30, 70],
+            tempo: 1.0,
+            harmonicComplexity: 'moderate',
+            filterCutoff: 2500,
+            reverbAmount: 0.25,
+            melodyFrequency: 0.5, // Normal melody frequency
+            rhythmIntensity: 1.0,
+            volume: 1.0, // Normal volume
+            chordProgression: [
+                [220, 261.63, 329.63], // Am (A, C, E)
+                [196, 246.94, 293.66], // G (G, B, D)
+                [261.63, 329.63, 392],  // C (C, E, G)
+                [174.61, 220, 261.63]   // F (F, A, C)
+            ]
+        },
+        tense: {
+            range: [70, 100],
+            tempo: 2.2, // Very fast and urgent
+            harmonicComplexity: 'complex',
+            filterCutoff: 5000, // Very bright and harsh
+            reverbAmount: 0.05, // Very dry and immediate
+            melodyFrequency: 0.9, // Almost constant melody notes
+            rhythmIntensity: 2.0, // Very intense rhythm
+            volume: 1.4, // Much louder
+            chordProgression: [
+                [277.18, 329.63, 415.30], // C# (C#, E, G#) - high and dissonant
+                [311.13, 369.99, 466.16], // D# (D#, F#, A#) - very tense
+                [329.63, 415.30, 493.88], // E (E, G#, B) - unstable high
+                [293.66, 369.99, 440]     // D (D, F#, A) - anxious high
+            ]
+        }
+    },
+    gameEvents: {
+        bust: {
+            type: 'tension_spike',
+            duration: 2000,
+            intensity: 0.8,
+            frequencies: [110, 146.83, 174.61], // Low tension chord
+            fadeIn: 100,
+            fadeOut: 800
+        },
+        handLose: {
+            type: 'disappointment',
+            duration: 1500,
+            intensity: 0.5,
+            frequencies: [196, 220, 246.94], // Minor disappointment
+            fadeIn: 150,
+            fadeOut: 600
+        },
+        handWin: {
+            type: 'positive_flourish',
+            duration: 1500,
+            intensity: 0.6,
+            frequencies: [329.63, 392, 493.88], // Uplifting chord
+            fadeIn: 100,
+            fadeOut: 500
+        },
+        taskComplete: {
+            type: 'celebration',
+            duration: 5000,
+            intensity: 1.0,
+            energyBoostDuration: 8000 // Extended energy boost
+        }
+    },
+    transitions: {
+        crossfadeDuration: 2000,
+        eventLayerFadeIn: 500,
+        eventLayerFadeOut: 1000,
+        stressTransitionDebounce: 500 // Faster response to stress changes
+    },
+    extendedLoop: {
+        sections: [
+            { name: 'intro', duration: 45, chordCount: 4, melodyDensity: 'sparse' },
+            { name: 'verse1', duration: 60, chordCount: 8, melodyDensity: 'moderate' },
+            { name: 'chorus1', duration: 45, chordCount: 6, melodyDensity: 'rich' },
+            { name: 'verse2', duration: 60, chordCount: 8, melodyDensity: 'moderate' },
+            { name: 'bridge', duration: 30, chordCount: 4, melodyDensity: 'sparse' },
+            { name: 'chorus2', duration: 45, chordCount: 6, melodyDensity: 'rich' },
+            { name: 'outro', duration: 15, chordCount: 2, melodyDensity: 'minimal' }
+        ],
+        totalDuration: 300, // 5 minutes
+        transitionDuration: 5
+    }
+};
+
 // Audio configuration constants
 const audioConfig = {
     music: {
@@ -137,8 +242,15 @@ class AudioManager {
             this.setupUserInteractionHandler();
         }
 
-        // Initialize components
-        this.musicPlayer = new MusicPlayer(this.audioContext);
+        // Initialize components with error handling
+        try {
+            this.musicPlayer = new AdaptiveMusicPlayer(this.audioContext);
+            console.log('AudioManager: AdaptiveMusicPlayer initialized successfully');
+        } catch (error) {
+            console.warn('AudioManager: Failed to initialize AdaptiveMusicPlayer, falling back to MusicPlayer:', error);
+            this.musicPlayer = new MusicPlayer(this.audioContext);
+        }
+
         this.soundEffects = new SoundEffects(this.audioContext, this);
         this.audioControls = new AudioControls(this);
 
@@ -469,6 +581,413 @@ class AudioManager {
 }
 
 /**
+ * Stress Level Monitor Class
+ * Monitors stress level changes and triggers appropriate musical responses
+ */
+class StressLevelMonitor {
+    constructor(musicPlayer) {
+        this.musicPlayer = musicPlayer;
+        this.currentStressLevel = 0;
+        this.stressThresholds = {
+            calm: 30,    // Below 30% = calm music
+            tense: 70    // Above 70% = tense music
+        };
+        this.debounceTimer = null;
+        this.currentMoodState = 'moderate'; // calm, moderate, tense
+    }
+
+    /**
+     * Update stress level with debouncing to prevent rapid transitions
+     */
+    updateStressLevel(newLevel) {
+        // Clear existing debounce timer
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+        }
+
+        // Debounce stress level changes to prevent audio thrashing
+        this.debounceTimer = setTimeout(() => {
+            this.processStressLevelChange(newLevel);
+        }, adaptiveMusicConfig.transitions.stressTransitionDebounce);
+    }
+
+    /**
+     * Process stress level change and trigger music transitions
+     */
+    processStressLevelChange(newLevel) {
+        const oldLevel = this.currentStressLevel;
+        this.currentStressLevel = newLevel;
+
+        // Determine new mood state based on thresholds
+        let newMoodState;
+        if (newLevel < this.stressThresholds.calm) {
+            newMoodState = 'calm';
+        } else if (newLevel > this.stressThresholds.tense) {
+            newMoodState = 'tense';
+        } else {
+            newMoodState = 'moderate';
+        }
+
+        // Trigger transition if mood state changed
+        if (newMoodState !== this.currentMoodState) {
+            console.log(`StressLevelMonitor: Transitioning from ${this.currentMoodState} to ${newMoodState} (stress: ${oldLevel}% → ${newLevel}%)`);
+            this.currentMoodState = newMoodState;
+
+            if (this.musicPlayer && this.musicPlayer.transitionToMoodState) {
+                this.musicPlayer.transitionToMoodState(newMoodState);
+            }
+        }
+    }
+
+    /**
+     * Get current mood state
+     */
+    getCurrentMoodState() {
+        return this.currentMoodState;
+    }
+
+    /**
+     * Get stress level configuration for current mood
+     */
+    getCurrentStressConfig() {
+        return adaptiveMusicConfig.stressLevels[this.currentMoodState];
+    }
+}
+
+/**
+ * Game Event Listener Class
+ * Listens for game events and triggers appropriate audio responses
+ */
+class GameEventListener {
+    constructor(musicPlayer) {
+        this.musicPlayer = musicPlayer;
+        this.eventQueue = [];
+        this.isProcessingEvent = false;
+        this.setupEventListeners();
+    }
+
+    /**
+     * Setup event listeners for game events
+     */
+    setupEventListeners() {
+        // Listen for custom game events
+        document.addEventListener('gameEvent', (event) => {
+            this.handleGameEvent(event.detail);
+        });
+
+        // Listen for stress level changes
+        document.addEventListener('stressLevelChanged', (event) => {
+            if (this.musicPlayer && this.musicPlayer.stressLevelMonitor) {
+                this.musicPlayer.stressLevelMonitor.updateStressLevel(event.detail.newLevel);
+            }
+        });
+    }
+
+    /**
+     * Handle game events with queuing to prevent conflicts
+     */
+    handleGameEvent(eventData) {
+        const { type, data } = eventData;
+
+        // Add event to queue
+        this.eventQueue.push({ type, data, timestamp: Date.now() });
+
+        // Process queue if not already processing
+        if (!this.isProcessingEvent) {
+            this.processEventQueue();
+        }
+    }
+
+    /**
+     * Process queued events
+     */
+    async processEventQueue() {
+        if (this.eventQueue.length === 0) {
+            this.isProcessingEvent = false;
+            return;
+        }
+
+        this.isProcessingEvent = true;
+        const event = this.eventQueue.shift();
+
+        try {
+            await this.processEvent(event);
+        } catch (error) {
+            console.error('GameEventListener: Error processing event:', error);
+        }
+
+        // Process next event after a brief delay
+        setTimeout(() => {
+            this.processEventQueue();
+        }, 100);
+    }
+
+    /**
+     * Process individual game event
+     */
+    async processEvent(event) {
+        const { type, data } = event;
+
+        console.log(`GameEventListener: Processing ${type} event`);
+
+        switch (type) {
+            case 'bust':
+                await this.handleBustEvent(data);
+                break;
+            case 'handWin':
+                await this.handleHandWinEvent(data);
+                break;
+            case 'handLose':
+                await this.handleHandLoseEvent(data);
+                break;
+            case 'taskComplete':
+                await this.handleTaskCompleteEvent(data);
+                break;
+            default:
+                console.warn(`GameEventListener: Unknown event type: ${type}`);
+        }
+    }
+
+    /**
+     * Handle bust event
+     */
+    async handleBustEvent(data) {
+        if (this.musicPlayer && this.musicPlayer.playEventAudio) {
+            await this.musicPlayer.playEventAudio('bust');
+        }
+    }
+
+    /**
+     * Handle hand win event
+     */
+    async handleHandWinEvent(data) {
+        if (this.musicPlayer && this.musicPlayer.playEventAudio) {
+            await this.musicPlayer.playEventAudio('handWin');
+        }
+    }
+
+    /**
+     * Handle hand lose event
+     */
+    async handleHandLoseEvent(data) {
+        if (this.musicPlayer && this.musicPlayer.playEventAudio) {
+            await this.musicPlayer.playEventAudio('handLose');
+        }
+    }
+
+    /**
+     * Handle task completion event
+     */
+    async handleTaskCompleteEvent(data) {
+        if (this.musicPlayer && this.musicPlayer.playEventAudio) {
+            await this.musicPlayer.playEventAudio('taskComplete');
+
+            // Trigger energy boost
+            if (this.musicPlayer.triggerEnergyBoost) {
+                this.musicPlayer.triggerEnergyBoost();
+            }
+        }
+    }
+}
+
+/**
+ * Music Layer Manager Class
+ * Manages multiple audio layers for adaptive music
+ */
+class MusicLayerManager {
+    constructor(audioContext) {
+        this.audioContext = audioContext;
+        this.layers = {
+            base: null,        // Base ambient layer
+            tension: null,     // Tension layer for high stress
+            celebration: null, // Celebration layer for wins
+            ambient: null      // Additional ambient elements
+        };
+        this.layerGains = {};
+        this.masterGain = null;
+
+        this.setupAudioGraph();
+    }
+
+    /**
+     * Setup audio graph for layer management
+     */
+    setupAudioGraph() {
+        if (!this.audioContext) return;
+
+        // Create master gain for all layers
+        this.masterGain = this.audioContext.createGain();
+        this.masterGain.gain.setValueAtTime(1.0, this.audioContext.currentTime);
+
+        // Create gain nodes for each layer
+        Object.keys(this.layers).forEach(layerName => {
+            const gainNode = this.audioContext.createGain();
+            gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+            gainNode.connect(this.masterGain);
+            this.layerGains[layerName] = gainNode;
+        });
+    }
+
+    /**
+     * Connect layer manager to destination
+     */
+    connect(destination) {
+        if (this.masterGain) {
+            this.masterGain.connect(destination);
+        }
+    }
+
+    /**
+     * Set layer volume with smooth transition
+     */
+    setLayerVolume(layerName, volume, duration = 1.0) {
+        const gainNode = this.layerGains[layerName];
+        if (!gainNode) return;
+
+        const currentTime = this.audioContext.currentTime;
+        gainNode.gain.cancelScheduledValues(currentTime);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume, currentTime + duration);
+    }
+
+    /**
+     * Crossfade between layers
+     */
+    crossfadeLayers(fromLayer, toLayer, duration = 2.0) {
+        if (fromLayer && this.layerGains[fromLayer]) {
+            this.setLayerVolume(fromLayer, 0, duration);
+        }
+        if (toLayer && this.layerGains[toLayer]) {
+            this.setLayerVolume(toLayer, 1.0, duration);
+        }
+    }
+
+    /**
+     * Get gain node for layer
+     */
+    getLayerGain(layerName) {
+        return this.layerGains[layerName];
+    }
+
+    /**
+     * Set master volume
+     */
+    setMasterVolume(volume) {
+        if (this.masterGain) {
+            const currentTime = this.audioContext.currentTime;
+            this.masterGain.gain.cancelScheduledValues(currentTime);
+            this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, currentTime);
+            this.masterGain.gain.linearRampToValueAtTime(volume, currentTime + 0.1);
+        }
+    }
+}
+
+/**
+ * Extended Music Loop Class
+ * Creates longer, more varied background music loops
+ */
+class ExtendedMusicLoop {
+    constructor(audioContext) {
+        this.audioContext = audioContext;
+        this.sections = adaptiveMusicConfig.extendedLoop.sections;
+        this.currentSection = 0;
+        this.sectionStartTime = 0;
+        this.loopStartTime = 0;
+        this.isActive = false;
+    }
+
+    /**
+     * Start the extended loop
+     */
+    start() {
+        if (!this.audioContext) return;
+
+        this.isActive = true;
+        this.loopStartTime = this.audioContext.currentTime;
+        this.sectionStartTime = this.loopStartTime;
+        this.currentSection = 0;
+
+        console.log('ExtendedMusicLoop: Starting extended loop');
+        this.scheduleNextSection();
+    }
+
+    /**
+     * Stop the extended loop
+     */
+    stop() {
+        this.isActive = false;
+        console.log('ExtendedMusicLoop: Stopping extended loop');
+    }
+
+    /**
+     * Schedule the next section in the loop
+     */
+    scheduleNextSection() {
+        if (!this.isActive) return;
+
+        const section = this.sections[this.currentSection];
+        const nextSectionTime = this.sectionStartTime + section.duration;
+
+        // Schedule section transition
+        setTimeout(() => {
+            if (this.isActive) {
+                this.transitionToNextSection();
+            }
+        }, section.duration * 1000);
+    }
+
+    /**
+     * Transition to the next section
+     */
+    transitionToNextSection() {
+        if (!this.isActive) return;
+
+        this.currentSection = (this.currentSection + 1) % this.sections.length;
+        this.sectionStartTime = this.audioContext.currentTime;
+
+        const section = this.sections[this.currentSection];
+        console.log(`ExtendedMusicLoop: Transitioning to section ${this.currentSection}: ${section.name}`);
+
+        // Schedule next section
+        this.scheduleNextSection();
+
+        // If we've completed a full loop, add a brief pause for seamless restart
+        if (this.currentSection === 0) {
+            console.log('ExtendedMusicLoop: Completed full loop, restarting');
+        }
+    }
+
+    /**
+     * Get current section info
+     */
+    getCurrentSection() {
+        return this.sections[this.currentSection];
+    }
+
+    /**
+     * Get progress through current section (0-1)
+     */
+    getSectionProgress() {
+        if (!this.isActive) return 0;
+
+        const section = this.sections[this.currentSection];
+        const elapsed = this.audioContext.currentTime - this.sectionStartTime;
+        return Math.min(elapsed / section.duration, 1.0);
+    }
+
+    /**
+     * Get overall loop progress (0-1)
+     */
+    getLoopProgress() {
+        if (!this.isActive) return 0;
+
+        const totalElapsed = this.audioContext.currentTime - this.loopStartTime;
+        const loopDuration = adaptiveMusicConfig.extendedLoop.totalDuration;
+        return (totalElapsed % loopDuration) / loopDuration;
+    }
+}
+
+/**
  * Music Player Class
  * Generates ambient lofi background music using Web Audio API oscillators
  */
@@ -598,19 +1117,19 @@ class MusicPlayer {
             const gainNode = this.audioContext.createGain();
             const filter = this.audioContext.createBiquadFilter();
 
-            // Vary waveforms for richness
-            const waveforms = ['sine', 'triangle', 'sawtooth'];
+            // Use only pleasant waveforms for better sound quality
+            const waveforms = ['sine', 'triangle', 'sine']; // Removed harsh sawtooth
             oscillator.type = waveforms[index % waveforms.length];
             oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
 
-            // Create gentle filter sweep
+            // Create gentle filter sweep with less resonance
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(frequency * 4, this.audioContext.currentTime);
-            filter.Q.setValueAtTime(1, this.audioContext.currentTime);
+            filter.frequency.setValueAtTime(frequency * 3, this.audioContext.currentTime); // Less harsh
+            filter.Q.setValueAtTime(0.5, this.audioContext.currentTime); // Much gentler resonance
 
-            // Set volume with slight randomization
-            const baseVolume = 0.08 / (index + 1);
-            const randomVariation = (Math.random() - 0.5) * 0.02;
+            // Set volume with better balance and less randomization
+            const baseVolume = 0.06 / (index + 1); // Slightly quieter overall
+            const randomVariation = (Math.random() - 0.5) * 0.01; // Less random variation
             gainNode.gain.setValueAtTime(baseVolume + randomVariation, this.audioContext.currentTime);
 
             // Connect LFO modulation
@@ -699,17 +1218,17 @@ class MusicPlayer {
         const gainNode = this.audioContext.createGain();
         const filter = this.audioContext.createBiquadFilter();
 
-        oscillator.type = 'triangle';
+        oscillator.type = 'sine'; // Use sine for cleaner melody
         oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
 
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(frequency * 2, this.audioContext.currentTime);
-        filter.Q.setValueAtTime(2, this.audioContext.currentTime);
+        filter.type = 'lowpass'; // Use lowpass for warmer sound
+        filter.frequency.setValueAtTime(frequency * 1.5, this.audioContext.currentTime); // Less harsh
+        filter.Q.setValueAtTime(0.8, this.audioContext.currentTime); // Gentler resonance
 
-        // Gentle envelope
+        // Very gentle envelope for pleasant melody
         gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.03, this.audioContext.currentTime + 0.1);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 1.5);
+        gainNode.gain.linearRampToValueAtTime(0.02, this.audioContext.currentTime + 0.15); // Softer and slower attack
+        gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 2.0); // Longer decay
 
         // Connect with effects
         oscillator.connect(filter);
@@ -735,8 +1254,6 @@ class MusicPlayer {
             this.masterGain.gain.linearRampToValueAtTime(targetGain, this.audioContext.currentTime + 0.1);
         }
     }
-
-
 
     /**
      * Start playing rich background music with fade in
@@ -817,6 +1334,462 @@ class MusicPlayer {
      */
     getIsPlaying() {
         return this.isPlaying;
+    }
+}
+
+/**
+ * Adaptive Music Player Class
+ * Extends MusicPlayer with adaptive capabilities
+ */
+class AdaptiveMusicPlayer extends MusicPlayer {
+    constructor(audioContext) {
+        super(audioContext);
+
+        try {
+            // Initialize adaptive components with error handling
+            this.stressLevelMonitor = new StressLevelMonitor(this);
+            this.gameEventListener = new GameEventListener(this);
+            this.musicLayerManager = new MusicLayerManager(audioContext);
+            this.extendedLoop = new ExtendedMusicLoop(audioContext);
+
+            // Adaptive state
+            this.currentMoodState = 'moderate';
+            this.energyBoostActive = false;
+            this.energyBoostEndTime = 0;
+            this.adaptiveEnabled = true;
+
+            // Connect layer manager to audio graph
+            if (this.masterGain && this.musicLayerManager) {
+                this.musicLayerManager.connect(this.masterGain);
+            }
+
+            console.log('AdaptiveMusicPlayer: Initialized successfully with adaptive features');
+        } catch (error) {
+            console.error('AdaptiveMusicPlayer: Error during initialization:', error);
+            this.adaptiveEnabled = false;
+            // Continue with basic functionality
+        }
+    }
+
+    /**
+     * Override play method to include adaptive features
+     */
+    play() {
+        if (!this.adaptiveEnabled) {
+            super.play();
+            return;
+        }
+
+        try {
+            super.play();
+
+            if (this.extendedLoop) {
+                this.extendedLoop.start();
+            }
+
+            // Check current stress level and set appropriate music immediately
+            this.checkCurrentStressLevel();
+
+            console.log('AdaptiveMusicPlayer: Starting adaptive music with extended loop');
+        } catch (error) {
+            console.error('AdaptiveMusicPlayer: Error starting adaptive music:', error);
+            // Fallback to basic play
+            super.play();
+        }
+    }
+
+    /**
+     * Check current stress level and set appropriate music
+     */
+    checkCurrentStressLevel() {
+        try {
+            // Get current stress level from game state
+            const currentStressLevel = window.gameState ? window.gameState.stressLevel : 0;
+
+            if (this.stressLevelMonitor) {
+                console.log(`AdaptiveMusicPlayer: Checking current stress level: ${currentStressLevel}%`);
+                this.stressLevelMonitor.processStressLevelChange(currentStressLevel);
+            }
+        } catch (error) {
+            console.error('AdaptiveMusicPlayer: Error checking current stress level:', error);
+        }
+    }
+
+    /**
+     * Override pause method to include adaptive features
+     */
+    pause() {
+        try {
+            super.pause();
+
+            if (this.extendedLoop && this.adaptiveEnabled) {
+                this.extendedLoop.stop();
+            }
+
+            console.log('AdaptiveMusicPlayer: Pausing adaptive music');
+        } catch (error) {
+            console.error('AdaptiveMusicPlayer: Error pausing adaptive music:', error);
+            // Fallback to basic pause
+            super.pause();
+        }
+    }
+
+    /**
+     * Transition to a new mood state based on stress level
+     */
+    transitionToMoodState(newMoodState) {
+        if (newMoodState === this.currentMoodState) return;
+
+        const oldMoodState = this.currentMoodState;
+        this.currentMoodState = newMoodState;
+
+        console.log(`AdaptiveMusicPlayer: Transitioning from ${oldMoodState} to ${newMoodState}`);
+
+        // Apply mood-specific audio changes
+        this.applyMoodStateChanges(newMoodState);
+    }
+
+    /**
+     * Apply audio changes for mood state
+     */
+    applyMoodStateChanges(moodState) {
+        const config = adaptiveMusicConfig.stressLevels[moodState];
+        if (!config) return;
+
+        console.log(`AdaptiveMusicPlayer: Applying ${moodState} mood changes - tempo: ${config.tempo}, volume: ${config.volume}`);
+
+        // Immediately change chord progression for dramatic effect
+        this.chordProgression = config.chordProgression;
+
+        // Force immediate chord change to new progression
+        this.changeChord();
+
+        // Adjust tempo by modifying interval timings
+        this.adjustTempo(config.tempo);
+
+        // Adjust filter settings
+        this.adjustFilters(config.filterCutoff);
+
+        // Adjust melody frequency
+        this.adjustMelodyFrequency(config.melodyFrequency);
+
+        // Adjust rhythm intensity
+        this.adjustRhythmIntensity(config.rhythmIntensity);
+
+        // Adjust overall volume for mood
+        this.adjustVolumeForMood(config.volume);
+    }
+
+    /**
+     * Adjust tempo by modifying interval timings
+     */
+    adjustTempo(tempoMultiplier) {
+        console.log(`AdaptiveMusicPlayer: Changing tempo to ${tempoMultiplier}x`);
+
+        // Clear existing intervals
+        if (this.chordChangeInterval) {
+            clearInterval(this.chordChangeInterval);
+        }
+        if (this.melodyInterval) {
+            clearInterval(this.melodyInterval);
+        }
+        if (this.rhythmInterval) {
+            clearInterval(this.rhythmInterval);
+        }
+
+        // Restart intervals with new tempo - make changes more dramatic
+        const baseChordInterval = 8000;
+        const baseMelodyInterval = 2000; // Faster base for more noticeable changes
+        const baseRhythmInterval = 400; // Faster base rhythm
+
+        this.chordChangeInterval = setInterval(() => {
+            if (this.isPlaying) {
+                this.changeChord();
+            }
+        }, baseChordInterval / tempoMultiplier);
+
+        this.melodyInterval = setInterval(() => {
+            if (this.isPlaying && Math.random() > (0.5 - this.currentMelodyFrequency)) {
+                this.playMelodyNote();
+            }
+        }, baseMelodyInterval / tempoMultiplier);
+
+        this.rhythmInterval = setInterval(() => {
+            if (this.isPlaying) {
+                this.updateRhythm();
+            }
+        }, baseRhythmInterval / tempoMultiplier);
+    }
+
+    /**
+     * Adjust filter settings for mood
+     */
+    adjustFilters(cutoffFrequency) {
+        console.log(`AdaptiveMusicPlayer: Adjusting filters to ${cutoffFrequency}Hz`);
+
+        this.filters.forEach(filter => {
+            if (filter && filter.frequency) {
+                const currentTime = this.audioContext.currentTime;
+                filter.frequency.cancelScheduledValues(currentTime);
+                filter.frequency.setValueAtTime(filter.frequency.value, currentTime);
+                // Faster transition for more immediate effect
+                filter.frequency.linearRampToValueAtTime(cutoffFrequency, currentTime + 0.5);
+            }
+        });
+    }
+
+    /**
+     * Adjust melody frequency based on mood
+     */
+    adjustMelodyFrequency(frequency) {
+        // This affects the probability of melody notes playing
+        // Implementation will be used in the melody interval
+        this.currentMelodyFrequency = frequency;
+    }
+
+    /**
+     * Adjust rhythm intensity
+     */
+    adjustRhythmIntensity(intensity) {
+        this.currentRhythmIntensity = intensity;
+    }
+
+    /**
+     * Adjust volume for mood state
+     */
+    adjustVolumeForMood(volumeMultiplier) {
+        if (!this.masterGain) return;
+
+        const targetVolume = this.volume * volumeMultiplier;
+        const currentTime = this.audioContext.currentTime;
+
+        console.log(`AdaptiveMusicPlayer: Adjusting volume from ${this.masterGain.gain.value} to ${targetVolume}`);
+
+        this.masterGain.gain.cancelScheduledValues(currentTime);
+        this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, currentTime);
+        this.masterGain.gain.linearRampToValueAtTime(targetVolume, currentTime + 1.0);
+    }
+
+    /**
+     * Play event-specific audio
+     */
+    async playEventAudio(eventType) {
+        const eventConfig = adaptiveMusicConfig.gameEvents[eventType];
+        if (!eventConfig) return;
+
+        console.log(`AdaptiveMusicPlayer: Playing ${eventType} event audio`);
+
+        switch (eventConfig.type) {
+            case 'tension_spike':
+                await this.playTensionSpike(eventConfig);
+                break;
+            case 'disappointment':
+                await this.playDisappointment(eventConfig);
+                break;
+            case 'positive_flourish':
+                await this.playPositiveFlourish(eventConfig);
+                break;
+            case 'celebration':
+                await this.playCelebration(eventConfig);
+                break;
+        }
+    }
+
+    /**
+     * Play tension spike for bust events
+     */
+    async playTensionSpike(config) {
+        if (!this.audioContext) return;
+
+        console.log('AdaptiveMusicPlayer: Playing dramatic tension spike for bust');
+
+        const currentTime = this.audioContext.currentTime;
+        const duration = config.duration / 1000;
+
+        // Gently reduce background music volume for subtle effect
+        const originalVolume = this.masterGain.gain.value;
+        this.masterGain.gain.linearRampToValueAtTime(originalVolume * 0.7, currentTime + 0.2); // Less dramatic ducking
+
+        config.frequencies.forEach((frequency, index) => {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            const filter = this.audioContext.createBiquadFilter();
+
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(frequency, currentTime);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(frequency * 2, currentTime);
+            filter.Q.setValueAtTime(5, currentTime); // More resonant
+
+            // Subtle but noticeable tension envelope
+            gainNode.gain.setValueAtTime(0, currentTime);
+            gainNode.gain.linearRampToValueAtTime(config.intensity * 0.08, currentTime + config.fadeIn / 1000); // Much more subtle
+            gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(this.masterGain); // Connect through master gain for better balance
+
+            oscillator.start(currentTime);
+            oscillator.stop(currentTime + duration);
+        });
+
+        // Restore background music volume after tension spike
+        setTimeout(() => {
+            if (this.masterGain) {
+                this.masterGain.gain.linearRampToValueAtTime(originalVolume, this.audioContext.currentTime + 0.5);
+            }
+        }, duration * 1000);
+    }
+
+    /**
+     * Play disappointment audio for hand losses
+     */
+    async playDisappointment(config) {
+        if (!this.audioContext) return;
+
+        const currentTime = this.audioContext.currentTime;
+        const duration = config.duration / 1000;
+
+        config.frequencies.forEach((frequency, index) => {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, currentTime);
+
+            // Gentle disappointment envelope
+            gainNode.gain.setValueAtTime(0, currentTime);
+            gainNode.gain.linearRampToValueAtTime(config.intensity * 0.1, currentTime + config.fadeIn / 1000);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + duration);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.masterGain);
+
+            oscillator.start(currentTime);
+            oscillator.stop(currentTime + duration);
+        });
+    }
+
+    /**
+     * Play positive flourish for wins
+     */
+    async playPositiveFlourish(config) {
+        if (!this.audioContext) return;
+
+        console.log('AdaptiveMusicPlayer: Playing uplifting flourish for win');
+
+        const currentTime = this.audioContext.currentTime;
+        const duration = config.duration / 1000;
+
+        // Gently boost background music volume for celebration
+        const originalVolume = this.masterGain.gain.value;
+        this.masterGain.gain.linearRampToValueAtTime(originalVolume * 1.1, currentTime + 0.2); // Less dramatic boost
+
+        config.frequencies.forEach((frequency, index) => {
+            const delay = index * 0.08; // Faster arpeggio effect
+
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            oscillator.type = 'sine'; // Cleaner sound for positive events
+            oscillator.frequency.setValueAtTime(frequency, currentTime + delay);
+
+            // Gentle uplifting envelope
+            gainNode.gain.setValueAtTime(0, currentTime + delay);
+            gainNode.gain.linearRampToValueAtTime(config.intensity * 0.12, currentTime + delay + config.fadeIn / 1000); // More subtle
+            gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + delay + duration);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.masterGain); // Connect through master gain for better balance
+
+            oscillator.start(currentTime + delay);
+            oscillator.stop(currentTime + delay + duration);
+        });
+
+        // Restore background music volume after flourish
+        setTimeout(() => {
+            if (this.masterGain) {
+                this.masterGain.gain.linearRampToValueAtTime(originalVolume, this.audioContext.currentTime + 0.3);
+            }
+        }, duration * 1000);
+    }
+
+    /**
+     * Play celebration audio for task completion
+     */
+    async playCelebration(config) {
+        // Use existing taskComplete sound effect but trigger energy boost
+        if (window.audioManager && window.audioManager.soundEffects) {
+            window.audioManager.soundEffects.play('taskComplete');
+        }
+    }
+
+    /**
+     * Trigger energy boost after positive events
+     */
+    triggerEnergyBoost() {
+        const config = adaptiveMusicConfig.gameEvents.taskComplete;
+        this.energyBoostActive = true;
+        this.energyBoostEndTime = this.audioContext.currentTime + (config.energyBoostDuration / 1000);
+
+        console.log('AdaptiveMusicPlayer: Triggering energy boost');
+
+        // Temporarily increase tempo and intensity
+        this.adjustTempo(1.3);
+        this.adjustRhythmIntensity(1.5);
+
+        // Schedule return to normal after energy boost
+        setTimeout(() => {
+            this.energyBoostActive = false;
+            console.log('AdaptiveMusicPlayer: Energy boost ended, returning to normal');
+
+            // Return to current mood state settings
+            this.applyMoodStateChanges(this.currentMoodState);
+        }, config.energyBoostDuration);
+    }
+
+    /**
+     * Manually update stress level for immediate music adaptation
+     */
+    updateStressLevel(newLevel) {
+        if (this.stressLevelMonitor) {
+            this.stressLevelMonitor.updateStressLevel(newLevel);
+        }
+    }
+
+    /**
+     * Override updateRhythm to include adaptive intensity
+     */
+    updateRhythm() {
+        const intensity = this.rhythmPattern[this.currentBeat];
+        this.currentBeat = (this.currentBeat + 1) % this.rhythmPattern.length;
+
+        // Apply current rhythm intensity multiplier
+        const rhythmMultiplier = this.currentRhythmIntensity || 1.0;
+        const adjustedIntensity = intensity * rhythmMultiplier;
+
+        // Modulate master volume slightly based on rhythm
+        if (this.masterGain && adjustedIntensity > 0) {
+            const currentGain = this.masterGain.gain.value;
+            const targetGain = this.volume * (0.9 + adjustedIntensity * 0.1);
+            this.masterGain.gain.linearRampToValueAtTime(targetGain, this.audioContext.currentTime + 0.1);
+        }
+    }
+
+    /**
+     * Override playMelodyNote to include adaptive frequency
+     */
+    playMelodyNote() {
+        // Check melody frequency for current mood
+        const melodyFrequency = this.currentMelodyFrequency || 0.5;
+        if (Math.random() > melodyFrequency) {
+            return; // Skip this melody note based on current mood
+        }
+
+        // Call parent method
+        super.playMelodyNote();
     }
 }
 
@@ -1366,4 +2339,18 @@ class AudioControls {
 }
 
 // Export for use in other modules
-export { AudioManager, audioConfig, MusicPlayer, SimpleMusicPlayer, SoundEffects, SimpleSoundEffects, AudioControls };
+export {
+    AudioManager,
+    audioConfig,
+    adaptiveMusicConfig,
+    MusicPlayer,
+    AdaptiveMusicPlayer,
+    StressLevelMonitor,
+    GameEventListener,
+    MusicLayerManager,
+    ExtendedMusicLoop,
+    SimpleMusicPlayer,
+    SoundEffects,
+    SimpleSoundEffects,
+    AudioControls
+};

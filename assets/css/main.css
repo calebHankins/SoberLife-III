@@ -703,6 +703,7 @@ label {
     background: #ddd;
     outline: none;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .volume-slider::-webkit-slider-thumb {
