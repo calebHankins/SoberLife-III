@@ -75,6 +75,13 @@ export function showCampaignOverview() {
         // Update the header display with current zen points
         updateDisplay();
 
+        // Update adaptive music to match current stress level in lobby
+        if (window.audioManager && window.audioManager.musicPlayer && window.audioManager.musicPlayer.updateStressLevel) {
+            const currentStressLevel = window.gameState ? window.gameState.stressLevel : 0;
+            window.audioManager.musicPlayer.updateStressLevel(currentStressLevel);
+            console.log(`Campaign Manager: Updated adaptive music for lobby stress level: ${currentStressLevel}%`);
+        }
+
         // Show campaign overview
         showElement('campaignOverview');
 

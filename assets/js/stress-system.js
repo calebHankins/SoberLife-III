@@ -109,9 +109,18 @@ export function useZenActivity(activity, isCompartmentalize = false) {
     });
 
     // Reduce stress
+    const oldStressLevel = gameState.stressLevel;
+    const newStressLevel = Math.max(0, gameState.stressLevel - stressReduction);
     updateGameState({
-        stressLevel: Math.max(0, gameState.stressLevel - stressReduction)
+        stressLevel: newStressLevel
     });
+
+    // Dispatch stress level change event for adaptive music
+    if (oldStressLevel !== newStressLevel) {
+        document.dispatchEvent(new CustomEvent('stressLevelChanged', {
+            detail: { oldLevel: oldStressLevel, newLevel: newStressLevel }
+        }));
+    }
 
     // Play zen completion sound effect
     if (window.audioManager && window.audioManager.soundEffects) {
@@ -121,6 +130,12 @@ export function useZenActivity(activity, isCompartmentalize = false) {
     // Update display
     updateDisplay();
     updateZenActivities();
+
+    // Update adaptive music to match new stress level
+    if (window.audioManager && window.audioManager.musicPlayer && window.audioManager.musicPlayer.updateStressLevel) {
+        window.audioManager.musicPlayer.updateStressLevel(newStressLevel);
+        console.log(`Stress System: Updated adaptive music for new stress level: ${newStressLevel}%`);
+    }
 
     // Show feedback message
     showZenActivityFeedback(activityConfig.name, stressReduction);
@@ -364,9 +379,17 @@ export function showZenActivityFeedback(activityName, stressReduction) {
 
 // Update stress level (can be positive or negative change)
 export function updateStressLevel(change) {
+    const oldStressLevel = gameState.stressLevel;
     const newStressLevel = Math.max(0, Math.min(100, gameState.stressLevel + change));
     updateGameState({ stressLevel: newStressLevel });
     updateDisplay();
+
+    // Dispatch stress level change event for adaptive music
+    if (oldStressLevel !== newStressLevel) {
+        document.dispatchEvent(new CustomEvent('stressLevelChanged', {
+            detail: { oldLevel: oldStressLevel, newLevel: newStressLevel }
+        }));
+    }
 
     // Check for game over condition
     if (newStressLevel >= 100) {

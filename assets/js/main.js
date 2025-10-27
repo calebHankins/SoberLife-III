@@ -58,6 +58,11 @@ export async function initializeGame() {
     // Initial display update
     updateDisplay();
     updateZenActivities();
+
+    // Update adaptive music to match initial stress level
+    setTimeout(() => {
+        updateAdaptiveMusic();
+    }, 1000); // Delay to ensure audio system is initialized
 }
 
 // Setup global button click sound effects
@@ -89,6 +94,15 @@ function setupButtonClickSounds() {
 // Get audio manager instance
 export function getAudioManager() {
     return audioManager;
+}
+
+// Update adaptive music based on current stress level
+export function updateAdaptiveMusic() {
+    if (audioManager && audioManager.musicPlayer && audioManager.musicPlayer.updateStressLevel) {
+        const currentStressLevel = gameState ? gameState.stressLevel : 0;
+        audioManager.musicPlayer.updateStressLevel(currentStressLevel);
+        console.log(`Main: Updating adaptive music for stress level: ${currentStressLevel}%`);
+    }
 }
 
 // Set up help modal functionality
@@ -328,6 +342,9 @@ export function startTask() {
         audioManager.startMusic();
     }
 
+    // Update adaptive music to match initial stress level
+    updateAdaptiveMusic();
+
     // Hide survey and show game elements
     hideElement('surveySection');
     showElement('taskInfo');
@@ -437,6 +454,9 @@ export function startNewRound() {
 
         // Log hand state for debugging
         console.log(`New round started - Hand ID: ${handState.currentHand}, Hit count reset to: ${handState.hitCount}`);
+
+        // Update adaptive music to match current stress level
+        updateAdaptiveMusic();
 
     } catch (error) {
         console.error('Error starting new round:', error);
@@ -660,6 +680,21 @@ export function endRound(result) {
             // No sound for tie - neutral outcome
         }
 
+        // Dispatch adaptive music events
+        if (result === 'bust') {
+            document.dispatchEvent(new CustomEvent('gameEvent', {
+                detail: { type: 'bust', data: { result, stressChange } }
+            }));
+        } else if (result === 'win' || result === 'house_bust') {
+            document.dispatchEvent(new CustomEvent('gameEvent', {
+                detail: { type: 'handWin', data: { result, stressChange } }
+            }));
+        } else if (result === 'lose') {
+            document.dispatchEvent(new CustomEvent('gameEvent', {
+                detail: { type: 'handLose', data: { result, stressChange } }
+            }));
+        }
+
         // Apply zen point changes using the manager
         if (zenChange > 0) {
             ZenPointsManager.addPoints(zenChange, transactionType, true, {
@@ -669,9 +704,18 @@ export function endRound(result) {
         }
 
         // Apply stress changes
+        const oldStressLevel = gameState.stressLevel;
+        const newStressLevel = Math.max(0, Math.min(100, gameState.stressLevel + stressChange));
         updateGameState({
-            stressLevel: Math.max(0, Math.min(100, gameState.stressLevel + stressChange))
+            stressLevel: newStressLevel
         });
+
+        // Dispatch stress level change event for adaptive music
+        if (oldStressLevel !== newStressLevel) {
+            document.dispatchEvent(new CustomEvent('stressLevelChanged', {
+                detail: { oldLevel: oldStressLevel, newLevel: newStressLevel }
+            }));
+        }
 
         // Update display elements
         updateDisplay();
@@ -760,6 +804,17 @@ export function nextStep() {
         if (audioManager && audioManager.soundEffects) {
             audioManager.soundEffects.play('taskComplete');
         }
+
+        // Dispatch task completion event for adaptive music
+        document.dispatchEvent(new CustomEvent('gameEvent', {
+            detail: {
+                type: 'taskComplete',
+                data: {
+                    stressLevel: gameState.stressLevel,
+                    taskId: isCampaignMode() ? campaignState.currentTask : 'single-task'
+                }
+            }
+        }));
 
         // Award completion bonus based on final stress level
         const completionBonus = ZenPointsManager.awardCompletionBonus(
