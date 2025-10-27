@@ -15,7 +15,7 @@ const adaptiveMusicConfig = {
             reverbAmount: 0.5, // Very spacious and dreamy
             melodyFrequency: 0.1, // Very few melody notes
             rhythmIntensity: 0.3, // Very gentle rhythm
-            volume: 0.6, // Much quieter
+            volume: 1.0, // Much quieter
             chordProgression: [
                 [130.81, 164.81, 196], // C3 (C, E, G) - very low and peaceful
                 [146.83, 174.61, 220], // D3 (D, F, A) - gentle
@@ -31,7 +31,7 @@ const adaptiveMusicConfig = {
             reverbAmount: 0.25,
             melodyFrequency: 0.5, // Normal melody frequency
             rhythmIntensity: 1.0,
-            volume: 1.0, // Normal volume
+            volume: 1.5, // Normal volume
             chordProgression: [
                 [220, 261.63, 329.63], // Am (A, C, E)
                 [196, 246.94, 293.66], // G (G, B, D)
@@ -47,7 +47,7 @@ const adaptiveMusicConfig = {
             reverbAmount: 0.05, // Very dry and immediate
             melodyFrequency: 0.9, // Almost constant melody notes
             rhythmIntensity: 2.0, // Very intense rhythm
-            volume: 1.4, // Much louder
+            volume: 1.75, // Much louder
             chordProgression: [
                 [277.18, 329.63, 415.30], // C# (C#, E, G#) - high and dissonant
                 [311.13, 369.99, 466.16], // D# (D#, F#, A#) - very tense
