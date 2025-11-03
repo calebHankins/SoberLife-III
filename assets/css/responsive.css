@@ -1239,10 +1239,13 @@
         overscroll-behavior: contain;
     }
 
-    /* Prevent horizontal scrolling */
-    body,
-    .game-container {
-        overflow-x: hidden;
+    /* Prevent horizontal scrolling on mobile only */
+    @media (max-width: 767px) {
+
+        body,
+        .game-container {
+            overflow-x: hidden;
+        }
     }
 
     /* Better landscape orientation support */
@@ -1428,15 +1431,17 @@
         flex-shrink: 0;
     }
 
-    /* Ensure game content fits in viewport without wasted space */
-    .game-container {
-        height: 100vh;
-        height: 100dvh;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        gap: 4px;
-        padding: 6px;
+    /* Ensure game content fits in viewport without wasted space - mobile only */
+    @media (max-width: 767px) {
+        .game-container {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 4px;
+            padding: 6px;
+        }
     }
 
     /* Make game area and zen activities compact */
@@ -1922,12 +1927,12 @@
 /* Desktop optimizations - ensure no vertical scrolling */
 @media (min-width: 1024px) {
     body {
-        height: 100vh;
-        overflow: hidden;
-        padding: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        height: 100vh !important;
+        overflow: hidden !important;
+        padding: 20px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
     }
 
     /* Popup notification styles for desktop */
@@ -2006,16 +2011,18 @@
     }
 
     .game-container {
-        max-width: 800px;
-        width: 90%;
-        max-height: calc(100vh - 40px);
-        padding: 20px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        margin: 0 auto;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-width: 800px !important;
+        width: 90% !important;
+        max-height: calc(100vh - 40px) !important;
+        padding: 20px !important;
+        overflow-y: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        margin: 0 auto !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+        height: auto !important;
+        gap: normal !important;
     }
 
     /* Compact spacing for desktop to fit everything */
