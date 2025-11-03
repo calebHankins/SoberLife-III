@@ -3,17 +3,18 @@
 
 /* Mobile-first responsive design */
 @media (max-width: 767px) {
+
     /* Joker Card Mobile Optimizations */
     .card.joker {
         background-size: 200% 200%;
         animation-duration: 4s;
         box-shadow: 0 0 15px rgba(255, 215, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
     }
-    
+
     .card.joker::before {
         animation-duration: 3s;
     }
-    
+
     .joker-value-indicator {
         width: 20px;
         height: 20px;
@@ -21,22 +22,22 @@
         top: -8px;
         right: -8px;
     }
-    
+
     .card.joker.calculating {
         box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.3);
     }
-    
+
     .card.joker.perfect-score {
         box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.3);
     }
-    
+
     /* Campaign Overview Mobile Fixes */
     .campaign-overview {
         /* Ensure campaign overview doesn't get cut off */
         max-height: none;
         overflow: visible;
     }
-    
+
     /* Modal Mobile Fixes */
     .upgrade-shop,
     .deck-viewer-modal {
@@ -51,47 +52,410 @@
         /* Prevent scrolling issues on mobile */
         overflow: hidden;
     }
-    
+
     /* Deck Viewer Mobile Specific Fixes */
     .deck-viewer-modal {
         /* Ensure proper viewport handling on mobile */
         height: 100vh;
-        height: 100dvh; /* Dynamic viewport height for mobile browsers */
+        height: 100dvh;
+        /* Dynamic viewport height for mobile browsers */
     }
-    
+
     /* Game Mode Selection Mobile */
     .game-mode-selection {
-        margin: 10px 0;
-        padding: 20px;
+        margin: 8px 0;
+        padding: 15px;
         border-radius: 15px;
     }
-    
+
     .game-mode-selection h3 {
-        font-size: 22px;
+        font-size: 20px;
+        margin-bottom: 10px;
     }
-    
+
     .game-mode-selection p {
-        font-size: 16px;
+        font-size: 14px;
+        margin-bottom: 15px;
     }
+
+    .mode-options {
+        gap: 12px;
+    }
+
+    .mode-card {
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .mode-card h4 {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    .mode-card p {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .mode-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        min-height: 44px;
+    }
+
+    /* Campaign Overview Mobile */
+    .campaign-overview {
+        margin: 8px 0;
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .campaign-overview h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .campaign-progress {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .deck-status,
+    .total-progress {
+        padding: 12px;
+        min-width: auto;
+        border-radius: 10px;
+    }
+
+    .deck-status h4,
+    .total-progress h4 {
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .deck-status p,
+    .total-progress p {
+        font-size: 14px;
+    }
+
+    .task-list {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .task-card {
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .task-card h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .task-card p {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .task-status {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    .campaign-actions {
+        gap: 10px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+        min-width: 120px;
+        min-height: 44px;
+    }
+
+    /* Upgrade Shop Mobile */
+    .upgrade-shop {
+        padding: 10px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+
+    .shop-content {
+        padding: 15px;
+        max-height: 85vh;
+        border-radius: 15px;
+        margin: 0;
+        width: 95%;
+    }
+
+    .shop-content h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .shop-content>p {
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .zen-balance {
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+    }
+
+    .zen-balance h3 {
+        font-size: 18px;
+    }
+
+    .upgrade-options {
+        margin-bottom: 20px;
+    }
+
+    .upgrade-section {
+        margin-bottom: 20px;
+    }
+
+    .upgrade-section h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .upgrade-card {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+
+    .upgrade-icon {
+        font-size: 32px;
+        width: 60px;
+        height: 60px;
+        margin-bottom: 10px;
+    }
+
+    .upgrade-card h3 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .upgrade-card p {
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .upgrade-stats {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .cost,
+    .benefit {
+        padding: 6px 10px;
+        font-size: 12px;
+        min-width: auto;
+    }
+
+    .upgrade-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+        min-height: 44px;
+    }
+
+    .shop-actions {
+        gap: 10px;
+    }
+
+    /* Initial Flavor Text Modal Mobile */
+    .initial-flavor-modal-overlay {
+        padding: 10px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+
+    .initial-flavor-modal-content {
+        padding: 20px;
+        max-height: 85vh;
+        border-radius: 15px;
+        margin: 0;
+        width: 95%;
+    }
+
+    .initial-flavor-modal-content h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .initial-flavor-modal-content p {
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 12px;
+    }
+
+    .initial-flavor-modal-content button {
+        padding: 12px 20px;
+        font-size: 14px;
+        min-width: 120px;
+        min-height: 44px;
+    }
+
+    /* Activity Grid Mobile */
+    .activity-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .activity-item {
+        padding: 12px;
+        gap: 10px;
+        border-radius: 10px;
+    }
+
+    .activity-icon {
+        font-size: 24px;
+        min-width: 30px;
+    }
+
+    .activity-info h5 {
+        font-size: 14px;
+    }
+
+    .activity-cost {
+        font-size: 11px;
+    }
+
+    .activity-desc {
+        font-size: 11px;
+    }
+
+    .activity-status {
+        font-size: 11px;
+    }
+
+    /* Mind Palace Section Mobile */
+    .mind-palace-section {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+
+    .mind-palace-section h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    .section-description {
+        font-size: 12px;
+        margin-bottom: 15px;
+    }
+
+    .activity-category {
+        margin-bottom: 15px;
+    }
+
+    .activity-category h4 {
+        font-size: 14px;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+    }
+
+    /* Improve button spacing and touch targets */
+    .campaign-actions .primary-btn,
+    .campaign-actions .secondary-btn,
+    .shop-actions .primary-btn,
+    .shop-actions .secondary-btn {
+        margin: 5px;
+        padding: 14px 20px;
+        min-height: 48px;
+        font-size: 15px;
+        border-radius: 24px;
+    }
+
+    /* Better modal backdrop for mobile */
+    .help-modal-backdrop,
+    .mind-palace-backdrop,
+    .initial-flavor-modal-overlay {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Improve text contrast on mobile */
+    .task-info,
+    .campaign-overview,
+    .game-mode-selection {
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .task-info h3,
+    .campaign-overview h2,
+    .game-mode-selection h3 {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Better card visibility on mobile */
+    .card {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        border: 2px solid #333;
+        font-weight: bold;
+    }
+
+    .card.joker {
+        border: 3px solid gold;
+        box-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Improve stress meter visibility */
+    .stress-meter {
+        border: 2px solid #333;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .stress-fill {
+        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Better avatar visibility */
+    .avatar {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Improve zen points display */
+    .zen-points {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px 8px;
+        border-radius: 12px;
+        border: 1px solid rgba(46, 139, 87, 0.3);
+    }
+
     body {
         align-items: flex-start;
-        padding: 2px;
+        padding: 4px;
         min-height: 100vh;
         /* Fallback for browsers without dvh support */
         min-height: 100dvh;
         -webkit-overflow-scrolling: touch;
+        /* Improve text rendering on mobile */
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     .game-container {
-        border-radius: 8px;
-        padding: 4px;
-        width: 98%;
+        border-radius: 12px;
+        padding: 8px;
+        width: calc(100% - 8px);
         max-height: 100vh;
         /* Fallback for browsers without dvh support */
         max-height: 100dvh;
         overflow-y: auto;
         box-sizing: border-box;
-        margin: 0;
+        margin: 0 auto;
         /* Ensure container uses available space efficiently */
         display: flex;
         flex-direction: column;
@@ -100,6 +464,8 @@
         /* Allow scrolling for campaign content */
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        /* Better shadow for mobile */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
     /* Game Header Mobile Styles */
@@ -699,6 +1065,357 @@
     select,
     textarea {
         font-size: 16px;
+    }
+
+    /* Accessibility improvements */
+    button:focus,
+    .activity-btn:focus,
+    .mode-btn:focus,
+    .primary-btn:focus,
+    .secondary-btn:focus,
+    .upgrade-btn:focus {
+        outline: 3px solid #007bff;
+        outline-offset: 2px;
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .game-container {
+            border: 3px solid #000;
+            background: #fff;
+        }
+
+        .task-info,
+        .campaign-overview,
+        .game-mode-selection {
+            border: 3px solid #000;
+            background: #fff;
+            color: #000;
+        }
+
+        .task-info h3,
+        .campaign-overview h2,
+        .game-mode-selection h3 {
+            color: #000;
+            text-shadow: none;
+        }
+
+        button,
+        .activity-btn,
+        .mode-btn,
+        .primary-btn,
+        .secondary-btn {
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+        }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        .task-info {
+            animation: none;
+        }
+
+        .card.joker {
+            animation: none;
+        }
+    }
+
+    /* Better safe area handling for notched devices */
+    @supports (padding: max(0px)) {
+        body {
+            padding-left: max(4px, env(safe-area-inset-left));
+            padding-right: max(4px, env(safe-area-inset-right));
+            padding-top: max(4px, env(safe-area-inset-top));
+            padding-bottom: max(4px, env(safe-area-inset-bottom));
+        }
+    }
+
+    /* Improve touch feedback */
+    button:active,
+    .activity-btn:active,
+    .mode-btn:active,
+    .primary-btn:active,
+    .secondary-btn:active,
+    .upgrade-btn:active {
+        transform: scale(0.96);
+        transition: transform 0.1s ease;
+    }
+
+    /* Better modal positioning for mobile keyboards */
+    .help-modal,
+    .mind-palace-modal,
+    .initial-flavor-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    /* Improve scrolling performance */
+    .game-container,
+    .help-modal-body,
+    .mind-palace-body,
+    .shop-content,
+    .initial-flavor-modal-content {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+
+    /* Additional mobile-specific improvements */
+
+    /* Better text selection on mobile */
+    .task-info,
+    .campaign-overview,
+    .game-mode-selection,
+    .help-modal-body,
+    .mind-palace-body,
+    .shop-content {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+
+    /* Improve button press feedback */
+    button:active,
+    .activity-btn:active,
+    .mode-btn:active,
+    .primary-btn:active,
+    .secondary-btn:active,
+    .upgrade-btn:active,
+    .task-card:active {
+        opacity: 0.8;
+        transform: scale(0.96);
+    }
+
+    /* Better modal close button positioning */
+    .help-close-btn,
+    .mind-palace-close-btn {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    /* Improve card readability on mobile */
+    .card {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        font-weight: 900;
+    }
+
+    /* Better zen points visibility */
+    .zen-points {
+        box-shadow: 0 2px 8px rgba(46, 139, 87, 0.3);
+    }
+
+    /* Improve stress meter contrast */
+    .stress-fill {
+        background: linear-gradient(90deg, #2ECC71, #F39C12, #E74C3C);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    /* Better modal scrolling on iOS */
+    .help-modal,
+    .mind-palace-modal,
+    .upgrade-shop,
+    .initial-flavor-modal-overlay {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    /* Prevent horizontal scrolling */
+    body,
+    .game-container {
+        overflow-x: hidden;
+    }
+
+    /* Better landscape orientation support */
+    @media (orientation: landscape) and (max-height: 500px) {
+        .game-container {
+            padding: 4px;
+            gap: 2px;
+        }
+
+        .game-header h1 {
+            font-size: 14px;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+        }
+
+        .stress-meter {
+            width: 100px;
+            height: 14px;
+        }
+
+        .zen-points {
+            font-size: 12px;
+        }
+
+        .task-info {
+            padding: 8px;
+            margin: 1px 0;
+            min-height: 60px;
+        }
+
+        .task-info h3 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .task-info p {
+            font-size: 12px;
+        }
+
+        .task-info #taskDescription {
+            font-size: 13px;
+            padding: 6px;
+            min-height: 30px;
+        }
+
+        .zen-activities {
+            padding: 8px;
+            margin: 1px 0;
+            min-height: 80px;
+        }
+
+        .zen-activities h3 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .zen-activities p {
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .activity-btn {
+            padding: 8px 6px;
+            font-size: 10px;
+            min-width: 80px;
+            max-width: 90px;
+            min-height: 40px;
+        }
+
+        .activity-btn small {
+            font-size: 9px;
+        }
+
+        .game-area {
+            padding: 8px;
+            margin: 1px 0;
+            min-height: 120px;
+        }
+
+        .cards-container {
+            margin: 6px 0;
+            gap: 8px;
+        }
+
+        .card {
+            width: 35px;
+            height: 50px;
+            font-size: 12px;
+        }
+
+        .buttons {
+            margin: 6px 0;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 12px;
+            min-height: 36px;
+        }
+    }
+
+    /* Extra small screens (iPhone SE, etc.) */
+    @media (max-width: 320px) {
+        .game-container {
+            padding: 4px;
+            width: calc(100% - 4px);
+        }
+
+        .game-header h1 {
+            font-size: 14px;
+        }
+
+        .help-btn {
+            padding: 3px 6px;
+            font-size: 9px;
+            min-height: 24px;
+        }
+
+        .help-icon {
+            width: 14px;
+            height: 14px;
+            font-size: 10px;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+        }
+
+        .stress-meter {
+            width: 100px;
+            height: 14px;
+        }
+
+        .zen-points {
+            font-size: 12px;
+        }
+
+        .mode-card {
+            padding: 12px;
+        }
+
+        .mode-card h4 {
+            font-size: 16px;
+        }
+
+        .mode-card p {
+            font-size: 13px;
+        }
+
+        .mode-btn {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        .task-card {
+            padding: 12px;
+        }
+
+        .task-card h3 {
+            font-size: 15px;
+        }
+
+        .task-card p {
+            font-size: 11px;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            padding: 10px 14px;
+            font-size: 13px;
+            min-width: 100px;
+        }
     }
 
     /* Optimize for single-screen experience - remove wasted whitespace */

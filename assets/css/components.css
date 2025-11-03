@@ -1554,13 +1554,594 @@ ive Flavor Text Animations */
     }
 }
 
-/* Mind Palace Sections */
-.mind-palace-section {
+/* Game Mode Selection */
+.game-mode-selection {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.game-mode-selection h3 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.game-mode-selection p {
+    font-size: 18px;
+    margin-bottom: 25px;
+    opacity: 0.9;
+}
+
+.mode-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.mode-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.mode-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.mode-card h4 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.mode-card p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.mode-btn {
+    background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.mode-btn:hover {
+    background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(46, 204, 113, 0.4);
+}
+
+/* Campaign Overview */
+.campaign-overview {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    color: white;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.campaign-overview h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 25px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.campaign-progress {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.deck-status,
+.total-progress {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    flex: 1;
+    min-width: 200px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.deck-status h4,
+.total-progress h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #FFD700;
+}
+
+.deck-status p,
+.total-progress p {
+    font-size: 16px;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.task-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.task-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.task-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.task-card.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.task-card.locked:hover {
+    transform: none;
+}
+
+.task-card.completed {
+    border-color: #2ECC71;
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.task-card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.task-card p {
+    font-size: 14px;
+    margin-bottom: 15px;
+    opacity: 0.8;
+    line-height: 1.4;
+}
+
+.task-status {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.task-status.available {
+    background: #2ECC71;
+    color: white;
+}
+
+.task-status.locked {
+    background: #95A5A6;
+    color: white;
+}
+
+.task-status.completed {
+    background: #F39C12;
+    color: white;
+}
+
+.campaign-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.primary-btn,
+.secondary-btn {
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    min-width: 150px;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.primary-btn:hover {
+    background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(46, 204, 113, 0.4);
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Upgrade Shop */
+.upgrade-shop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.shop-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    color: white;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 3px solid #5a67d8;
+}
+
+.shop-content h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.shop-content>p {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 25px;
+    opacity: 0.9;
+}
+
+.zen-balance {
+    text-align: center;
     margin-bottom: 30px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.zen-balance h3 {
+    font-size: 24px;
+    margin: 0;
+    color: #FFD700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.upgrade-options {
+    margin-bottom: 30px;
+}
+
+.upgrade-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.upgrade-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.upgrade-icon {
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px auto;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.upgrade-card h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    text-align: center;
+    color: white;
+}
+
+.upgrade-card p {
+    font-size: 14px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.upgrade-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.cost,
+.benefit {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    flex: 1;
+    text-align: center;
+    min-width: 120px;
+}
+
+.upgrade-btn {
+    background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.upgrade-btn:hover {
+    background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(46, 204, 113, 0.4);
+}
+
+.upgrade-btn:disabled {
+    background: #95A5A6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.shop-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Initial Flavor Text Modal */
+.initial-flavor-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+    box-sizing: border-box;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.initial-flavor-modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 3px solid #007bff;
+    animation: slideInUp 0.3s ease-out;
+    color: #333;
+}
+
+.initial-flavor-modal-content h2 {
+    color: #007bff;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.initial-flavor-modal-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.initial-flavor-modal-content button {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+    min-width: 150px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.initial-flavor-modal-content button:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+}
+
+/* Activity Grid for Mind Palace */
+.activity-category {
+    margin-bottom: 25px;
+}
+
+.activity-category h4 {
+    color: #fff;
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 8px;
+}
+
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.activity-item {
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.activity-item.basic-activity {
+    border-color: rgba(46, 204, 113, 0.5);
+}
+
+.activity-item.premium-activity {
+    border-color: rgba(155, 89, 182, 0.5);
+}
+
+.activity-icon {
+    font-size: 32px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.activity-info {
+    flex: 1;
+}
+
+.activity-info h5 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    color: #fff;
+}
+
+.activity-cost {
+    font-size: 12px;
+    color: #FFD700;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.activity-desc {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.activity-status {
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Mind Palace Sections */
+.mind-palace-section {
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.mind-palace-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.mind-palace-section h3 {
+    color: #fff;
+    font-size: 22px;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.section-description {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 20px;
+    text-align: center;
+    font-style: italic;
+}
+
+bottom: 30px;
+padding: 20px;
+background: rgba(255, 255, 255, 0.1);
+border-radius: 12px;
+border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .mind-palace-section h3 {
