@@ -1462,19 +1462,24 @@
 /* Tablet-specific optimizations */
 @media (min-width: 768px) and (max-width: 1023px) {
     body {
-        padding: 10px;
+        padding: 15px;
         overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .game-container {
-        max-width: 600px;
-        width: 95%;
-        padding: 15px;
-        max-height: calc(100vh - 20px);
+        max-width: 700px;
+        width: 90%;
+        padding: 18px;
+        max-height: calc(100vh - 30px);
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        margin: 0 auto;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
     .game-header {
@@ -1919,7 +1924,10 @@
     body {
         height: 100vh;
         overflow: hidden;
-        padding: 8px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     /* Popup notification styles for desktop */
@@ -1999,13 +2007,15 @@
 
     .game-container {
         max-width: 800px;
-        max-height: calc(100vh - 16px);
-        height: calc(100vh - 16px);
-        padding: 12px;
-        overflow-y: hidden;
+        width: 90%;
+        max-height: calc(100vh - 40px);
+        padding: 20px;
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
+        margin: 0 auto;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
     /* Compact spacing for desktop to fit everything */
