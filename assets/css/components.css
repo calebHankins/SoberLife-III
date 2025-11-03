@@ -2139,12 +2139,6 @@ ive Flavor Text Animations */
     font-style: italic;
 }
 
-bottom: 30px;
-padding: 20px;
-background: rgba(255, 255, 255, 0.1);
-border-radius: 12px;
-border: 1px solid rgba(255, 255, 255, 0.2);
-}
 
 .mind-palace-section h3 {
     margin: 0 0 10px 0;
@@ -2362,9 +2356,14 @@ border: 1px solid rgba(255, 255, 255, 0.2);
 
 .mode-options {
     display: flex;
+    flex-direction: column;
     gap: 20px;
     justify-content: center;
-    flex-wrap: wrap;
+    align-items: center;
+    flex-wrap: nowrap;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
 }
 
 .mode-card {
@@ -2372,11 +2371,13 @@ border: 1px solid rgba(255, 255, 255, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 15px;
     padding: 25px;
-    flex: 1;
-    min-width: 250px;
-    max-width: 300px;
+    width: 100%;
+    max-width: 420px;
+    min-width: 260px;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+    box-sizing: border-box;
+    margin: 0 auto;
 }
 
 .mode-card:hover {
