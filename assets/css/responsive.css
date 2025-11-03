@@ -105,68 +105,69 @@
 
     /* Campaign Overview Mobile */
     .campaign-overview {
-        margin: 8px 0;
-        padding: 15px;
-        border-radius: 15px;
+        margin: 4px 0;
+        padding: 10px;
+        border-radius: 12px;
     }
 
     .campaign-overview h2 {
-        font-size: 20px;
-        margin-bottom: 15px;
+        font-size: 18px;
+        margin-bottom: 8px;
     }
 
     .campaign-progress {
         flex-direction: column;
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 6px;
+        margin-bottom: 12px;
     }
 
     .deck-status,
     .total-progress {
-        padding: 12px;
+        padding: 8px;
         min-width: auto;
-        border-radius: 10px;
+        border-radius: 8px;
     }
 
     .deck-status h4,
     .total-progress h4 {
-        font-size: 16px;
-        margin-bottom: 6px;
+        font-size: 14px;
+        margin-bottom: 4px;
     }
 
     .deck-status p,
     .total-progress p {
-        font-size: 14px;
+        font-size: 12px;
     }
 
     .task-list {
         grid-template-columns: 1fr;
-        gap: 12px;
-        margin-bottom: 20px;
+        gap: 8px;
+        margin-bottom: 12px;
     }
 
     .task-card {
-        padding: 15px;
-        border-radius: 12px;
+        padding: 10px;
+        border-radius: 10px;
     }
 
     .task-card h3 {
-        font-size: 16px;
-        margin-bottom: 8px;
+        font-size: 14px;
+        margin-bottom: 4px;
     }
 
     .task-card p {
-        font-size: 12px;
-        margin-bottom: 10px;
+        font-size: 11px;
+        margin-bottom: 6px;
     }
 
     .task-status {
-        padding: 4px 8px;
-        font-size: 10px;
+        padding: 3px 6px;
+        font-size: 9px;
     }
 
     .campaign-actions {
-        gap: 10px;
+        gap: 6px;
+        margin-top: 8px;
     }
 
     .primary-btn,
@@ -435,7 +436,7 @@
 
     body {
         align-items: flex-start;
-        padding: 4px;
+        padding: 2px;
         min-height: 100vh;
         /* Fallback for browsers without dvh support */
         min-height: 100dvh;
@@ -444,15 +445,16 @@
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        overflow: hidden;
     }
 
     .game-container {
-        border-radius: 12px;
-        padding: 8px;
-        width: calc(100% - 8px);
-        max-height: 100vh;
+        border-radius: 8px;
+        padding: 6px;
+        width: calc(100% - 4px);
+        max-height: calc(100vh - 4px);
         /* Fallback for browsers without dvh support */
-        max-height: 100dvh;
+        max-height: calc(100dvh - 4px);
         overflow-y: auto;
         box-sizing: border-box;
         margin: 0 auto;
@@ -460,65 +462,68 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        min-height: -webkit-fill-available;
+        /* Optimize for mobile viewport */
+        height: calc(100vh - 4px);
+        height: calc(100dvh - 4px);
         /* Allow scrolling for campaign content */
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         /* Better shadow for mobile */
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     }
 
     /* Game Header Mobile Styles */
     .game-header {
         position: relative;
-        margin-bottom: 1px;
+        margin-bottom: 0;
         /* Add padding to avoid overlap with floating help button */
-        padding-right: 40px;
-        padding-top: 2px;
-        padding-bottom: 2px;
+        padding-right: 35px;
+        padding-top: 1px;
+        padding-bottom: 1px;
+        flex-shrink: 0;
     }
 
     .game-header h1 {
-        font-size: 16px;
+        font-size: 14px;
         margin: 0;
         text-align: center;
     }
 
     .help-btn {
-        padding: 4px 8px;
-        font-size: 10px;
-        min-height: 28px;
-        border-radius: 20px;
+        padding: 3px 6px;
+        font-size: 9px;
+        min-height: 24px;
+        border-radius: 15px;
         /* Make it more compact */
         flex-shrink: 0;
-        gap: 4px;
+        gap: 3px;
         /* Alternative: position absolute for minimal space usage */
         position: absolute;
-        top: 5px;
-        right: 5px;
+        top: 2px;
+        right: 2px;
         z-index: 100;
         /* Remove from normal flow to save space */
         margin: 0;
     }
 
     .help-icon {
-        width: 16px;
-        height: 16px;
-        font-size: 12px;
+        width: 14px;
+        height: 14px;
+        font-size: 10px;
     }
 
     .help-text {
-        font-size: 10px;
+        font-size: 9px;
         /* Hide text on very small screens to save space */
         display: none;
     }
 
     .avatar-container {
-        margin-bottom: 2px;
+        margin-bottom: 1px;
         flex-wrap: nowrap;
-        gap: 4px;
+        gap: 3px;
         align-items: center;
-        padding: 4px 0;
+        padding: 2px 0;
         flex-shrink: 0;
     }
 

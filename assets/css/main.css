@@ -99,6 +99,21 @@ body {
     overflow: hidden;
 }
 
+/* Ensure desktop centering is preserved */
+@media (min-width: 768px) {
+    body {
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .game-container {
+        margin: 0 auto;
+        width: 90%;
+        max-width: 800px;
+    }
+}
+
 .game-container {
     background: white;
     border-radius: 20px;
@@ -795,7 +810,7 @@ label {
     .audio-controls {
         position: fixed !important;
         bottom: 20px !important;
-        right: 20px !important;
+        right: 15px !important;
         top: auto !important;
         left: auto !important;
     }
@@ -808,52 +823,73 @@ label {
 
     .audio-controls-panel {
         bottom: 60px;
-        min-width: 180px;
-        max-width: 180px;
-        padding: 12px;
+        right: 0;
+        left: auto;
+        min-width: 160px;
+        max-width: 160px;
+        width: 160px;
+        padding: 10px;
         transform: translateY(15px) scale(0.85);
+        /* Ensure panel stays within viewport */
+        box-sizing: border-box;
+        /* Position relative to right edge */
+        transform-origin: bottom right;
+    }
+
+    /* Ensure panel doesn't go off screen */
+    .audio-controls-panel.visible {
+        transform: translateY(0) scale(0.85);
+        /* Keep panel within screen bounds */
+        right: 0;
+        max-width: calc(100vw - 30px);
     }
 
     .audio-controls-panel h3 {
-        font-size: 14px;
-        margin: 0 0 10px 0;
+        font-size: 13px;
+        margin: 0 0 8px 0;
     }
 
     .audio-control-group {
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     .audio-control-group label {
-        font-size: 12px;
-        margin-bottom: 3px;
+        font-size: 11px;
+        margin-bottom: 2px;
     }
 
     .volume-control {
-        gap: 6px;
+        gap: 4px;
     }
 
     .volume-slider {
-        height: 5px;
+        height: 4px;
+        flex: 1;
+        min-width: 80px;
+        max-width: 100px;
     }
 
     .volume-slider::-webkit-slider-thumb {
-        width: 16px;
-        height: 16px;
-    }
-
-    .volume-slider::-moz-range-thumb {
         width: 14px;
         height: 14px;
     }
 
+    .volume-slider::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+    }
+
     .mute-button {
-        font-size: 14px;
+        font-size: 12px;
         padding: 2px;
+        min-width: 24px;
+        flex-shrink: 0;
     }
 
     .audio-toggle-button {
         font-size: 10px;
-        padding: 4px 8px;
+        padding: 6px 8px;
+        width: 100%;
     }
 }
 
@@ -862,7 +898,7 @@ label {
     .audio-controls {
         position: fixed !important;
         bottom: 15px !important;
-        right: 15px !important;
+        right: 10px !important;
         top: auto !important;
         left: auto !important;
     }
@@ -875,27 +911,63 @@ label {
 
     .audio-controls-panel {
         bottom: 55px;
-        min-width: 160px;
-        max-width: 160px;
-        padding: 10px;
+        right: 0;
+        min-width: 140px;
+        max-width: 140px;
+        width: 140px;
+        padding: 8px;
         transform: translateY(10px) scale(0.8);
+        transform-origin: bottom right;
+        /* Ensure it fits on very small screens */
+        max-width: calc(100vw - 20px);
+    }
+
+    .audio-controls-panel.visible {
+        transform: translateY(0) scale(0.8);
     }
 
     .audio-controls-panel h3 {
-        font-size: 12px;
-        margin: 0 0 8px 0;
+        font-size: 11px;
+        margin: 0 0 6px 0;
+    }
+
+    .audio-control-group {
+        margin-bottom: 4px;
     }
 
     .audio-control-group label {
-        font-size: 10px;
+        font-size: 9px;
+        margin-bottom: 1px;
+    }
+
+    .volume-control {
+        gap: 3px;
+    }
+
+    .volume-slider {
+        height: 3px;
+        min-width: 60px;
+        max-width: 80px;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+        width: 12px;
+        height: 12px;
+    }
+
+    .volume-slider::-moz-range-thumb {
+        width: 10px;
+        height: 10px;
     }
 
     .mute-button {
-        font-size: 14px;
+        font-size: 11px;
+        padding: 1px;
+        min-width: 20px;
     }
 
     .audio-toggle-button {
-        font-size: 10px;
-        padding: 4px 8px;
+        font-size: 9px;
+        padding: 4px 6px;
     }
 }
