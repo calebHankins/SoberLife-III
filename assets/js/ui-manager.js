@@ -168,62 +168,42 @@ function createCardElement(card) {
     cardEl.className = 'card';
 
     if (card.isJoker) {
-        // Joker visual indicator
+        // Joker visual indicator - ENHANCED
         cardEl.classList.add('joker');
         cardEl.textContent = card.display;
 
-        // Add glowing border and label
-        cardEl.style.boxShadow = '0 0 16px 6px #FFD700, 0 0 32px 12px #8e44ad';
-        cardEl.style.border = '3px solid gold';
-        cardEl.style.background = 'linear-gradient(135deg, #fffbe6, #e0c3fc)';
+        // Enhanced styling applied via CSS classes
         cardEl.style.position = 'relative';
+        cardEl.style.fontSize = '36px';
 
-        // Add "Wild Joker!" label
+        // Add "Wild Joker!" label with enhanced styling
         const jokerLabel = document.createElement('div');
-        jokerLabel.textContent = 'Wild Joker!';
-        jokerLabel.style.position = 'absolute';
-        jokerLabel.style.top = '-18px';
-        jokerLabel.style.left = '50%';
-        jokerLabel.style.transform = 'translateX(-50%)';
-        jokerLabel.style.background = 'linear-gradient(90deg, #FFD700, #8e44ad)';
-        jokerLabel.style.color = 'white';
-        jokerLabel.style.fontWeight = 'bold';
-        jokerLabel.style.fontSize = '12px';
-        jokerLabel.style.padding = '2px 8px';
-        jokerLabel.style.borderRadius = '8px';
-        jokerLabel.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-        jokerLabel.style.zIndex = '2';
+        jokerLabel.className = 'joker-label';
+        jokerLabel.textContent = '✨ Wild Joker! ✨';
         cardEl.appendChild(jokerLabel);
 
         // Add value indicator if Joker has calculated a value
         if (card.calculatedValue !== null) {
             const valueIndicator = document.createElement('div');
             valueIndicator.className = 'joker-value-indicator';
-            valueIndicator.textContent = card.calculatedValue;
-            valueIndicator.style.position = 'absolute';
-            valueIndicator.style.bottom = '-18px';
-            valueIndicator.style.left = '50%';
-            valueIndicator.style.transform = 'translateX(-50%)';
-            valueIndicator.style.background = '#8e44ad';
-            valueIndicator.style.color = 'white';
-            valueIndicator.style.fontWeight = 'bold';
-            valueIndicator.style.fontSize = '12px';
-            valueIndicator.style.padding = '2px 8px';
-            valueIndicator.style.borderRadius = '8px';
-            valueIndicator.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-            valueIndicator.style.zIndex = '2';
+            valueIndicator.textContent = `=${card.calculatedValue}`;
             cardEl.appendChild(valueIndicator);
 
             // Add special effects based on value
             if (card.calculatedValue === 11) {
                 cardEl.classList.add('calculating');
+                // Add sparkle effect
+                setTimeout(() => createJokerSparkles(cardEl), 50);
             }
 
             // Check if this Joker helped achieve 21
             const currentScore = calculateScore(gameState.playerCards);
             if (currentScore === 21) {
                 cardEl.classList.add('perfect-score');
-                setTimeout(() => createJokerCelebrationParticles(cardEl), 100);
+                setTimeout(() => {
+                    createJokerCelebrationParticles(cardEl);
+                    createJokerSparkles(cardEl, true);
+                }, 100);
             }
         }
     } else {
@@ -297,7 +277,7 @@ function createJokerCelebrationParticles(cardElement) {
             return;
         }
 
-        const particleCount = 8;
+        const particleCount = 16; // Increased from 8
 
         for (let i = 0; i < particleCount; i++) {
             try {
@@ -310,11 +290,20 @@ function createJokerCelebrationParticles(cardElement) {
                 particle.style.top = `${rect.top + rect.height / 2}px`;
                 particle.style.zIndex = '1001';
 
+                // Vary particle colors for more vibrancy
+                const colors = [
+                    'radial-gradient(circle, #FFD700 30%, #ff00ff 60%, #00ffff 100%)',
+                    'radial-gradient(circle, #00ffff 30%, #00ff00 60%, #FFD700 100%)',
+                    'radial-gradient(circle, #ff00ff 30%, #FFD700 60%, #ff0000 100%)',
+                    'radial-gradient(circle, #00ff00 30%, #00ffff 60%, #ff00ff 100%)'
+                ];
+                particle.style.background = colors[i % colors.length];
+
                 // Random direction and distance
                 const angle = (i / particleCount) * 2 * Math.PI;
-                const distance = 30 + Math.random() * 20;
-                const finalX = rect.left + rect.width / 2 + Math.cos(angle) * distance;
-                const finalY = rect.top + rect.height / 2 + Math.sin(angle) * distance;
+                const distance = 40 + Math.random() * 30; // Increased distance
+                const finalX = Math.cos(angle) * distance;
+                const finalY = Math.sin(angle) * distance;
 
                 particle.style.setProperty('--final-x', `${finalX}px`);
                 particle.style.setProperty('--final-y', `${finalY}px`);
@@ -330,7 +319,7 @@ function createJokerCelebrationParticles(cardElement) {
                     } catch (removeError) {
                         console.warn('Error removing celebration particle:', removeError);
                     }
-                }, 1000);
+                }, 1200); // Slightly longer duration
 
             } catch (particleError) {
                 console.warn('Error creating individual particle:', particleError);
@@ -339,6 +328,57 @@ function createJokerCelebrationParticles(cardElement) {
         }
     } catch (error) {
         console.error('Error creating celebration particles:', error);
+    }
+}
+
+// Create sparkle effects for Joker cards
+function createJokerSparkles(cardElement, intense = false) {
+    try {
+        if (!cardElement || !cardElement.getBoundingClientRect) {
+            console.warn('Invalid card element for sparkles');
+            return;
+        }
+
+        const rect = cardElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+            console.warn('Card element has no dimensions for sparkles');
+            return;
+        }
+
+        const sparkleCount = intense ? 20 : 12;
+
+        for (let i = 0; i < sparkleCount; i++) {
+            try {
+                const sparkle = document.createElement('div');
+                sparkle.textContent = '✨';
+                sparkle.style.position = 'fixed';
+                sparkle.style.fontSize = `${8 + Math.random() * 12}px`;
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.zIndex = '1002';
+
+                // Random position around the card
+                const offsetX = (Math.random() - 0.5) * rect.width * 1.5;
+                const offsetY = (Math.random() - 0.5) * rect.height * 1.5;
+                sparkle.style.left = `${rect.left + rect.width / 2 + offsetX}px`;
+                sparkle.style.top = `${rect.top + rect.height / 2 + offsetY}px`;
+
+                // Animation
+                sparkle.style.animation = `sparkle-float ${1 + Math.random()}s ease-out forwards`;
+                sparkle.style.opacity = '0';
+
+                document.body.appendChild(sparkle);
+
+                setTimeout(() => {
+                    if (sparkle.parentNode) {
+                        sparkle.parentNode.removeChild(sparkle);
+                    }
+                }, 1500);
+            } catch (sparkleError) {
+                console.warn('Error creating sparkle:', sparkleError);
+            }
+        }
+    } catch (error) {
+        console.error('Error creating sparkles:', error);
     }
 }
 
