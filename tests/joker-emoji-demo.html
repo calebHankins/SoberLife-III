@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joker Emoji Animation Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Arial, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-container {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .card-demo {
+            text-align: center;
+        }
+
+        .card-demo h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        /* Card styling matching the game */
+        .card {
+            width: 80px;
+            height: 112px;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            margin: 40px auto;
+        }
+
+        .card.joker {
+            background: linear-gradient(135deg, #FFD700, #ff00ff, #00ffff);
+            background-size: 200% 200%;
+            animation: joker-rainbow-border 3s ease-in-out infinite;
+            box-shadow:
+                0 0 20px 8px rgba(255, 215, 0, 0.6),
+                0 0 40px 16px rgba(255, 0, 255, 0.4),
+                0 0 60px 24px rgba(0, 255, 255, 0.3);
+        }
+
+        /* New emoji label style */
+        .card.joker .joker-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 28px;
+            z-index: 2;
+            animation: joker-emoji-dance 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 15px rgba(255, 0, 255, 0.6)) drop-shadow(0 0 20px rgba(0, 255, 255, 0.4));
+        }
+
+        /* Old text label style for comparison */
+        .card.joker .joker-label-old {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700, #ff00ff, #00ffff);
+            background-size: 200% 200%;
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255, 0, 255, 0.4);
+            z-index: 2;
+            animation: joker-label-shine 2s linear infinite;
+            border: 2px solid white;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animations */
+        @keyframes joker-emoji-dance {
+
+            0%,
+            100% {
+                transform: translateX(-50%) rotate(0deg) scale(1);
+            }
+
+            25% {
+                transform: translateX(-50%) rotate(-15deg) scale(1.15);
+            }
+
+            50% {
+                transform: translateX(-50%) rotate(0deg) scale(1.25);
+            }
+
+            75% {
+                transform: translateX(-50%) rotate(15deg) scale(1.15);
+            }
+        }
+
+        @keyframes joker-rainbow-border {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes joker-label-shine {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 200% 50%;
+            }
+        }
+
+        .info {
+            margin-top: 60px;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info h3 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        .features {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .features li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🃏 Joker Card Emoji Enhancement</h1>
+
+    <div class="demo-container">
+        <div class="card-demo">
+            <h2>❌ Old Design</h2>
+            <div class="card joker">
+                <div class="joker-label-old">✨ Wild Joker! ✨</div>
+                🃏
+            </div>
+            <p style="font-size: 14px; opacity: 0.8; margin-top: 10px;">Text label with gradient background</p>
+        </div>
+
+        <div class="card-demo">
+            <h2>✅ New Design</h2>
+            <div class="card joker">
+                <div class="joker-label">🃏</div>
+                🃏
+            </div>
+            <p style="font-size: 14px; opacity: 0.8; margin-top: 10px;">Emoji with dance animation</p>
+        </div>
+    </div>
+
+    <div class="info">
+        <h3>✨ What's New?</h3>
+        <ul class="features">
+            <li><strong>🃏 Joker Emoji:</strong> Replaced "Wild Joker!" text with a fun joker emoji (🃏)</li>
+            <li><strong>💃 Dance Animation:</strong> The emoji rotates, scales, and bounces in a playful dance</li>
+            <li><strong>✨ Glowing Effects:</strong> Multi-colored drop shadows (gold, magenta, cyan) create a magical
+                glow</li>
+            <li><strong>🎨 Larger Size:</strong> Increased from 13px text to 28px emoji for better visibility</li>
+            <li><strong>🌈 Same Card Effects:</strong> The card itself retains its rainbow gradient and glow</li>
+        </ul>
+
+        <p style="margin-top: 20px;">
+            The new emoji design is more playful and eye-catching while maintaining the magical feeling of the Joker
+            cards!
+        </p>
+    </div>
+</body>
+
+</html>

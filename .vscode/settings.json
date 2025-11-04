@@ -7,6 +7,28 @@
         "**/{package.json,package-lock.json,server.xml,build.rs,web.config,.gitattributes,.env}": false,
         "**/*.{csproj,fsproj,vbproj}": false
     },
+    "chat.tools.terminal.autoApprove": {
+        "/^npx serve \\. -p 8001$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^git --no-pager status/": {
+            "approve": true,
+            "matchCommandLine": false
+        },
+        "/^node --check/": {
+            "approve": true,
+            "matchCommandLine": false
+        },
+        "/^git --no-pager diff \\.* \\| Select-Object -First 80$/": {
+            "approve": true,
+            "matchCommandLine": false
+        },
+        "/^git --no-pager diff/": {
+            "approve": true,
+            "matchCommandLine": false
+        }
+    },
     "chat.agent.maxRequests": 100,
     "cSpell.words": [
         "autoplay",

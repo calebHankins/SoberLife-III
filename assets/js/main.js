@@ -413,7 +413,11 @@ export function startNewRound() {
         resetJokerValues(gameState.playerCards);
         resetJokerValues(gameState.houseCards);
 
-        // Update UI
+        // Calculate scores to set joker values BEFORE updating UI
+        const playerScore = calculateScore(gameState.playerCards);
+        const houseScore = calculateScore(gameState.houseCards);
+
+        // Update UI (jokers now have calculated values)
         updateTaskDescription();
         updateCards();
         updateDisplay();
@@ -422,6 +426,25 @@ export function startNewRound() {
 
         // Emphasize task info for new rounds
         emphasizeTaskInfo();
+
+        // Show Joker feedback for any jokers in the starting hand
+        const jokersInStartingHand = gameState.playerCards.filter(card => card.isJoker);
+        if (jokersInStartingHand.length > 0) {
+            jokersInStartingHand.forEach((joker, index) => {
+                const jokerValue = joker.getCurrentValue();
+                const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
+                setTimeout(() => {
+                    showJokerCalculationFeedback(joker, jokerValue, isOptimal);
+                }, 1000 + (index * 500)); // Stagger feedback if multiple jokers
+            });
+
+            // Show perfect score feedback if starting with 21
+            if (playerScore === 21) {
+                setTimeout(() => {
+                    showJokerPerfectScoreFeedback();
+                }, 1500 + (jokersInStartingHand.length * 500));
+            }
+        }
 
         // Check if initial flavor text should be shown
         const shouldShowFlavorText = !gameState.initialFlavorTextShown;
@@ -480,8 +503,30 @@ export function startNewRound() {
             gameState.houseCards.push(gameState.deck.pop());
         }
 
+        // Calculate scores to set joker values BEFORE updating UI (fallback path)
+        const playerScore = calculateScore(gameState.playerCards);
+        const houseScore = calculateScore(gameState.houseCards);
+
         updateCards();
         updateDisplay();
+
+        // Show Joker feedback for any jokers in the starting hand (fallback path)
+        const jokersInStartingHand = gameState.playerCards.filter(card => card.isJoker);
+        if (jokersInStartingHand.length > 0) {
+            jokersInStartingHand.forEach((joker, index) => {
+                const jokerValue = joker.getCurrentValue();
+                const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
+                setTimeout(() => {
+                    showJokerCalculationFeedback(joker, jokerValue, isOptimal);
+                }, 1000 + (index * 500));
+            });
+
+            if (playerScore === 21) {
+                setTimeout(() => {
+                    showJokerPerfectScoreFeedback();
+                }, 1500 + (jokersInStartingHand.length * 500));
+            }
+        }
     }
 }
 
@@ -511,9 +556,11 @@ export function hit() {
             audioManager.soundEffects.play('cardDeal');
         }
 
+        // Calculate score FIRST to update all joker values before UI update
+        const playerScore = calculateScore(gameState.playerCards);
+
         // Show Joker feedback if the new card is a Joker
         if (newCard.isJoker) {
-            const playerScore = calculateScore(gameState.playerCards);
             const jokerValue = newCard.getCurrentValue();
             const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
             setTimeout(() => {
@@ -526,9 +573,8 @@ export function hit() {
             }, 500);
         }
 
+        // Update UI after joker values have been recalculated
         updateCards();
-
-        const playerScore = calculateScore(gameState.playerCards);
         if (playerScore > 21) {
             // Check if compartmentalize is available
             if (checkCompartmentalizeAvailable()) {
@@ -1017,13 +1063,15 @@ function handleSplitHandHit() {
         const newCard = gameState.deck.pop();
         activeHand.cards.push(newCard);
 
-        // Update game state to reflect active hand
+        // Calculate score FIRST to update all joker values before UI update
+        const score = calculateScore(activeHand.cards);
+
+        // Update game state to reflect active hand (after joker values are calculated)
         updateGameState({
             playerCards: activeHand.cards
         });
 
         // Check for bust
-        const score = calculateScore(activeHand.cards);
         if (score > 21) {
             const result = completeSplitHand('bust');
             if (result && result.completed) {

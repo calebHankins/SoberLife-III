@@ -1,10 +1,49 @@
-/* Joker Card Visuals */
+/* Joker Card Visuals - Enhanced for Maximum Visual Impact */
 .card.joker {
-    box-shadow: 0 0 16px 6px #FFD700, 0 0 32px 12px #8e44ad;
-    border: 3px solid gold;
-    background: linear-gradient(135deg, #fffbe6, #e0c3fc);
+    box-shadow:
+        0 0 10px 4px rgba(255, 215, 0, 0.4),
+        0 0 20px 8px rgba(255, 0, 255, 0.3),
+        0 0 30px 12px rgba(0, 255, 255, 0.2),
+        0 8px 32px rgba(0, 0, 0, 0.5);
+    border: 4px solid transparent;
+    background:
+        linear-gradient(white, white) padding-box,
+        linear-gradient(45deg, #FFD700, #ff00ff, #00ffff, #00ff00, #FFD700) border-box;
     position: relative;
-    animation: joker-glow 1.2s infinite alternate;
+    animation: joker-mega-glow 2s ease-in-out infinite, joker-pulse 2s ease-in-out infinite;
+    transform: scale(1.05);
+    z-index: 100;
+    overflow: visible;
+}
+
+/* Shimmer overlay effect - toned down */
+.card.joker::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.3) 50%,
+            transparent 70%);
+    animation: joker-shimmer 4s linear infinite;
+    pointer-events: none;
+}
+
+/* Rainbow border pulse - toned down */
+.card.joker::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    background: linear-gradient(45deg, #FFD700, #ff00ff, #00ffff, #00ff00, #FFD700);
+    background-size: 300% 300%;
+    border-radius: 10px;
+    z-index: -1;
+    animation: joker-rainbow-border 3s linear infinite;
+    filter: blur(8px);
+    opacity: 0.5;
 }
 
 .joker-value-indicator {
@@ -12,50 +51,161 @@
     bottom: -18px;
     left: 50%;
     transform: translateX(-50%);
-    background: #8e44ad;
+    background: linear-gradient(135deg, #ff00ff, #8e44ad);
     color: white;
     font-weight: bold;
-    font-size: 12px;
-    padding: 2px 8px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.6), 0 0 20px rgba(255, 0, 255, 0.4);
     z-index: 2;
+    animation: joker-value-bounce 1s ease-in-out infinite;
+    border: 2px solid #FFD700;
 }
 
 .card.joker .joker-label {
     position: absolute;
-    top: -18px;
+    top: -25px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(90deg, #FFD700, #8e44ad);
-    color: white;
-    font-weight: bold;
-    font-size: 12px;
-    padding: 2px 8px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 28px;
     z-index: 2;
+    animation: joker-emoji-dance 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 15px rgba(255, 0, 255, 0.6)) drop-shadow(0 0 20px rgba(0, 255, 255, 0.4));
 }
 
-@keyframes joker-glow {
+@keyframes joker-mega-glow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 10px 4px rgba(255, 215, 0, 0.4),
+            0 0 20px 8px rgba(255, 0, 255, 0.3),
+            0 0 30px 12px rgba(0, 255, 255, 0.2),
+            0 8px 32px rgba(0, 0, 0, 0.5);
+        filter: brightness(1.05);
+    }
+
+    50% {
+        box-shadow:
+            0 0 15px 6px rgba(255, 215, 0, 0.5),
+            0 0 30px 12px rgba(255, 0, 255, 0.4),
+            0 0 45px 18px rgba(0, 255, 255, 0.3),
+            0 12px 40px rgba(0, 0, 0, 0.6);
+        filter: brightness(1.15);
+    }
+}
+
+@keyframes joker-pulse {
+
+    0%,
+    100% {
+        transform: scale(1.05);
+    }
+
+    50% {
+        transform: scale(1.07);
+    }
+}
+
+@keyframes joker-shimmer {
     0% {
-        box-shadow: 0 0 16px 6px #FFD700, 0 0 32px 12px #8e44ad;
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
     }
 
     100% {
-        box-shadow: 0 0 32px 16px #FFD700, 0 0 48px 24px #8e44ad;
+        transform: translateX(100%) translateY(100%) rotate(45deg);
     }
 }
 
-/* Joker Celebration Particles */
+@keyframes joker-rainbow-border {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes joker-value-bounce {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-3px);
+    }
+}
+
+@keyframes joker-label-shine {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+/* Fun emoji dance animation for joker label */
+@keyframes joker-emoji-dance {
+
+    0%,
+    100% {
+        transform: translateX(-50%) rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: translateX(-50%) rotate(-15deg) scale(1.15);
+    }
+
+    50% {
+        transform: translateX(-50%) rotate(0deg) scale(1.25);
+    }
+
+    75% {
+        transform: translateX(-50%) rotate(15deg) scale(1.15);
+    }
+}
+
+/* Sparkle animation for Joker cards */
+@keyframes sparkle-float {
+    0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.5) rotate(0deg);
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-40px) scale(1.2) rotate(360deg);
+    }
+}
+
+/* Joker Celebration Particles - Enhanced */
 .joker-celebration-particle {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: radial-gradient(circle, #FFD700 60%, #8e44ad 100%);
-    opacity: 0.85;
+    background: radial-gradient(circle, #FFD700 30%, #ff00ff 60%, #00ffff 100%);
+    opacity: 1;
     pointer-events: none;
-    animation: joker-particle-burst 1s ease-out forwards;
+    animation: joker-particle-burst 1.2s ease-out forwards;
+    box-shadow: 0 0 10px #FFD700, 0 0 20px #ff00ff;
 }
 
 @keyframes joker-particle-burst {
@@ -64,13 +214,13 @@
         opacity: 1;
     }
 
-    80% {
-        transform: scale(1.2) translate(var(--final-x, 0), var(--final-y, 0));
-        opacity: 0.8;
+    50% {
+        transform: scale(1.5) translate(var(--final-x, 0), var(--final-y, 0));
+        opacity: 0.9;
     }
 
     100% {
-        transform: scale(0.8) translate(var(--final-x, 0), var(--final-y, 0));
+        transform: scale(0.5) translate(var(--final-x, 0), var(--final-y, 0));
         opacity: 0;
     }
 }
