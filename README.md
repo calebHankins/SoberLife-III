@@ -8,21 +8,29 @@ Visit the [live game on github pages](https://calebhankins.github.io/SoberLife-I
 
 ## 🎯 Game Modes
 
-### 🏛️ Single Task Mode
+### 🎯 Jump Into Task Mode
 
-The classic experience focusing on a single DMV visit:
+Quick access to your next uncompleted challenge:
 
 1. **Pre-Assessment**: Answer questions about your current state
-2. **Complete DMV Steps**: Navigate through 5 DMV tasks using blackjack-style gameplay
+2. **Complete Task Steps**: Navigate through 5 task steps using blackjack-style gameplay
 3. **Manage Stress**: Use zen points for breathing exercises, stretches, and meditation
-4. **Stay Calm**: Keep your stress level below 100% to successfully complete your visit
+4. **Upgrade Your Deck**: Access the full shop to purchase jokers and premium activities
+5. **Stay Calm**: Keep your stress level below 100% to successfully complete your task
 
-### 🎯 Campaign Mode (NEW!)
+**After Task Completion:**
+- **Visit Shop**: Access the full upgrade shop with your earned zen points
+- **Campaign Overview**: Return to the campaign to see your progress
+- **Next Task**: Jump directly into the next available challenge
+
+This mode uses your campaign progress and upgraded deck, making it a perfect shortcut for quick play sessions without campaign navigation.
+
+### 🎯 Campaign Mode
 
 A rogue-like progression system with multiple scenarios:
 
 1. **Multiple Tasks**: Progress through DMV visits, job interviews, and more
-2. **Deck Upgrades**: Spend zen points between tasks to add Aces to your deck
+2. **Deck Upgrades**: Spend zen points between tasks to add jokers and premium activities
 3. **Progressive Difficulty**: Unlock new challenges as you complete tasks
 4. **Persistent Progress**: Your upgraded deck carries over to future challenges
 
@@ -69,8 +77,9 @@ The game is organized into separate modules for maintainability:
 
 ### Deck Upgrades
 
-- **Add Aces**: Replace random cards with Aces (cost increases with each purchase)
-- **Persistent Power**: Upgraded decks carry over to all future tasks
+- **Add Jokers**: Replace random cards with Wild Jokers that automatically calculate optimal values (cost increases with each purchase)
+- **Premium Activities**: Unlock advanced stress management techniques like Mindful Breathing and Compartmentalize
+- **Persistent Power**: Upgraded decks and unlocked activities carry over to all future tasks and Jump Into Task mode
 - **Strategic Investment**: Save zen points for meaningful upgrades
 
 ### Available Tasks
@@ -119,8 +128,8 @@ Zen points serve as the game's primary currency, earned through gameplay and spe
 ### Spending Zen Points
 
 - **Stress Relief Activities**: Deep breathing (10), stretching (25), meditation (50)
-- **Deck Upgrades**: Add Aces (75, 125, 175, 225... progressive pricing)
-- **Joker Cards**: Add Wild Jokers (75, 125, 175... progressive pricing)
+- **Deck Upgrades**: Add Wild Jokers (75, 125, 175, 225... progressive pricing)
+- **Premium Activities**: Mindful Breathing (1000 zen), Compartmentalize (2000 zen)
 
 ### Persistence Architecture
 

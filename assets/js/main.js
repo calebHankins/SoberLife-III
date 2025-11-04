@@ -1,13 +1,13 @@
 // SoberLife III - Main Game Controller
 // Game initialization and coordination
 
-import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity } from './game-state.js';
+import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity, updateCampaignState } from './game-state.js';
 import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
 import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showMindPalace, hideMindPalace, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel, switchSplitHand, showZenActivityFeedback, useZenActivity, zenActivities, completeSplitHand, getActiveSplitHand } from './stress-system.js';
 import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
 import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback, purchasePremiumActivityWrapper } from './shop-system.js';
-import { getTaskDefinition } from './task-definitions.js';
+import { getTaskDefinition, getNextAvailableTask } from './task-definitions.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 import { AudioManager } from './audio-system.js';
 
@@ -227,9 +227,17 @@ function setupCloseButtons() {
 // Close survey and return to mode selection or campaign
 export function closeSurvey() {
     hideElement('surveySection');
+
+    // Check if we're in true campaign mode or "Jump Into Task" mode
     if (isCampaignMode()) {
         showElement('campaignOverview');
+    } else if (campaignState.currentTask) {
+        // We're in "Jump Into Task" mode - return to main menu
+        // Clear the current task since user cancelled
+        updateCampaignState({ currentTask: null });
+        showElement('gameModeSelection');
     } else {
+        // Regular single task mode
         showElement('gameModeSelection');
     }
 }
@@ -319,25 +327,45 @@ function showPopupNotification(message, type = 'default') {
     }, 2000);
 }
 
-// Start single task mode (original DMV-only experience)
+// Start single task mode (jump into next uncompleted task)
 export function startSingleTaskMode() {
-    // Set up single task mode
+    // Initialize campaign to get current progress
+    initializeCampaign();
+
+    // Find the next available task
+    const nextTask = getNextAvailableTask(campaignState.completedTasks);
+
+    if (!nextTask) {
+        // All tasks completed - show campaign overview instead
+        alert('Congratulations! You\'ve completed all available tasks. Check out Campaign Mode to replay tasks or visit the shop!');
+        startCampaignMode();
+        return;
+    }
+
+    // Set up single task mode with the next available task
     updateGameState({ campaignMode: false });
+    updateCampaignState({ currentTask: nextTask.id, campaignMode: false });
 
     // Hide mode selection and show survey
     hideElement('gameModeSelection');
     hideElement('campaignOverview');
     showElement('surveySection');
 
-    // Update survey for DMV context
+    // Update survey for the specific task context
     const surveyDescription = document.getElementById('surveyDescription');
     if (surveyDescription) {
-        surveyDescription.textContent = 'Before we begin your DMV visit, let\'s assess your current stress level:';
+        surveyDescription.textContent = `Before we begin your ${nextTask.name.toLowerCase()}, let's assess your current stress level:`;
     }
 
     const preparedQuestion = document.getElementById('preparedQuestion');
     if (preparedQuestion) {
-        preparedQuestion.textContent = 'How prepared do you feel for the DMV?';
+        if (nextTask.id === 'dmv') {
+            preparedQuestion.textContent = 'How prepared do you feel for the DMV?';
+        } else if (nextTask.id === 'jobInterview') {
+            preparedQuestion.textContent = 'How prepared do you feel for the job interview?';
+        } else {
+            preparedQuestion.textContent = 'How prepared do you feel for this task?';
+        }
     }
 }
 
@@ -436,9 +464,9 @@ export function startNewRound() {
         // Reset hand state for fresh progressive flavor text
         resetHandState();
 
-        // Create deck based on mode (custom for campaign, standard for single task)
+        // Create deck based on mode (custom for campaign/task mode, standard for pure single task)
         let playerDeck, houseDeck;
-        if (isCampaignMode()) {
+        if (isCampaignMode() || campaignState.currentTask) {
             playerDeck = createCustomDeck(campaignState.deckComposition);
             houseDeck = createDeck();
             console.log('[DEBUG] Custom player deck generated:', playerDeck);
@@ -694,12 +722,7 @@ export function stand() {
         // House plays according to standard rules using its own deck
         if (!gameState.houseDeck) {
             // If houseDeck is not set, create and shuffle a new one
-            gameState.houseDeck = [];
-            if (isCampaignMode()) {
-                gameState.houseDeck = createDeck();
-            } else {
-                gameState.houseDeck = createDeck();
-            }
+            gameState.houseDeck = createDeck(); // House always uses standard deck
             shuffleDeck(gameState.houseDeck);
         }
         while (calculateScore(gameState.houseCards) < 17 && gameState.houseDeck.length > 0) {
@@ -938,7 +961,7 @@ export function nextStep() {
             isCampaignMode() ? campaignState.currentTask : 'single-task'
         );
 
-        if (isCampaignMode()) {
+        if (isCampaignMode() || campaignState.currentTask) {
             // Get the final balance after completion bonus
             const finalBalance = ZenPointsManager.getCurrentBalance();
             console.log(`Task completion: Final balance after bonus: ${finalBalance}`);
@@ -1032,9 +1055,9 @@ export function purchaseAce() {
 
 export function openCampaignShop() {
     try {
-        // Validate campaign mode
-        if (!isCampaignMode()) {
-            console.warn('Cannot open campaign shop - not in campaign mode');
+        // Validate campaign mode or jump into task mode
+        if (!isCampaignMode() && !campaignState.currentTask) {
+            console.warn('Cannot open campaign shop - not in campaign or task mode');
             return;
         }
 
@@ -1313,9 +1336,9 @@ function determineOverallOutcome(hand1Result, hand2Result) {
 
 export function purchaseJoker() {
     try {
-        // Validate campaign mode
-        if (!isCampaignMode()) {
-            console.warn('Cannot purchase Joker - not in campaign mode');
+        // Validate campaign mode or jump into task mode (which has a current task)
+        if (!isCampaignMode() && !campaignState.currentTask) {
+            console.warn('Cannot purchase Joker - not in campaign or task mode');
             showPurchaseFeedback({
                 success: false,
                 message: 'Joker upgrades only available in campaign mode'
@@ -1386,8 +1409,8 @@ export function visitMindPalace() {
     try {
         console.log('visitMindPalace called');
 
-        // Validate campaign mode
-        if (!isCampaignMode()) {
+        // Validate campaign mode or jump into task mode
+        if (!isCampaignMode() && !campaignState.currentTask) {
             console.warn('Mind Palace only available in campaign mode');
             showPopupNotification('Mind Palace only available in campaign mode', 'error');
             return;

@@ -307,26 +307,88 @@ export function completeCurrentTask(zenPointsEarned) {
 }
 
 // Show post-task options (shop or continue campaign)
-function showPostTaskOptions(zenPointsRemaining) {
+// Reset success screen buttons to default state
+function resetSuccessScreenButtons() {
     try {
-        // Update success screen buttons for campaign mode
         const continueToShopBtn = document.getElementById('continueToShopBtn');
         const continueCampaignBtn = document.getElementById('continueCampaignBtn');
         const playAgainBtn = document.getElementById('playAgainBtn');
 
         if (continueToShopBtn) {
-            continueToShopBtn.classList.remove('hidden');
-            continueToShopBtn.onclick = () => openShop(ZenPointsManager.getCurrentBalance());
+            continueToShopBtn.classList.add('hidden');
+            continueToShopBtn.onclick = () => openShop();
         }
 
         if (continueCampaignBtn) {
-            continueCampaignBtn.classList.remove('hidden');
+            continueCampaignBtn.classList.add('hidden');
+            continueCampaignBtn.textContent = 'Continue Campaign';
             continueCampaignBtn.onclick = () => returnToCampaign();
         }
 
         if (playAgainBtn) {
-            playAgainBtn.textContent = 'Replay Task';
-            playAgainBtn.onclick = () => replayCurrentTask();
+            playAgainBtn.textContent = 'Play Again';
+            playAgainBtn.disabled = false;
+            playAgainBtn.onclick = () => window.restartGame();
+        }
+    } catch (error) {
+        console.error('Error resetting success screen buttons:', error);
+    }
+}
+
+function showPostTaskOptions(zenPointsRemaining) {
+    try {
+        // Reset buttons to default state first
+        resetSuccessScreenButtons();
+
+        // Update success screen buttons based on mode
+        const continueToShopBtn = document.getElementById('continueToShopBtn');
+        const continueCampaignBtn = document.getElementById('continueCampaignBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        if (isCampaignMode()) {
+            // True campaign mode - show replay option
+            if (continueToShopBtn) {
+                continueToShopBtn.classList.remove('hidden');
+                continueToShopBtn.onclick = () => openShop(ZenPointsManager.getCurrentBalance());
+            }
+
+            if (continueCampaignBtn) {
+                continueCampaignBtn.classList.remove('hidden');
+                continueCampaignBtn.onclick = () => returnToCampaign();
+            }
+
+            if (playAgainBtn) {
+                playAgainBtn.textContent = 'Replay Task';
+                playAgainBtn.onclick = () => replayCurrentTask();
+            }
+        } else if (campaignState.currentTask) {
+            // Jump Into Task mode - show different options
+            if (continueToShopBtn) {
+                continueToShopBtn.classList.remove('hidden');
+                continueToShopBtn.onclick = () => openShop(ZenPointsManager.getCurrentBalance());
+            }
+
+            if (continueCampaignBtn) {
+                continueCampaignBtn.classList.remove('hidden');
+                continueCampaignBtn.textContent = 'Campaign Overview';
+                continueCampaignBtn.onclick = () => {
+                    // Clear current task and show campaign overview
+                    updateCampaignState({ currentTask: null, campaignMode: true });
+                    returnToCampaign();
+                };
+            }
+
+            if (playAgainBtn) {
+                // Check if there's a next available task
+                const nextTask = getNextAvailableTask(campaignState.completedTasks);
+                if (nextTask) {
+                    playAgainBtn.textContent = `Next: ${nextTask.name}`;
+                    playAgainBtn.onclick = () => startNextTask();
+                } else {
+                    playAgainBtn.textContent = 'All Tasks Complete!';
+                    playAgainBtn.disabled = true;
+                }
+            }
         }
 
     } catch (error) {
@@ -367,6 +429,47 @@ function replayCurrentTask() {
         }
     } catch (error) {
         console.error('Error replaying current task:', error);
+    }
+}
+
+// Start next available task (for Jump Into Task mode)
+function startNextTask() {
+    try {
+        const nextTask = getNextAvailableTask(campaignState.completedTasks);
+        if (nextTask) {
+            // Set up Jump Into Task mode with the next task
+            updateCampaignState({ currentTask: nextTask.id, campaignMode: false });
+
+            // Reset game state and hide success screen
+            resetGameState();
+            hideElement('gameSuccessScreen');
+
+            // Show survey for the next task
+            showElement('surveySection');
+
+            // Update survey for the specific task context
+            const surveyDescription = document.getElementById('surveyDescription');
+            if (surveyDescription) {
+                surveyDescription.textContent = `Before we begin your ${nextTask.name.toLowerCase()}, let's assess your current stress level:`;
+            }
+
+            const preparedQuestion = document.getElementById('preparedQuestion');
+            if (preparedQuestion) {
+                if (nextTask.id === 'dmv') {
+                    preparedQuestion.textContent = 'How prepared do you feel for the DMV?';
+                } else if (nextTask.id === 'jobInterview') {
+                    preparedQuestion.textContent = 'How prepared do you feel for the job interview?';
+                } else {
+                    preparedQuestion.textContent = 'How prepared do you feel for this task?';
+                }
+            }
+
+            console.log(`Starting next task: ${nextTask.name}`);
+        } else {
+            console.log('No more tasks available');
+        }
+    } catch (error) {
+        console.error('Error starting next task:', error);
     }
 }
 
