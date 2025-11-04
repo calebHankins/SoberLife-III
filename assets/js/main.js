@@ -227,9 +227,17 @@ function setupCloseButtons() {
 // Close survey and return to mode selection or campaign
 export function closeSurvey() {
     hideElement('surveySection');
+
+    // Check if we're in true campaign mode or "Jump Into Task" mode
     if (isCampaignMode()) {
         showElement('campaignOverview');
+    } else if (campaignState.currentTask) {
+        // We're in "Jump Into Task" mode - return to main menu
+        // Clear the current task since user cancelled
+        updateCampaignState({ currentTask: null });
+        showElement('gameModeSelection');
     } else {
+        // Regular single task mode
         showElement('gameModeSelection');
     }
 }
@@ -336,7 +344,7 @@ export function startSingleTaskMode() {
 
     // Set up single task mode with the next available task
     updateGameState({ campaignMode: false });
-    updateCampaignState({ currentTask: nextTask.id });
+    updateCampaignState({ currentTask: nextTask.id, campaignMode: false });
 
     // Hide mode selection and show survey
     hideElement('gameModeSelection');
