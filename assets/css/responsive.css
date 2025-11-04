@@ -61,6 +61,27 @@
         /* Dynamic viewport height for mobile browsers */
     }
 
+    /* Close Button Mobile Optimizations */
+    .survey-close-btn,
+    .task-close-btn,
+    .shop-close-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 22px;
+        top: 8px;
+        right: 8px;
+    }
+
+    .survey-close-btn {
+        top: 8px;
+        right: 8px;
+    }
+
+    .task-close-btn {
+        top: 12px;
+        right: 12px;
+    }
+
     /* Game Mode Selection Mobile */
     .game-mode-selection {
         margin: 8px 0;

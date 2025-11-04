@@ -92,6 +92,7 @@
 
         <!-- Survey Section -->
         <div class="survey hidden" id="surveySection">
+            <button class="survey-close-btn" id="surveyCloseBtn" aria-label="Close survey">×</button>
             <h3>Pre-Task Assessment</h3>
             <p id="surveyDescription">Before we begin your task, let's assess your current stress level:</p>
 
@@ -127,6 +128,7 @@
 
         <!-- Task Info -->
         <div class="task-info hidden" id="taskInfo">
+            <button class="task-close-btn" id="taskCloseBtn" aria-label="Exit task">×</button>
             <div class="step-indicator" id="stepIndicator">Step 1 of 5</div>
             <h3>🏛️ Task: DMV License Renewal & Real ID</h3>
             <p id="taskDescription">Step 1: Check in at the front desk</p>
@@ -292,7 +294,10 @@
         <!-- Upgrade Shop -->
         <div class="upgrade-shop hidden" id="upgradeShop">
             <div class="shop-content">
-                <h2>🧘 Mindfulness Upgrades</h2>
+                <div class="shop-header">
+                    <h2>🧘 Mindfulness Upgrades</h2>
+                    <button class="shop-close-btn" id="shopCloseBtn" aria-label="Close shop">×</button>
+                </div>
                 <p>Spend your remaining zen points to upgrade your deck for future challenges!</p>
 
                 <div class="zen-balance">
@@ -651,6 +656,9 @@
                 window.useCompartmentalizeWrapper = mainModule.useCompartmentalizeWrapper;
                 window.declineCompartmentalize = mainModule.declineCompartmentalize;
                 window.purchasePremiumActivityWrapper = shopModule.purchasePremiumActivityWrapper;
+                window.closeSurvey = mainModule.closeSurvey;
+                window.closeTask = mainModule.closeTask;
+                window.closeShopWrapper = mainModule.closeShopWrapper;
 
                 console.log('✅ All functions loaded successfully!');
                 console.log('startCampaignMode:', typeof window.startCampaignMode);

@@ -41,6 +41,9 @@ export async function initializeGame() {
     // Set up help modal event listeners
     setupHelpModal();
 
+    // Set up close button event listeners
+    setupCloseButtons();
+
     // Initialize campaign system
     initializeCampaign();
 
@@ -197,6 +200,73 @@ function handleGameKeyboardShortcuts(event) {
                 }
             }
             break;
+    }
+}
+
+// Set up close button event listeners for survey, task, and shop
+function setupCloseButtons() {
+    // Survey close button
+    const surveyCloseBtn = document.getElementById('surveyCloseBtn');
+    if (surveyCloseBtn) {
+        surveyCloseBtn.addEventListener('click', closeSurvey);
+    }
+
+    // Task close button
+    const taskCloseBtn = document.getElementById('taskCloseBtn');
+    if (taskCloseBtn) {
+        taskCloseBtn.addEventListener('click', closeTask);
+    }
+
+    // Shop close button
+    const shopCloseBtn = document.getElementById('shopCloseBtn');
+    if (shopCloseBtn) {
+        shopCloseBtn.addEventListener('click', closeShopWrapper);
+    }
+}
+
+// Close survey and return to mode selection or campaign
+export function closeSurvey() {
+    hideElement('surveySection');
+    if (isCampaignMode()) {
+        showElement('campaignOverview');
+    } else {
+        showElement('gameModeSelection');
+    }
+}
+
+// Close task and return to campaign or mode selection
+export function closeTask() {
+    // Confirm before closing if game is in progress
+    if (gameState.gameInProgress) {
+        const confirmed = confirm('Are you sure you want to exit? Your progress in this task will be lost.');
+        if (!confirmed) {
+            return;
+        }
+    }
+
+    // Clean up game state
+    resetGameState();
+    hideElement('taskInfo');
+    hideElement('zenActivities');
+    hideElement('gameArea');
+    hideElement('gameOverScreen');
+    hideElement('gameSuccessScreen');
+
+    // Return to appropriate view
+    if (isCampaignMode()) {
+        showElement('campaignOverview');
+    } else {
+        showElement('gameModeSelection');
+    }
+}
+
+// Close shop wrapper
+export function closeShopWrapper() {
+    closeShop();
+    if (isCampaignMode()) {
+        showElement('campaignOverview');
+    } else {
+        showElement('gameModeSelection');
     }
 }
 
@@ -1369,6 +1439,9 @@ if (typeof window !== 'undefined') {
     window.startCampaignTask = startCampaignTask;
     window.resetCampaign = resetCampaign;
     window.returnToCampaign = returnToCampaign;
+    window.closeSurvey = closeSurvey;
+    window.closeTask = closeTask;
+    window.closeShopWrapper = closeShopWrapper;
 
     // Make debug functions available
     import('./ui-manager.js').then(ui => {
