@@ -556,9 +556,11 @@ export function hit() {
             audioManager.soundEffects.play('cardDeal');
         }
 
+        // Calculate score FIRST to update all joker values before UI update
+        const playerScore = calculateScore(gameState.playerCards);
+
         // Show Joker feedback if the new card is a Joker
         if (newCard.isJoker) {
-            const playerScore = calculateScore(gameState.playerCards);
             const jokerValue = newCard.getCurrentValue();
             const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
             setTimeout(() => {
@@ -571,9 +573,8 @@ export function hit() {
             }, 500);
         }
 
+        // Update UI after joker values have been recalculated
         updateCards();
-
-        const playerScore = calculateScore(gameState.playerCards);
         if (playerScore > 21) {
             // Check if compartmentalize is available
             if (checkCompartmentalizeAvailable()) {
@@ -1062,13 +1063,15 @@ function handleSplitHandHit() {
         const newCard = gameState.deck.pop();
         activeHand.cards.push(newCard);
 
-        // Update game state to reflect active hand
+        // Calculate score FIRST to update all joker values before UI update
+        const score = calculateScore(activeHand.cards);
+
+        // Update game state to reflect active hand (after joker values are calculated)
         updateGameState({
             playerCards: activeHand.cards
         });
 
         // Check for bust
-        const score = calculateScore(activeHand.cards);
         if (score > 21) {
             const result = completeSplitHand('bust');
             if (result && result.completed) {
