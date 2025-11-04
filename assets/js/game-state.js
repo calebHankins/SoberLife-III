@@ -487,8 +487,9 @@ export function getCurrentContextualActions() {
         // Import campaign functions dynamically to avoid circular dependency
         let currentStepActions;
 
-        // Check if we're in campaign mode and get task-specific actions
-        if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
+        // Check if we're in campaign mode or "Jump Into Task" mode and get task-specific actions
+        if (typeof window !== 'undefined' && window.isCampaignMode &&
+            (window.isCampaignMode() || (campaignState && campaignState.currentTask))) {
             const currentTask = window.getCurrentTask && window.getCurrentTask();
             if (currentTask && currentTask.contextualActions) {
                 currentStepActions = currentTask.contextualActions[gameState.currentStep];
@@ -636,8 +637,9 @@ export function getProgressiveFlavorText(action, step, hitCount) {
         let currentSteps = steps;
         let currentProgressiveFlavorText = progressiveFlavorText;
 
-        // Check if we're in campaign mode and get task-specific content
-        if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
+        // Check if we're in campaign mode or "Jump Into Task" mode and get task-specific content
+        if (typeof window !== 'undefined' && window.isCampaignMode &&
+            (window.isCampaignMode() || (campaignState && campaignState.currentTask))) {
             const currentTask = window.getCurrentTask && window.getCurrentTask();
             if (currentTask) {
                 currentSteps = currentTask.steps;
@@ -800,8 +802,9 @@ export function getInitialFlavorText(stepIndex) {
         let currentSteps = steps;
         let currentInitialFlavorText = initialFlavorText;
 
-        // Check if we're in campaign mode and get task-specific content
-        if (typeof window !== 'undefined' && window.isCampaignMode && window.isCampaignMode()) {
+        // Check if we're in campaign mode or "Jump Into Task" mode and get task-specific content
+        if (typeof window !== 'undefined' && window.isCampaignMode &&
+            (window.isCampaignMode() || (campaignState && campaignState.currentTask))) {
             const currentTask = window.getCurrentTask && window.getCurrentTask();
             if (currentTask) {
                 currentSteps = currentTask.steps;

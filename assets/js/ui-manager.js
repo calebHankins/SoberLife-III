@@ -500,8 +500,8 @@ export function showJokerPerfectScoreFeedback() {
 // Generate task-specific success message
 function generateTaskSpecificSuccessMessage() {
     try {
-        // Check if we're in campaign mode and get task-specific messages
-        if (isCampaignMode()) {
+        // Check if we're in campaign mode or "Jump Into Task" mode and get task-specific messages
+        if (isCampaignMode() || campaignState.currentTask) {
             const currentTask = getCurrentTask();
             if (currentTask && currentTask.successMessages && currentTask.successMessages.length > 0) {
                 const randomIndex = Math.floor(Math.random() * currentTask.successMessages.length);
@@ -525,7 +525,7 @@ function generateTaskSpecificStats() {
         let taskName = 'DMV';
         let totalSteps = 5;
 
-        if (isCampaignMode()) {
+        if (isCampaignMode() || campaignState.currentTask) {
             const currentTask = getCurrentTask();
             if (currentTask) {
                 taskName = currentTask.name;
@@ -1057,7 +1057,7 @@ export function showGameOver() {
         let subMsg = "Don't worry, it happens to the best of us.";
 
         // Try to get task-specific bust message
-        if (isCampaignMode()) {
+        if (isCampaignMode() || campaignState.currentTask) {
             const currentTask = getCurrentTask();
             if (currentTask && currentTask.bustMessages && currentTask.bustMessages.length > 0) {
                 const bustMsg = currentTask.bustMessages[Math.floor(Math.random() * currentTask.bustMessages.length)];
@@ -1138,7 +1138,8 @@ export function updateTaskDescription() {
         let currentSteps = steps;
         let taskName = 'DMV License Renewal & Real ID';
 
-        if (isCampaignMode()) {
+        // Check for current task in both campaign mode and "Jump Into Task" mode
+        if (isCampaignMode() || campaignState.currentTask) {
             const currentTask = getCurrentTask();
             if (currentTask) {
                 currentSteps = currentTask.steps;
@@ -1155,9 +1156,9 @@ export function updateTaskDescription() {
             stepDescription = getFallbackStepDescription(gameState.currentStep);
         }
 
-        // Update task title if in campaign mode
+        // Update task title if in campaign mode or "Jump Into Task" mode
         const taskTitleEl = taskInfoEl?.querySelector('h3');
-        if (taskTitleEl && isCampaignMode()) {
+        if (taskTitleEl && (isCampaignMode() || campaignState.currentTask)) {
             taskTitleEl.textContent = `🎯 Task: ${taskName}`;
         }
 
