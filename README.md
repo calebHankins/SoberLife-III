@@ -18,7 +18,12 @@ Quick access to your next uncompleted challenge:
 4. **Upgrade Your Deck**: Access the full shop to purchase jokers and premium activities
 5. **Stay Calm**: Keep your stress level below 100% to successfully complete your task
 
-This mode uses your campaign progress and upgraded deck, making it a perfect shortcut for quick play sessions.
+**After Task Completion:**
+- **Visit Shop**: Access the full upgrade shop with your earned zen points
+- **Campaign Overview**: Return to the campaign to see your progress
+- **Next Task**: Jump directly into the next available challenge
+
+This mode uses your campaign progress and upgraded deck, making it a perfect shortcut for quick play sessions without campaign navigation.
 
 ### 🎯 Campaign Mode
 

@@ -15,6 +15,8 @@
 - Uses campaign progress and upgraded deck for seamless play
 - Full shop access for deck upgrades and premium activities
 - Perfect for quick play sessions without campaign navigation
+- **Post-completion options**: Visit shop, return to campaign, or jump to next task
+- **Streamlined flow**: No replay option - focus on progression and variety
 
 ### Campaign Mode (Primary Experience)
 - **Progressive scenarios**: Multiple stress management challenges
