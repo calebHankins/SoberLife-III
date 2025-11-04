@@ -966,7 +966,7 @@ export function nextStep() {
             isCampaignMode() ? campaignState.currentTask : 'single-task'
         );
 
-        if (isCampaignMode()) {
+        if (isCampaignMode() || campaignState.currentTask) {
             // Get the final balance after completion bonus
             const finalBalance = ZenPointsManager.getCurrentBalance();
             console.log(`Task completion: Final balance after bonus: ${finalBalance}`);
