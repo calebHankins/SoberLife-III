@@ -423,6 +423,26 @@ export function startNewRound() {
         // Emphasize task info for new rounds
         emphasizeTaskInfo();
 
+        // Show Joker feedback for any jokers in the starting hand
+        const jokersInStartingHand = gameState.playerCards.filter(card => card.isJoker);
+        if (jokersInStartingHand.length > 0) {
+            const playerScore = calculateScore(gameState.playerCards);
+            jokersInStartingHand.forEach((joker, index) => {
+                const jokerValue = joker.getCurrentValue();
+                const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
+                setTimeout(() => {
+                    showJokerCalculationFeedback(joker, jokerValue, isOptimal);
+                }, 1000 + (index * 500)); // Stagger feedback if multiple jokers
+            });
+
+            // Show perfect score feedback if starting with 21
+            if (playerScore === 21) {
+                setTimeout(() => {
+                    showJokerPerfectScoreFeedback();
+                }, 1500 + (jokersInStartingHand.length * 500));
+            }
+        }
+
         // Check if initial flavor text should be shown
         const shouldShowFlavorText = !gameState.initialFlavorTextShown;
 
@@ -482,6 +502,25 @@ export function startNewRound() {
 
         updateCards();
         updateDisplay();
+
+        // Show Joker feedback for any jokers in the starting hand (fallback path)
+        const jokersInStartingHand = gameState.playerCards.filter(card => card.isJoker);
+        if (jokersInStartingHand.length > 0) {
+            const playerScore = calculateScore(gameState.playerCards);
+            jokersInStartingHand.forEach((joker, index) => {
+                const jokerValue = joker.getCurrentValue();
+                const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
+                setTimeout(() => {
+                    showJokerCalculationFeedback(joker, jokerValue, isOptimal);
+                }, 1000 + (index * 500));
+            });
+
+            if (playerScore === 21) {
+                setTimeout(() => {
+                    showJokerPerfectScoreFeedback();
+                }, 1500 + (jokersInStartingHand.length * 500));
+            }
+        }
     }
 }
 
