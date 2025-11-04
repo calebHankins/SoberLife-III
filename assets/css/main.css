@@ -64,21 +64,13 @@
 
 .card.joker .joker-label {
     position: absolute;
-    top: -20px;
+    top: -25px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #FFD700, #ff00ff, #00ffff);
-    background-size: 200% 200%;
-    color: white;
-    font-weight: bold;
-    font-size: 13px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255, 0, 255, 0.4);
+    font-size: 28px;
     z-index: 2;
-    animation: joker-label-shine 2s linear infinite;
-    border: 2px solid white;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    animation: joker-emoji-dance 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 15px rgba(255, 0, 255, 0.6)) drop-shadow(0 0 20px rgba(0, 255, 255, 0.4));
 }
 
 @keyframes joker-mega-glow {
@@ -158,6 +150,27 @@
 
     100% {
         background-position: 200% 50%;
+    }
+}
+
+/* Fun emoji dance animation for joker label */
+@keyframes joker-emoji-dance {
+
+    0%,
+    100% {
+        transform: translateX(-50%) rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: translateX(-50%) rotate(-15deg) scale(1.15);
+    }
+
+    50% {
+        transform: translateX(-50%) rotate(0deg) scale(1.25);
+    }
+
+    75% {
+        transform: translateX(-50%) rotate(15deg) scale(1.15);
     }
 }
 

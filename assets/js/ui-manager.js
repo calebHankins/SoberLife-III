@@ -176,10 +176,10 @@ function createCardElement(card) {
         cardEl.style.position = 'relative';
         cardEl.style.fontSize = '36px';
 
-        // Add "Wild Joker!" label with enhanced styling
+        // Add joker emoji label with enhanced styling
         const jokerLabel = document.createElement('div');
         jokerLabel.className = 'joker-label';
-        jokerLabel.textContent = '✨ Wild Joker! ✨';
+        jokerLabel.textContent = '🃏';
         cardEl.appendChild(jokerLabel);
 
         // Add value indicator if Joker has calculated a value
