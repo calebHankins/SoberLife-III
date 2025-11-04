@@ -1,13 +1,13 @@
 // SoberLife III - Main Game Controller
 // Game initialization and coordination
 
-import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity } from './game-state.js';
+import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity, updateCampaignState } from './game-state.js';
 import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
 import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showMindPalace, hideMindPalace, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel, switchSplitHand, showZenActivityFeedback, useZenActivity, zenActivities, completeSplitHand, getActiveSplitHand } from './stress-system.js';
 import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
 import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback, purchasePremiumActivityWrapper } from './shop-system.js';
-import { getTaskDefinition } from './task-definitions.js';
+import { getTaskDefinition, getNextAvailableTask } from './task-definitions.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 import { AudioManager } from './audio-system.js';
 
@@ -319,25 +319,45 @@ function showPopupNotification(message, type = 'default') {
     }, 2000);
 }
 
-// Start single task mode (original DMV-only experience)
+// Start single task mode (jump into next uncompleted task)
 export function startSingleTaskMode() {
-    // Set up single task mode
+    // Initialize campaign to get current progress
+    initializeCampaign();
+
+    // Find the next available task
+    const nextTask = getNextAvailableTask(campaignState.completedTasks);
+
+    if (!nextTask) {
+        // All tasks completed - show campaign overview instead
+        alert('Congratulations! You\'ve completed all available tasks. Check out Campaign Mode to replay tasks or visit the shop!');
+        startCampaignMode();
+        return;
+    }
+
+    // Set up single task mode with the next available task
     updateGameState({ campaignMode: false });
+    updateCampaignState({ currentTask: nextTask.id });
 
     // Hide mode selection and show survey
     hideElement('gameModeSelection');
     hideElement('campaignOverview');
     showElement('surveySection');
 
-    // Update survey for DMV context
+    // Update survey for the specific task context
     const surveyDescription = document.getElementById('surveyDescription');
     if (surveyDescription) {
-        surveyDescription.textContent = 'Before we begin your DMV visit, let\'s assess your current stress level:';
+        surveyDescription.textContent = `Before we begin your ${nextTask.name.toLowerCase()}, let's assess your current stress level:`;
     }
 
     const preparedQuestion = document.getElementById('preparedQuestion');
     if (preparedQuestion) {
-        preparedQuestion.textContent = 'How prepared do you feel for the DMV?';
+        if (nextTask.id === 'dmv') {
+            preparedQuestion.textContent = 'How prepared do you feel for the DMV?';
+        } else if (nextTask.id === 'jobInterview') {
+            preparedQuestion.textContent = 'How prepared do you feel for the job interview?';
+        } else {
+            preparedQuestion.textContent = 'How prepared do you feel for this task?';
+        }
     }
 }
 

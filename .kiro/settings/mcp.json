@@ -18,7 +18,8 @@
         "browser_press_key",
         "browser_close",
         "browser_resize",
-        "browser_type"
+        "browser_type",
+        "browser_handle_dialog"
       ]
     }
   }
