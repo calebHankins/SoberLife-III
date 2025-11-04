@@ -1,22 +1,22 @@
 /* Joker Card Visuals - Enhanced for Maximum Visual Impact */
 .card.joker {
     box-shadow:
-        0 0 20px 8px #FFD700,
-        0 0 40px 16px #ff00ff,
-        0 0 60px 24px #00ffff,
+        0 0 10px 4px rgba(255, 215, 0, 0.4),
+        0 0 20px 8px rgba(255, 0, 255, 0.3),
+        0 0 30px 12px rgba(0, 255, 255, 0.2),
         0 8px 32px rgba(0, 0, 0, 0.5);
     border: 4px solid transparent;
     background:
         linear-gradient(white, white) padding-box,
         linear-gradient(45deg, #FFD700, #ff00ff, #00ffff, #00ff00, #FFD700) border-box;
     position: relative;
-    animation: joker-mega-glow 1.5s ease-in-out infinite, joker-pulse 2s ease-in-out infinite;
+    animation: joker-mega-glow 2s ease-in-out infinite, joker-pulse 2s ease-in-out infinite;
     transform: scale(1.05);
     z-index: 100;
     overflow: visible;
 }
 
-/* Shimmer overlay effect */
+/* Shimmer overlay effect - toned down */
 .card.joker::before {
     content: '';
     position: absolute;
@@ -26,13 +26,13 @@
     height: 200%;
     background: linear-gradient(45deg,
             transparent 30%,
-            rgba(255, 255, 255, 0.8) 50%,
+            rgba(255, 255, 255, 0.3) 50%,
             transparent 70%);
-    animation: joker-shimmer 3s linear infinite;
+    animation: joker-shimmer 4s linear infinite;
     pointer-events: none;
 }
 
-/* Rainbow border pulse */
+/* Rainbow border pulse - toned down */
 .card.joker::after {
     content: '';
     position: absolute;
@@ -41,8 +41,9 @@
     background-size: 300% 300%;
     border-radius: 10px;
     z-index: -1;
-    animation: joker-rainbow-border 2s linear infinite;
+    animation: joker-rainbow-border 3s linear infinite;
     filter: blur(8px);
+    opacity: 0.5;
 }
 
 .joker-value-indicator {
@@ -78,20 +79,20 @@
     0%,
     100% {
         box-shadow:
-            0 0 20px 8px #FFD700,
-            0 0 40px 16px #ff00ff,
-            0 0 60px 24px #00ffff,
+            0 0 10px 4px rgba(255, 215, 0, 0.4),
+            0 0 20px 8px rgba(255, 0, 255, 0.3),
+            0 0 30px 12px rgba(0, 255, 255, 0.2),
             0 8px 32px rgba(0, 0, 0, 0.5);
-        filter: brightness(1.1);
+        filter: brightness(1.05);
     }
 
     50% {
         box-shadow:
-            0 0 30px 12px #FFD700,
-            0 0 60px 24px #ff00ff,
-            0 0 90px 36px #00ffff,
+            0 0 15px 6px rgba(255, 215, 0, 0.5),
+            0 0 30px 12px rgba(255, 0, 255, 0.4),
+            0 0 45px 18px rgba(0, 255, 255, 0.3),
             0 12px 40px rgba(0, 0, 0, 0.6);
-        filter: brightness(1.3);
+        filter: brightness(1.15);
     }
 }
 
@@ -103,7 +104,7 @@
     }
 
     50% {
-        transform: scale(1.08);
+        transform: scale(1.07);
     }
 }
 
