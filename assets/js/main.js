@@ -413,7 +413,11 @@ export function startNewRound() {
         resetJokerValues(gameState.playerCards);
         resetJokerValues(gameState.houseCards);
 
-        // Update UI
+        // Calculate scores to set joker values BEFORE updating UI
+        const playerScore = calculateScore(gameState.playerCards);
+        const houseScore = calculateScore(gameState.houseCards);
+
+        // Update UI (jokers now have calculated values)
         updateTaskDescription();
         updateCards();
         updateDisplay();
@@ -426,7 +430,6 @@ export function startNewRound() {
         // Show Joker feedback for any jokers in the starting hand
         const jokersInStartingHand = gameState.playerCards.filter(card => card.isJoker);
         if (jokersInStartingHand.length > 0) {
-            const playerScore = calculateScore(gameState.playerCards);
             jokersInStartingHand.forEach((joker, index) => {
                 const jokerValue = joker.getCurrentValue();
                 const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
@@ -500,13 +503,16 @@ export function startNewRound() {
             gameState.houseCards.push(gameState.deck.pop());
         }
 
+        // Calculate scores to set joker values BEFORE updating UI (fallback path)
+        const playerScore = calculateScore(gameState.playerCards);
+        const houseScore = calculateScore(gameState.houseCards);
+
         updateCards();
         updateDisplay();
 
         // Show Joker feedback for any jokers in the starting hand (fallback path)
         const jokersInStartingHand = gameState.playerCards.filter(card => card.isJoker);
         if (jokersInStartingHand.length > 0) {
-            const playerScore = calculateScore(gameState.playerCards);
             jokersInStartingHand.forEach((joker, index) => {
                 const jokerValue = joker.getCurrentValue();
                 const isOptimal = (playerScore === 21) || (playerScore <= 21 && jokerValue > 1);
