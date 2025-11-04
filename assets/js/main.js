@@ -464,9 +464,9 @@ export function startNewRound() {
         // Reset hand state for fresh progressive flavor text
         resetHandState();
 
-        // Create deck based on mode (custom for campaign, standard for single task)
+        // Create deck based on mode (custom for campaign/task mode, standard for pure single task)
         let playerDeck, houseDeck;
-        if (isCampaignMode()) {
+        if (isCampaignMode() || campaignState.currentTask) {
             playerDeck = createCustomDeck(campaignState.deckComposition);
             houseDeck = createDeck();
             console.log('[DEBUG] Custom player deck generated:', playerDeck);
@@ -722,12 +722,7 @@ export function stand() {
         // House plays according to standard rules using its own deck
         if (!gameState.houseDeck) {
             // If houseDeck is not set, create and shuffle a new one
-            gameState.houseDeck = [];
-            if (isCampaignMode()) {
-                gameState.houseDeck = createDeck();
-            } else {
-                gameState.houseDeck = createDeck();
-            }
+            gameState.houseDeck = createDeck(); // House always uses standard deck
             shuffleDeck(gameState.houseDeck);
         }
         while (calculateScore(gameState.houseCards) < 17 && gameState.houseDeck.length > 0) {
@@ -1060,9 +1055,9 @@ export function purchaseAce() {
 
 export function openCampaignShop() {
     try {
-        // Validate campaign mode
-        if (!isCampaignMode()) {
-            console.warn('Cannot open campaign shop - not in campaign mode');
+        // Validate campaign mode or jump into task mode
+        if (!isCampaignMode() && !campaignState.currentTask) {
+            console.warn('Cannot open campaign shop - not in campaign or task mode');
             return;
         }
 
@@ -1341,9 +1336,9 @@ function determineOverallOutcome(hand1Result, hand2Result) {
 
 export function purchaseJoker() {
     try {
-        // Validate campaign mode
-        if (!isCampaignMode()) {
-            console.warn('Cannot purchase Joker - not in campaign mode');
+        // Validate campaign mode or jump into task mode (which has a current task)
+        if (!isCampaignMode() && !campaignState.currentTask) {
+            console.warn('Cannot purchase Joker - not in campaign or task mode');
             showPurchaseFeedback({
                 success: false,
                 message: 'Joker upgrades only available in campaign mode'
@@ -1414,8 +1409,8 @@ export function visitMindPalace() {
     try {
         console.log('visitMindPalace called');
 
-        // Validate campaign mode
-        if (!isCampaignMode()) {
+        // Validate campaign mode or jump into task mode
+        if (!isCampaignMode() && !campaignState.currentTask) {
             console.warn('Mind Palace only available in campaign mode');
             showPopupNotification('Mind Palace only available in campaign mode', 'error');
             return;

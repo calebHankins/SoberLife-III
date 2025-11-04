@@ -10,33 +10,37 @@
 
 ## Game Modes
 
-### Single Task Mode
-- Classic experience focusing on a single DMV visit
-- Perfect for learning basic stress management techniques
-- Self-contained gameplay session
+### Jump Into Task Mode
+- Quick access to your next uncompleted challenge
+- Uses campaign progress and upgraded deck for seamless play
+- Full shop access for deck upgrades and premium activities
+- Perfect for quick play sessions without campaign navigation
 
 ### Campaign Mode (Primary Experience)
 - **Progressive scenarios**: Multiple stress management challenges
-- **Deck upgrades**: Spend zen points to add Aces to your deck between tasks
-- **Persistent progression**: Upgraded deck carries over to future challenges
+- **Deck upgrades**: Spend zen points to add jokers and unlock premium activities
+- **Persistent progression**: Upgraded deck and activities carry over to all modes
 - **Task unlocking**: Sequential progression through increasingly complex scenarios
 
 ## Key Features
-- **Dual Game Modes**: Single task for quick play, campaign for progression
+- **Dual Game Modes**: Jump Into Task for quick play, campaign for full progression
 - **Stress Management System**: Visual stress meter (0-100%) with consequences for reaching maximum
 - **Zen Points Economy**: Currency system for stress relief activities AND deck upgrades
 - **Multi-Step Tasks**: Progressive scenarios broken into manageable steps with contextual actions
-- **Zen Activities**: Deep breathing, stretching, and meditation for stress reduction
-- **Deck Progression**: Rogue-like upgrade system where players add Aces to improve future performance
-- **Multiple Scenarios**: DMV visits, job interviews, with more planned
+- **Zen Activities**: Deep breathing, stretching, meditation, plus premium unlockable techniques
+- **Deck Progression**: Rogue-like upgrade system where players add Wild Jokers to improve future performance
+- **Premium Activities**: Advanced techniques like Mindful Breathing and Compartmentalize
+- **Multiple Scenarios**: DMV visits, job interviews, voter registration, office party shopping
 - **Task-Specific Content**: Each scenario has unique contextual actions, flavor text, success messages, and **must** define its own bustMessages and hand loss messages for loss outcomes. This is required for proper thematic feedback and stress management learning.
 - **Progress Persistence**: Campaign state saves automatically with error recovery
 - **Educational Value**: Teaches real-world stress management techniques through varied scenarios
 
 ## Available Tasks
-1. **DMV License Renewal** - Navigate bureaucratic processes and paperwork anxiety
+1. **DMV License Renewal & Real ID** - Navigate bureaucratic processes and paperwork anxiety
 2. **Job Interview Challenge** - Handle performance anxiety and professional pressure
-3. **Future Scenarios** - Medical appointments, public speaking, social situations (planned)
+3. **Voter Registration Update** - Survive quirky county clerk office encounters
+4. **Work Shopper: The Office Party Gauntlet** - Navigate complex dietary restrictions and office politics
+5. **Future Scenarios** - Medical appointments, public speaking, social situations (planned)
 
 ## Target Audience
 - Individuals learning stress management techniques
