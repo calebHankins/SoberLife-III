@@ -12,16 +12,38 @@
     }
 
     .card.joker::before {
-        animation-duration: 3s;
+        font-size: 16px;
+        animation-duration: 4s;
     }
 
-    .joker-value-indicator {
-        width: 20px;
-        height: 20px;
-        font-size: 10px;
-        top: -8px;
-        right: -8px;
+    /* Mobile joker transformation styles */
+    .joker-base {
+        font-size: 18px;
     }
+
+    .joker-value-overlay {
+        font-size: 20px;
+    }
+
+    .card.joker-transformed {
+        border-width: 1px;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    }
+
+    /* Mobile joker flourishes */
+    .joker-flourish-top {
+        font-size: 12px;
+        top: -6px;
+        right: -6px;
+    }
+
+    .joker-flourish-bottom {
+        font-size: 10px;
+        bottom: -6px;
+        left: -6px;
+    }
+
+
 
     .card.joker.calculating {
         box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.3);

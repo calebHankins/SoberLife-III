@@ -168,26 +168,32 @@ function createCardElement(card) {
     cardEl.className = 'card';
 
     if (card.isJoker) {
-        // Joker visual indicator - ENHANCED
+        // Joker visual indicator - ENHANCED with value transformation
         cardEl.classList.add('joker');
-        cardEl.textContent = card.display;
 
         // Enhanced styling applied via CSS classes
         cardEl.style.position = 'relative';
         cardEl.style.fontSize = '36px';
 
-        // Add joker emoji label with enhanced styling
-        const jokerLabel = document.createElement('div');
-        jokerLabel.className = 'joker-label';
-        jokerLabel.textContent = '🃏';
-        cardEl.appendChild(jokerLabel);
-
-        // Add value indicator if Joker has calculated a value
+        // If Joker has calculated a value, show it as a transformed card
         if (card.calculatedValue !== null) {
-            const valueIndicator = document.createElement('div');
-            valueIndicator.className = 'joker-value-indicator';
-            valueIndicator.textContent = `=${card.calculatedValue}`;
-            cardEl.appendChild(valueIndicator);
+            // Transform the joker to show its calculated value
+            const transformedValue = getTransformedJokerDisplay(card.calculatedValue);
+            cardEl.innerHTML = `
+                <div class="joker-transformation">
+                    <div class="joker-base">${card.display}</div>
+                    <div class="joker-value-overlay">${transformedValue.display}</div>
+                    <div class="joker-flourish-top">🎭</div>
+                    <div class="joker-flourish-bottom">✨</div>
+                </div>
+            `;
+
+            // Add appropriate color class for the transformed value
+            if (transformedValue.isRed) {
+                cardEl.classList.add('red');
+            }
+
+            cardEl.classList.add('joker-transformed');
 
             // Add special effects based on value
             if (card.calculatedValue === 11) {
@@ -205,6 +211,15 @@ function createCardElement(card) {
                     createJokerSparkles(cardEl, true);
                 }, 100);
             }
+        } else {
+            // Show regular joker when no value calculated yet
+            cardEl.textContent = card.display;
+
+            // Add joker emoji label with enhanced styling
+            const jokerLabel = document.createElement('div');
+            jokerLabel.className = 'joker-label';
+            jokerLabel.textContent = '🃏';
+            cardEl.appendChild(jokerLabel);
         }
     } else {
         // Regular card rendering
@@ -214,6 +229,26 @@ function createCardElement(card) {
         }
     }
     return cardEl;
+}
+
+// Get the display representation for a transformed joker value
+function getTransformedJokerDisplay(value) {
+    // Map joker values to card representations
+    const valueMap = {
+        1: { display: 'A♠', isRed: false },    // Ace of Spades
+        2: { display: '2♠', isRed: false },    // 2 of Spades
+        3: { display: '3♠', isRed: false },    // 3 of Spades
+        4: { display: '4♠', isRed: false },    // 4 of Spades
+        5: { display: '5♠', isRed: false },    // 5 of Spades
+        6: { display: '6♠', isRed: false },    // 6 of Spades
+        7: { display: '7♠', isRed: false },    // 7 of Spades
+        8: { display: '8♠', isRed: false },    // 8 of Spades
+        9: { display: '9♠', isRed: false },    // 9 of Spades
+        10: { display: '10♠', isRed: false },  // 10 of Spades
+        11: { display: 'A♥', isRed: true }     // Ace of Hearts (for 11 value)
+    };
+
+    return valueMap[value] || { display: 'A♠', isRed: false };
 }
 
 // Update score displays with Joker information
@@ -391,7 +426,9 @@ export function showJokerCalculationFeedback(joker, calculatedValue, isOptimal) 
         const feedbackDiv = document.createElement('div');
         feedbackDiv.className = 'joker-feedback';
 
-        let message = `🃏 Wild Joker calculated value: ${calculatedValue}`;
+        // Get the card representation for the calculated value
+        const transformedDisplay = getTransformedJokerDisplay(calculatedValue);
+        let message = `🃏 Wild Joker transformed into ${transformedDisplay.display}`;
         let emoji = '✨';
 
         if (isOptimal) {
