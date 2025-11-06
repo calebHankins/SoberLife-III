@@ -46,21 +46,82 @@
     opacity: 0.5;
 }
 
-.joker-value-indicator {
+/* Joker transformation styles */
+.joker-transformation {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.joker-base {
     position: absolute;
-    bottom: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #ff00ff, #8e44ad);
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.6), 0 0 20px rgba(255, 0, 255, 0.4);
+    font-size: 24px;
+    opacity: 0.3;
+    z-index: 1;
+    animation: joker-fade-back 0.8s ease-out;
+}
+
+.joker-value-overlay {
+    position: relative;
     z-index: 2;
-    animation: joker-value-bounce 1s ease-in-out infinite;
+    font-size: 32px;
+    font-weight: bold;
+    animation: joker-transform-in 0.8s ease-out;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+}
+
+.card.joker-transformed {
+    background: linear-gradient(135deg,
+            rgba(255, 215, 0, 0.1) 0%,
+            rgba(255, 255, 255, 0.95) 50%,
+            rgba(255, 215, 0, 0.1) 100%);
     border: 2px solid #FFD700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    animation: joker-glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes joker-fade-back {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+}
+
+@keyframes joker-transform-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-180deg);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1) rotate(-90deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes joker-glow-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+
+    50% {
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
+    }
 }
 
 .card.joker .joker-label {

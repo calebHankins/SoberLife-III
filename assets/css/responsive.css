@@ -15,12 +15,18 @@
         animation-duration: 3s;
     }
 
-    .joker-value-indicator {
-        width: 20px;
-        height: 20px;
-        font-size: 10px;
-        top: -8px;
-        right: -8px;
+    /* Mobile joker transformation styles */
+    .joker-base {
+        font-size: 16px;
+    }
+
+    .joker-value-overlay {
+        font-size: 20px;
+    }
+
+    .card.joker-transformed {
+        border-width: 1px;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
     }
 
     .card.joker.calculating {
