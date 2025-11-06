@@ -12,7 +12,8 @@
     }
 
     .card.joker::before {
-        animation-duration: 3s;
+        font-size: 16px;
+        animation-duration: 4s;
     }
 
     /* Mobile joker transformation styles */

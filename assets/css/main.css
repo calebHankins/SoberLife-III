@@ -18,18 +18,16 @@
 
 /* Shimmer overlay effect - toned down */
 .card.joker::before {
-    content: '';
+    content: '🃏';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg,
-            transparent 30%,
-            rgba(255, 255, 255, 0.3) 50%,
-            transparent 70%);
-    animation: joker-shimmer 4s linear infinite;
+    top: 50%;
+    left: -20%;
+    font-size: 24px;
+    opacity: 0.4;
+    animation: joker-float 6s ease-in-out infinite;
     pointer-events: none;
+    z-index: 1;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
 }
 
 /* Rainbow border pulse - toned down */
@@ -225,13 +223,30 @@
     }
 }
 
-@keyframes joker-shimmer {
+@keyframes joker-float {
     0% {
-        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        transform: translateX(0) translateY(0) rotate(0deg);
+        opacity: 0.2;
+    }
+
+    25% {
+        transform: translateX(60px) translateY(-10px) rotate(15deg);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: translateX(120px) translateY(5px) rotate(-10deg);
+        opacity: 0.4;
+    }
+
+    75% {
+        transform: translateX(180px) translateY(-5px) rotate(20deg);
+        opacity: 0.3;
     }
 
     100% {
-        transform: translateX(100%) translateY(100%) rotate(45deg);
+        transform: translateX(240px) translateY(0) rotate(0deg);
+        opacity: 0;
     }
 }
 
