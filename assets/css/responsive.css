@@ -29,6 +29,25 @@
         box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
     }
 
+    /* Mobile joker flourishes */
+    .joker-flourish-top {
+        font-size: 12px;
+        top: -6px;
+        right: -6px;
+    }
+
+    .joker-flourish-bottom {
+        font-size: 10px;
+        bottom: -6px;
+        left: -6px;
+    }
+
+    .joker-wild-indicator {
+        font-size: 6px;
+        padding: 1px 4px;
+        top: -10px;
+    }
+
     .card.joker.calculating {
         box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.3);
     }

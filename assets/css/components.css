@@ -3381,7 +3381,10 @@ ive Flavor Text Animations */
     /* Disable joker transformation animations on reduced motion */
     .joker-base,
     .joker-value-overlay,
-    .card.joker-transformed {
+    .card.joker-transformed,
+    .joker-flourish-top,
+    .joker-flourish-bottom,
+    .joker-wild-indicator {
         animation: none;
     }
 
