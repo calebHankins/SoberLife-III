@@ -82,7 +82,7 @@
 
 .joker-base {
     position: absolute;
-    font-size: 40px;
+    font-size: 48px;
     opacity: 0.9;
     z-index: 1;
     animation: joker-base-pulse 2s ease-in-out infinite;

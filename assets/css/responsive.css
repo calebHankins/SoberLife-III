@@ -13,12 +13,12 @@
 
     .card.joker::before {
         font-size: 16px;
-        animation-duration: 4s;
+        animation-duration: 60s;
     }
 
     /* Mobile joker transformation styles */
     .joker-base {
-        font-size: 26px;
+        font-size: 36px;
     }
 
     .joker-value-overlay {
