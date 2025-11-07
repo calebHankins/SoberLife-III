@@ -185,6 +185,7 @@ function createCardElement(card) {
                     <div class="joker-value-overlay">${transformedValue.display}</div>
                     <div class="joker-flourish-top">🎭</div>
                     <div class="joker-flourish-bottom">✨</div>
+                    <div class="joker-label-text">JOKER</div>
                 </div>
             `;
 
