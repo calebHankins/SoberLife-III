@@ -24,7 +24,7 @@
     left: -20%;
     font-size: 24px;
     opacity: 0.4;
-    animation: joker-ember-cycle 30s linear infinite;
+    animation: joker-ember-cycle 60s linear infinite;
     pointer-events: none;
     z-index: 1;
     filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
@@ -82,11 +82,12 @@
 
 .joker-base {
     position: absolute;
-    font-size: 28px;
-    opacity: 0.6;
+    font-size: 48px;
+    opacity: 0.9;
     z-index: 1;
-    animation: joker-fade-back 0.8s ease-out;
-    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.8));
+    animation: joker-base-pulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 1)) drop-shadow(0 0 16px rgba(255, 0, 255, 0.8)) drop-shadow(0 0 24px rgba(0, 255, 255, 0.4));
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.8);
 }
 
 .joker-value-overlay {
@@ -108,15 +109,19 @@
     animation: joker-glow-pulse 2s ease-in-out infinite;
 }
 
-@keyframes joker-fade-back {
-    0% {
-        opacity: 1;
+@keyframes joker-base-pulse {
+
+    0%,
+    100% {
+        opacity: 0.9;
         transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 1)) drop-shadow(0 0 16px rgba(255, 0, 255, 0.8)) drop-shadow(0 0 24px rgba(0, 255, 255, 0.4));
     }
 
-    100% {
-        opacity: 0.6;
-        transform: scale(0.9);
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 12px rgba(255, 215, 0, 1)) drop-shadow(0 0 20px rgba(255, 0, 255, 1)) drop-shadow(0 0 28px rgba(0, 255, 255, 0.6));
     }
 }
 
@@ -201,6 +206,9 @@
         transform: scale(1.2);
     }
 }
+
+/* Clear JOKER text label */
+
 
 
 
