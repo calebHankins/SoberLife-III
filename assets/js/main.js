@@ -217,6 +217,12 @@ function setupCloseButtons() {
         taskCloseBtn.addEventListener('click', closeTask);
     }
 
+    // Campaign close button
+    const campaignCloseBtn = document.getElementById('campaignCloseBtn');
+    if (campaignCloseBtn) {
+        campaignCloseBtn.addEventListener('click', closeCampaign);
+    }
+
     // Shop close button
     const shopCloseBtn = document.getElementById('shopCloseBtn');
     if (shopCloseBtn) {
@@ -240,6 +246,18 @@ export function closeSurvey() {
         // Regular single task mode
         showElement('gameModeSelection');
     }
+}
+
+// Close campaign overview and return to mode selection
+export function closeCampaign() {
+    hideElement('campaignOverview');
+    hideElement('upgradeShop');
+
+    // Clear campaign mode flag
+    updateCampaignState({ campaignMode: false });
+
+    // Show mode selection
+    showElement('gameModeSelection');
 }
 
 // Close task and return to campaign or mode selection

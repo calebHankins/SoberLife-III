@@ -86,6 +86,7 @@
     /* Close Button Mobile Optimizations */
     .survey-close-btn,
     .task-close-btn,
+    .campaign-close-btn,
     .shop-close-btn {
         width: 32px;
         height: 32px;
@@ -100,6 +101,11 @@
     }
 
     .task-close-btn {
+        top: 12px;
+        right: 12px;
+    }
+
+    .campaign-close-btn {
         top: 12px;
         right: 12px;
     }
