@@ -6,7 +6,15 @@
 - **Campaign system**: Rogue-like progression with persistent state management
 - **No external dependencies**: Self-contained with no frameworks or libraries
 - **Client-side only**: Pure frontend implementation with localStorage persistence
-- **Dual-mode design**: Supports both single-task and campaign gameplay
+- **Triple-mode design**: Supports Jump Into Task, Campaign, and Free Play gameplay
+
+### Free Play Mode Integration
+
+Free Play Mode integrates with existing modules:
+- **game-state.js**: Adds `freePlayMode`, `freePlayRounds`, `freePlayTasksCompleted`, `freePlayCurrentTaskRounds`, and `freePlayStressMultiplier` flags
+- **main.js**: Adds `startFreePlayMode()`, task completion modal functions, and generic outcome messaging
+- **ui-manager.js**: Adds conditional rendering for Free Play UI (`updateFreePlayUI()`, `updateGenericActionButtons()`)
+- **No new files**: Leverages existing architecture with minimal additions
 
 ## Technologies
 - **HTML5**: Semantic markup and structure with external resource references

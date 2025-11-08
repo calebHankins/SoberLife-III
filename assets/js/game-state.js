@@ -14,7 +14,13 @@ export let gameState = {
     surveyCompleted: false,
     initialFlavorTextShown: false,
     showCompartmentalizedResult: false,
-    compartmentalizedHands: null
+    compartmentalizedHands: null,
+    // Free Play Mode properties
+    freePlayMode: false,              // Flag to indicate Free Play Mode is active
+    freePlayRounds: 0,                // Total rounds completed in session
+    freePlayTasksCompleted: 0,        // Number of tasks completed in session
+    freePlayCurrentTaskRounds: 0,     // Rounds in current task (resets each task)
+    freePlayStressMultiplier: 1.0     // Difficulty multiplier (increases with tasks)
 };
 
 // Campaign state object for rogue-like progression

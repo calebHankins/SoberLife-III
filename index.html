@@ -61,6 +61,12 @@
                     <p>Progress through multiple scenarios and upgrade your Mind Palace</p>
                     <button onclick="startCampaignMode()" class="mode-btn">Start Campaign</button>
                 </div>
+
+                <div class="mode-card">
+                    <h4>🎮 Free Play Mode</h4>
+                    <p>Pure gameplay with progressive difficulty</p>
+                    <button onclick="startFreePlayMode()" class="mode-btn">Start Free Play</button>
+                </div>
             </div>
         </div>
 
@@ -634,6 +640,11 @@
                 window.useZenActivity = stressModule.useZenActivity;
                 window.startSingleTaskMode = mainModule.startSingleTaskMode;
                 window.startCampaignMode = mainModule.startCampaignMode;
+                window.startFreePlayMode = mainModule.startFreePlayMode;
+                window.continueFreePlayTask = mainModule.continueFreePlayTask;
+                window.endFreePlaySession = mainModule.endFreePlaySession;
+                window.restartFreePlay = mainModule.restartFreePlay;
+                window.returnToModeSelection = mainModule.returnToModeSelection;
                 window.startTask = mainModule.startTask;
                 window.startGame = mainModule.startTask;
                 window.hit = mainModule.hit;
