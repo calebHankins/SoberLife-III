@@ -335,6 +335,12 @@ export function resetGameState() {
     gameState.houseCards = [];
     gameState.surveyCompleted = false;
     gameState.initialFlavorTextShown = false;
+    // Reset Free Play Mode flags
+    gameState.freePlayMode = false;
+    gameState.freePlayRounds = 0;
+    gameState.freePlayTasksCompleted = 0;
+    gameState.freePlayCurrentTaskRounds = 0;
+    gameState.freePlayStressMultiplier = 1.0;
     resetHandState();
 }
 
