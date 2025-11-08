@@ -14,7 +14,13 @@ export let gameState = {
     surveyCompleted: false,
     initialFlavorTextShown: false,
     showCompartmentalizedResult: false,
-    compartmentalizedHands: null
+    compartmentalizedHands: null,
+    // Free Play Mode properties
+    freePlayMode: false,              // Flag to indicate Free Play Mode is active
+    freePlayRounds: 0,                // Total rounds completed in session
+    freePlayTasksCompleted: 0,        // Number of tasks completed in session
+    freePlayCurrentTaskRounds: 0,     // Rounds in current task (resets each task)
+    freePlayStressMultiplier: 1.0     // Difficulty multiplier (increases with tasks)
 };
 
 // Campaign state object for rogue-like progression
@@ -329,6 +335,12 @@ export function resetGameState() {
     gameState.houseCards = [];
     gameState.surveyCompleted = false;
     gameState.initialFlavorTextShown = false;
+    // Reset Free Play Mode flags
+    gameState.freePlayMode = false;
+    gameState.freePlayRounds = 0;
+    gameState.freePlayTasksCompleted = 0;
+    gameState.freePlayCurrentTaskRounds = 0;
+    gameState.freePlayStressMultiplier = 1.0;
     resetHandState();
 }
 

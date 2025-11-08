@@ -3,7 +3,7 @@
 
 import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity, updateCampaignState } from './game-state.js';
 import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showMindPalace, hideMindPalace, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay } from './ui-manager.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showMindPalace, hideMindPalace, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay, updateFreePlayUI } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel, switchSplitHand, showZenActivityFeedback, useZenActivity, zenActivities, completeSplitHand, getActiveSplitHand } from './stress-system.js';
 import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
 import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback, purchasePremiumActivityWrapper } from './shop-system.js';
@@ -217,6 +217,12 @@ function setupCloseButtons() {
         taskCloseBtn.addEventListener('click', closeTask);
     }
 
+    // Campaign close button
+    const campaignCloseBtn = document.getElementById('campaignCloseBtn');
+    if (campaignCloseBtn) {
+        campaignCloseBtn.addEventListener('click', closeCampaign);
+    }
+
     // Shop close button
     const shopCloseBtn = document.getElementById('shopCloseBtn');
     if (shopCloseBtn) {
@@ -242,6 +248,18 @@ export function closeSurvey() {
     }
 }
 
+// Close campaign overview and return to mode selection
+export function closeCampaign() {
+    hideElement('campaignOverview');
+    hideElement('upgradeShop');
+
+    // Clear campaign mode flag
+    updateCampaignState({ campaignMode: false });
+
+    // Show mode selection
+    showElement('gameModeSelection');
+}
+
 // Close task and return to campaign or mode selection
 export function closeTask() {
     // Confirm before closing if game is in progress
@@ -260,8 +278,11 @@ export function closeTask() {
     hideElement('gameOverScreen');
     hideElement('gameSuccessScreen');
 
-    // Return to appropriate view
-    if (isCampaignMode()) {
+    // Return to appropriate view based on mode
+    // Free Play Mode always returns to mode selection
+    if (gameState.freePlayMode) {
+        showElement('gameModeSelection');
+    } else if (isCampaignMode()) {
         showElement('campaignOverview');
     } else {
         showElement('gameModeSelection');
@@ -327,6 +348,58 @@ function showPopupNotification(message, type = 'default') {
     }, 2000);
 }
 
+// Get generic outcome message for Free Play Mode
+function getGenericOutcomeMessage(result) {
+    const messages = {
+        win: [
+            "You won the hand!",
+            "Victory! Well played.",
+            "Nice hand!",
+            "You beat the house!"
+        ],
+        lose: [
+            "You lost this hand.",
+            "The house wins this round.",
+            "Better luck next time.",
+            "Not quite this time."
+        ],
+        tie: [
+            "It's a tie!",
+            "Push - no winner.",
+            "Even match.",
+            "Tied with the house."
+        ],
+        bust: [
+            "Bust! Over 21.",
+            "You went over 21.",
+            "Busted!",
+            "Too many cards."
+        ],
+        house_bust: [
+            "House busts! You win!",
+            "The house went over 21!",
+            "House busted!",
+            "Victory by house bust!"
+        ]
+    };
+
+    const messageArray = messages[result] || messages.lose;
+    return messageArray[Math.floor(Math.random() * messageArray.length)];
+}
+
+// Show generic outcome message for Free Play Mode
+function showGenericOutcomeMessage(result) {
+    try {
+        const roundResult = document.getElementById('roundResult');
+        if (!roundResult) return;
+
+        const message = getGenericOutcomeMessage(result);
+        roundResult.innerHTML = `<p class="outcome-message">${message}</p>`;
+    } catch (error) {
+        console.error('Error showing generic outcome message:', error);
+    }
+}
+
 // Start single task mode (jump into next uncompleted task)
 export function startSingleTaskMode() {
     // Initialize campaign to get current progress
@@ -374,6 +447,74 @@ export function startCampaignMode() {
     // Initialize and show campaign
     initializeCampaign();
     showCampaignOverview();
+}
+
+// Start Free Play Mode
+export function startFreePlayMode() {
+    try {
+        // Initialize campaign to load deck composition and activities
+        initializeCampaign();
+
+        // Set Free Play Mode flags
+        updateGameState({
+            freePlayMode: true,
+            campaignMode: false,
+            currentStep: 0,
+            stressLevel: 0,
+            surveyCompleted: true,  // Skip survey
+            freePlayRounds: 0,
+            freePlayTasksCompleted: 0,
+            freePlayCurrentTaskRounds: 0,
+            freePlayStressMultiplier: 1.0
+        });
+
+        // Load deck composition from campaign state (player keeps upgraded deck)
+        // This is handled automatically by startNewRound()
+
+        // Load unlocked premium activities
+        loadActivityStateFromCampaign();
+
+        // Initialize zen points from campaign balance
+        ZenPointsManager.initializeCampaignBalance();
+
+        // Hide mode selection and other screens
+        hideElement('gameModeSelection');
+        hideElement('surveySection');
+        hideElement('campaignOverview');
+        hideElement('gameOverScreen');
+        hideElement('gameSuccessScreen');
+
+        // Show game elements
+        showElement('taskInfo');
+        showElement('zenActivities');
+        showElement('gameArea');
+
+        // Update UI for Free Play Mode
+        updateFreePlayUI();
+
+        // Start background music if audio is enabled
+        if (audioManager && audioManager.initialized) {
+            audioManager.startMusic();
+        }
+
+        // Update adaptive music to match initial stress level (0%)
+        updateAdaptiveMusic();
+
+        // Start first round
+        startNewRound();
+
+        console.log('Free Play Mode started');
+
+    } catch (error) {
+        console.error('Error starting Free Play Mode:', error);
+
+        // Fall back to safe state
+        resetGameState();
+        showElement('gameModeSelection');
+
+        // Show user-friendly error
+        alert('Unable to start Free Play Mode. Please try again.');
+    }
 }
 
 // Validate survey completion
@@ -544,8 +685,8 @@ export function startNewRound() {
             }
         }
 
-        // Check if initial flavor text should be shown
-        const shouldShowFlavorText = !gameState.initialFlavorTextShown;
+        // Check if initial flavor text should be shown (skip in Free Play Mode)
+        const shouldShowFlavorText = !gameState.initialFlavorTextShown && !gameState.freePlayMode;
 
         // Enable/disable game buttons based on flavor text state
         const hitBtn = document.getElementById('hitBtn');
@@ -809,6 +950,11 @@ export function endRound(result) {
                 break;
         }
 
+        // Apply stress multiplier in Free Play Mode
+        if (gameState.freePlayMode && stressChange > 0) {
+            stressChange = Math.round(stressChange * gameState.freePlayStressMultiplier);
+        }
+
         // Play appropriate sound effect based on result
         if (audioManager && audioManager.soundEffects) {
             if (result === 'win' || result === 'house_bust') {
@@ -860,8 +1006,12 @@ export function endRound(result) {
         updateDisplay();
         updateZenActivities();
 
-        // Show DMV-themed outcome message with educational content
-        updateOutcomeMessage(result);
+        // Show outcome message based on mode
+        if (gameState.freePlayMode) {
+            showGenericOutcomeMessage(result);
+        } else {
+            updateOutcomeMessage(result);
+        }
 
         // Show stress management tip after a brief delay
         setTimeout(() => {
@@ -921,6 +1071,28 @@ export function endRound(result) {
 
 // Move to next step
 export function nextStep() {
+    // In Free Play Mode, handle task-based progression
+    if (gameState.freePlayMode) {
+        // Increment round counters
+        updateGameState({
+            freePlayRounds: gameState.freePlayRounds + 1,
+            freePlayCurrentTaskRounds: gameState.freePlayCurrentTaskRounds + 1
+        });
+
+        // Update UI to show progress
+        updateFreePlayUI();
+
+        // Check for task completion (5 rounds per task)
+        if (gameState.freePlayCurrentTaskRounds >= 5) {
+            // Offer task completion with bonus
+            offerFreePlayTaskCompletion();
+        } else {
+            // Continue playing current task
+            startNewRound();
+        }
+        return;
+    }
+
     // Get current task steps (campaign mode uses task-specific steps)
     let currentSteps;
     if (isCampaignMode()) {
@@ -988,6 +1160,267 @@ export function nextStep() {
     setTimeout(() => {
         emphasizeTaskInfo();
     }, 500);
+}
+
+// Free Play Mode task completion functions
+
+// Offer Free Play task completion with bonus
+function offerFreePlayTaskCompletion() {
+    try {
+        // Calculate task completion bonus based on performance
+        const stressLevel = gameState.stressLevel;
+        const taskBonus = calculateFreePlayTaskBonus(stressLevel);
+
+        // Create and show completion modal
+        const modal = createFreePlayCompletionModal(taskBonus, stressLevel);
+        document.body.appendChild(modal);
+
+        // Hide game buttons while modal is shown
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        if (hitBtn) hitBtn.disabled = true;
+        if (standBtn) standBtn.disabled = true;
+
+    } catch (error) {
+        console.error('Error offering Free Play task completion:', error);
+        // Fallback: just continue to next task
+        continueFreePlayTask(0);
+    }
+}
+
+// Create Free Play completion modal
+function createFreePlayCompletionModal(bonus, stressLevel) {
+    const modal = document.createElement('div');
+    modal.className = 'free-play-completion-modal';
+    modal.id = 'freePlayCompletionModal';
+
+    const taskNum = gameState.freePlayTasksCompleted + 1;
+    const totalRounds = gameState.freePlayRounds;
+    const nextMultiplier = gameState.freePlayStressMultiplier + 0.15;
+    const nextMultiplierPercent = Math.round((nextMultiplier - 1) * 100);
+
+    modal.innerHTML = `
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h2>🎯 Task ${taskNum} Complete!</h2>
+            <p>You completed 5 rounds with ${stressLevel}% stress</p>
+            <div class="completion-stats">
+                <p><strong>Task Bonus:</strong> ${bonus} zen points</p>
+                <p><strong>Tasks Completed:</strong> ${taskNum}</p>
+                <p><strong>Total Rounds:</strong> ${totalRounds}</p>
+            </div>
+            <div class="completion-options">
+                <button onclick="continueFreePlayTask(${bonus})" class="primary-btn">
+                    Continue Playing (+${nextMultiplierPercent}% Difficulty)
+                </button>
+                <button onclick="endFreePlaySession(${bonus})" class="secondary-btn">
+                    End Session & Collect Bonus
+                </button>
+            </div>
+            <p class="risk-reward-text">
+                ⚠️ Continuing increases stress gain but offers better rewards!
+            </p>
+        </div>
+    `;
+
+    return modal;
+}
+
+// Continue Free Play task (increase difficulty)
+export function continueFreePlayTask(taskBonus) {
+    try {
+        // Award task bonus
+        ZenPointsManager.addPoints(taskBonus, ZEN_TRANSACTION_TYPES.TASK_COMPLETION);
+
+        // Increment task counter and increase difficulty
+        const newMultiplier = gameState.freePlayStressMultiplier + 0.15;
+        updateGameState({
+            freePlayTasksCompleted: gameState.freePlayTasksCompleted + 1,
+            freePlayCurrentTaskRounds: 0,
+            freePlayStressMultiplier: newMultiplier
+        });
+
+        // Remove modal
+        const modal = document.getElementById('freePlayCompletionModal');
+        if (modal) modal.remove();
+
+        // Update UI and start new task
+        updateFreePlayUI();
+        updateDisplay();
+        startNewRound();
+
+        console.log(`Free Play: Continuing to task ${gameState.freePlayTasksCompleted + 1} with ${newMultiplier.toFixed(2)}x stress multiplier`);
+
+    } catch (error) {
+        console.error('Error continuing Free Play task:', error);
+    }
+}
+
+// End Free Play session
+export function endFreePlaySession(taskBonus) {
+    try {
+        // Award task bonus
+        ZenPointsManager.addPoints(taskBonus, ZEN_TRANSACTION_TYPES.TASK_COMPLETION);
+
+        // Increment task counter for final stats
+        updateGameState({
+            freePlayTasksCompleted: gameState.freePlayTasksCompleted + 1
+        });
+
+        // Remove modal
+        const modal = document.getElementById('freePlayCompletionModal');
+        if (modal) modal.remove();
+
+        // Show final success screen
+        showFreePlaySuccess();
+
+        console.log('Free Play session ended');
+
+    } catch (error) {
+        console.error('Error ending Free Play session:', error);
+    }
+}
+
+// Calculate Free Play task bonus
+function calculateFreePlayTaskBonus(stressLevel) {
+    // Base bonus for task completion
+    let bonus = 300;
+
+    // Bonus for low stress (risk/reward)
+    if (stressLevel < 20) {
+        bonus += 400;
+    } else if (stressLevel < 40) {
+        bonus += 250;
+    } else if (stressLevel < 60) {
+        bonus += 100;
+    }
+
+    // Bonus multiplier based on difficulty
+    const difficultyMultiplier = gameState.freePlayStressMultiplier;
+    bonus = Math.round(bonus * difficultyMultiplier);
+
+    // Bonus for completing all rounds efficiently
+    if (gameState.freePlayCurrentTaskRounds === 5) {
+        bonus += 100;
+    }
+
+    return bonus;
+}
+
+// Show Free Play success screen
+function showFreePlaySuccess() {
+    try {
+        // Calculate session summary
+        const stressLevel = gameState.stressLevel;
+        const totalRounds = gameState.freePlayRounds;
+        const tasksCompleted = gameState.freePlayTasksCompleted;
+
+        // Update success screen
+        const successMessage = document.getElementById('successMessage');
+        const successSubtext = document.getElementById('successSubtext');
+        const successStats = document.getElementById('successStats');
+
+        if (successMessage) {
+            successMessage.textContent = 'Free Play Session Complete!';
+        }
+
+        if (successSubtext) {
+            successSubtext.textContent = `You completed ${tasksCompleted} task${tasksCompleted > 1 ? 's' : ''} with ${totalRounds} total rounds.`;
+        }
+
+        if (successStats) {
+            const avgStress = tasksCompleted > 0 ? Math.round(stressLevel / tasksCompleted) : stressLevel;
+            successStats.innerHTML = `
+                <p>Tasks Completed: ${tasksCompleted}</p>
+                <p>Total Rounds: ${totalRounds}</p>
+                <p>Final Stress: ${stressLevel}%</p>
+                <p>Avg Stress per Task: ${avgStress}%</p>
+                <p>Final Balance: ${ZenPointsManager.getCurrentBalance()} zen points</p>
+            `;
+        }
+
+        // Update success screen buttons for Free Play Mode
+        updateFreePlaySuccessButtons();
+
+        // Show success screen
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        showElement('gameSuccessScreen');
+
+        console.log('Free Play success screen shown');
+
+    } catch (error) {
+        console.error('Error showing Free Play success:', error);
+    }
+}
+
+// Update success screen buttons for Free Play Mode
+function updateFreePlaySuccessButtons() {
+    try {
+        const continueToShopBtn = document.getElementById('continueToShopBtn');
+        const continueCampaignBtn = document.getElementById('continueCampaignBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        if (continueToShopBtn) {
+            continueToShopBtn.classList.remove('hidden');
+            continueToShopBtn.onclick = () => openShop(ZenPointsManager.getCurrentBalance());
+        }
+
+        if (continueCampaignBtn) {
+            continueCampaignBtn.classList.remove('hidden');
+            continueCampaignBtn.textContent = 'Return to Menu';
+            continueCampaignBtn.onclick = () => returnToModeSelection();
+        }
+
+        if (playAgainBtn) {
+            playAgainBtn.textContent = 'Play Again';
+            playAgainBtn.onclick = () => restartFreePlay();
+        }
+
+    } catch (error) {
+        console.error('Error updating Free Play success buttons:', error);
+    }
+}
+
+// Restart Free Play Mode
+export function restartFreePlay() {
+    try {
+        // Reset game state but keep Free Play Mode active
+        resetGameState();
+        startFreePlayMode();
+
+        console.log('Free Play restarted');
+
+    } catch (error) {
+        console.error('Error restarting Free Play:', error);
+    }
+}
+
+// Return to mode selection
+export function returnToModeSelection() {
+    try {
+        // Hide all game screens
+        hideElement('gameOverScreen');
+        hideElement('gameSuccessScreen');
+        hideElement('upgradeShop');
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        hideElement('campaignOverview');
+        hideElement('surveySection');
+
+        // Reset game state
+        resetGameState();
+
+        // Show mode selection
+        showElement('gameModeSelection');
+
+        console.log('Returned to mode selection');
+
+    } catch (error) {
+        console.error('Error returning to mode selection:', error);
+    }
 }
 
 // Restart the game

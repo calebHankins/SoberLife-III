@@ -24,8 +24,19 @@
 - **Persistent progression**: Upgraded deck and activities carry over to all modes
 - **Task unlocking**: Sequential progression through increasingly complex scenarios
 
+### Free Play Mode
+- **Pure Mechanics**: Blackjack gameplay without roleplay elements
+- **No Survey**: Starts at 0% stress immediately
+- **Generic UI**: "Hit" and "Stand" replace contextual actions
+- **No Flavor Text**: Removes narrative pop-ups and tips
+- **Task-Based Structure**: 5 rounds per task with completion choices
+- **Progressive Difficulty**: Stress multiplier increases 15% per task
+- **Risk/Reward System**: Continue for better bonuses or cash out safely
+- **Shared Progression**: Uses campaign deck and activities
+- **Metrics Tracking**: Tasks completed, total rounds, difficulty level
+
 ## Key Features
-- **Dual Game Modes**: Jump Into Task for quick play, campaign for full progression
+- **Three Game Modes**: Jump Into Task for quick play, Campaign for full progression, Free Play for pure mechanics
 - **Stress Management System**: Visual stress meter (0-100%) with consequences for reaching maximum
 - **Zen Points Economy**: Currency system for stress relief activities AND deck upgrades
 - **Multi-Step Tasks**: Progressive scenarios broken into manageable steps with contextual actions

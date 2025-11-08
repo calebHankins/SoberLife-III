@@ -34,9 +34,39 @@ A rogue-like progression system with multiple scenarios:
 3. **Progressive Difficulty**: Unlock new challenges as you complete tasks
 4. **Persistent Progress**: Your upgraded deck carries over to future challenges
 
+### 🎮 Free Play Mode
+
+Pure gameplay without roleplay elements with progressive difficulty:
+
+1. **Instant Start**: Begin at 0% stress without survey
+2. **Generic Actions**: Simple "Hit" and "Stand" buttons
+3. **Task-Based Structure**: Complete 5 rounds per task
+4. **Progressive Difficulty**: Stress increases more as you continue
+5. **Risk/Reward System**: Choose to continue for better bonuses or cash out safely
+
+**Gameplay Loop:**
+- Complete 5 rounds to finish a task
+- Choose to continue (higher difficulty, better rewards) or end session
+- Each task increases stress multiplier by 15%
+- Earn bonus zen points based on performance and difficulty
+
+**Metrics Tracked:**
+- Tasks completed in session
+- Total rounds played
+- Current difficulty level
+- Performance bonuses
+
+**Perfect For:**
+- Quick gameplay sessions
+- Practicing stress management mechanics
+- Testing deck upgrades
+- Pushing your limits for maximum rewards
+
+This mode uses your campaign progress and upgraded deck, making it ideal for players who want to focus on gameplay mechanics without narrative immersion while still experiencing meaningful progression and challenge.
+
 ## 🧘 Features
 
-- **Two Game Modes**: Single task or progressive campaign
+- **Three Game Modes**: Jump Into Task, Campaign, and Free Play
 - **Interactive Stress Management**: Visual stress meter with zen activities
 - **Deck Progression**: Upgrade your blackjack deck with more Aces
 - **Multiple Scenarios**: DMV visits, job interviews, and more stress situations

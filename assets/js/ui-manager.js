@@ -1126,8 +1126,49 @@ export function showGameOver() {
 
         const stepsCompletedEl = document.getElementById('stepsCompleted');
         if (stepsCompletedEl) {
-            stepsCompletedEl.textContent = gameState.currentStep;
+            if (gameState.freePlayMode) {
+                // Show tasks completed in Free Play Mode
+                stepsCompletedEl.textContent = gameState.freePlayTasksCompleted;
+            } else {
+                stepsCompletedEl.textContent = gameState.currentStep;
+            }
         }
+
+        // Update buttons based on mode
+        updateGameOverButtons();
+    }
+}
+
+// Update game over buttons based on mode
+function updateGameOverButtons() {
+    try {
+        const tryAgainBtn = document.getElementById('tryAgainBtn');
+        const gameOverContent = document.querySelector('.game-over-content');
+
+        if (gameState.freePlayMode) {
+            if (tryAgainBtn) {
+                tryAgainBtn.textContent = 'Try Again';
+                tryAgainBtn.onclick = () => window.restartFreePlay();
+            }
+
+            // Add return to menu button if it doesn't exist
+            if (gameOverContent && !document.getElementById('returnToMenuBtnGameOver')) {
+                const returnBtn = document.createElement('button');
+                returnBtn.id = 'returnToMenuBtnGameOver';
+                returnBtn.textContent = 'Return to Menu';
+                returnBtn.className = 'secondary-btn';
+                returnBtn.onclick = () => window.returnToModeSelection();
+                gameOverContent.appendChild(returnBtn);
+            }
+        } else {
+            // Remove return to menu button if it exists
+            const returnBtn = document.getElementById('returnToMenuBtnGameOver');
+            if (returnBtn) {
+                returnBtn.remove();
+            }
+        }
+    } catch (error) {
+        console.error('Error updating game over buttons:', error);
     }
 }
 
@@ -1162,6 +1203,12 @@ export function showGameSuccess() {
 // Update task description with animations and error handling
 export function updateTaskDescription() {
     try {
+        // In Free Play Mode, use the Free Play UI update instead
+        if (gameState.freePlayMode) {
+            updateFreePlayUI();
+            return;
+        }
+
         const taskDescEl = document.getElementById('taskDescription');
         const stepIndicatorEl = document.getElementById('stepIndicator');
         const taskInfoEl = document.getElementById('taskInfo');
@@ -1377,6 +1424,12 @@ export function hideHelpModal() {
 // Update contextual action buttons with error handling
 export function updateContextualButtons() {
     try {
+        // Skip contextual updates in Free Play Mode
+        if (gameState.freePlayMode) {
+            updateGenericActionButtons();
+            return;
+        }
+
         const hitBtn = document.getElementById('hitBtn');
         const standBtn = document.getElementById('standBtn');
 
@@ -1625,6 +1678,11 @@ export function createZenPointParticles(element, count = 8) {
 // Show progressive flavor text for actions with error handling
 export function showFlavorText(action) {
     try {
+        // Skip flavor text in Free Play Mode
+        if (gameState.freePlayMode) {
+            return;
+        }
+
         // Use progressive flavor text system
         const flavorText = getProgressiveFlavorText(action, gameState.currentStep, handState.hitCount);
         if (!flavorText) {
@@ -1834,6 +1892,11 @@ export function updateOutcomeMessage(outcome) {
 // Show stress management tip based on outcome
 export function showStressManagementTip(outcome) {
     try {
+        // Skip stress management tips in Free Play Mode
+        if (gameState.freePlayMode) {
+            return;
+        }
+
         const insight = getStressManagementInsight(outcome);
         if (!insight) {
             return;
@@ -1921,6 +1984,11 @@ let previouslyFocusedElementForMindPalace = null;
 // Show initial flavor text modal
 export function showInitialFlavorText(stepIndex) {
     try {
+        // Skip initial flavor text in Free Play Mode
+        if (gameState.freePlayMode) {
+            return;
+        }
+
         // Get flavor text data
         const flavorData = getInitialFlavorText(stepIndex);
         if (!flavorData) {
@@ -2495,5 +2563,68 @@ function handleMindPalaceKeydown(event) {
 
     if (event.key === 'Escape') {
         hideMindPalace();
+    }
+}
+
+
+// Free Play Mode UI Functions
+
+// Update UI for Free Play Mode
+export function updateFreePlayUI() {
+    try {
+        // Update task info section for Free Play
+        const taskInfo = document.getElementById('taskInfo');
+        const stepIndicator = document.getElementById('stepIndicator');
+        const taskTitle = taskInfo ? taskInfo.querySelector('h3') : null;
+        const taskDescription = document.getElementById('taskDescription');
+
+        if (stepIndicator) {
+            // Repurpose step indicator to show task and round progress
+            const taskNum = gameState.freePlayTasksCompleted + 1;
+            const roundNum = gameState.freePlayCurrentTaskRounds + 1;
+            stepIndicator.textContent = `Task ${taskNum} • Round ${roundNum}/5`;
+            stepIndicator.style.display = 'block';
+        }
+
+        if (taskTitle) {
+            taskTitle.textContent = '🎮 Free Play Mode';
+        }
+
+        if (taskDescription) {
+            const multiplier = gameState.freePlayStressMultiplier;
+            let difficultyText = '';
+            if (multiplier > 1.5) {
+                difficultyText = ' (High Difficulty)';
+            } else if (multiplier > 1.2) {
+                difficultyText = ' (Medium Difficulty)';
+            }
+            taskDescription.textContent = `Play blackjack and manage stress${difficultyText}`;
+        }
+
+        // Update action buttons to generic labels
+        updateGenericActionButtons();
+
+    } catch (error) {
+        console.error('Error updating Free Play UI:', error);
+    }
+}
+
+// Update action buttons to generic labels
+export function updateGenericActionButtons() {
+    try {
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+
+        if (hitBtn) {
+            hitBtn.textContent = 'Hit';
+            hitBtn.title = 'Take another card';
+        }
+
+        if (standBtn) {
+            standBtn.textContent = 'Stand';
+            standBtn.title = 'Keep your current total';
+        }
+    } catch (error) {
+        console.error('Error updating generic action buttons:', error);
     }
 }

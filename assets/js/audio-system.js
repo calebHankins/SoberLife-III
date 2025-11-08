@@ -15,7 +15,7 @@ const adaptiveMusicConfig = {
             reverbAmount: 0.5, // Very spacious and dreamy
             melodyFrequency: 0.1, // Very few melody notes
             rhythmIntensity: 0.3, // Very gentle rhythm
-            volume: 1.0, // Much quieter
+            volume: 1.3, // Increased from 1.0 for better audibility
             chordProgression: [
                 [130.81, 164.81, 196], // C3 (C, E, G) - very low and peaceful
                 [146.83, 174.61, 220], // D3 (D, F, A) - gentle
@@ -31,7 +31,7 @@ const adaptiveMusicConfig = {
             reverbAmount: 0.25,
             melodyFrequency: 0.5, // Normal melody frequency
             rhythmIntensity: 1.0,
-            volume: 1.5, // Normal volume
+            volume: 1.6, // Increased from 1.5 for better audibility
             chordProgression: [
                 [220, 261.63, 329.63], // Am (A, C, E)
                 [196, 246.94, 293.66], // G (G, B, D)
@@ -47,7 +47,7 @@ const adaptiveMusicConfig = {
             reverbAmount: 0.05, // Very dry and immediate
             melodyFrequency: 0.9, // Almost constant melody notes
             rhythmIntensity: 2.0, // Very intense rhythm
-            volume: 1.75, // Much louder
+            volume: 1.85, // Increased from 1.75 for better audibility
             chordProgression: [
                 [277.18, 329.63, 415.30], // C# (C#, E, G#) - high and dissonant
                 [311.13, 369.99, 466.16], // D# (D#, F#, A#) - very tense
@@ -114,7 +114,7 @@ const audioConfig = {
     music: {
         baseFrequency: 220,      // A3 note as foundation
         harmonics: [1, 1.5, 2, 3], // Harmonic ratios for layering
-        defaultVolume: 0.15,     // Subtle background level
+        defaultVolume: 0.45,     // Increased from 0.15 for better audibility
         fadeInDuration: 3000,    // Gentle fade in
         fadeOutDuration: 2000,   // Gentle fade out
         modulationRate: 0.1      // Slow LFO for organic feel
@@ -141,7 +141,7 @@ const audioConfig = {
                 arpeggiationDelay: 0.05 // Delay between notes in chord (seconds)
             }
         },
-        defaultVolume: 0.3
+        defaultVolume: 0.55      // Increased from 0.3 for better audibility
     },
     storage: {
         musicVolumeKey: 'soberlife_music_volume',
@@ -517,9 +517,9 @@ class AudioManager {
      * Apply mobile-specific optimizations
      */
     applyMobileOptimizations() {
-        // Reduce default volumes for better battery life
-        this.preferences.musicVolume = Math.min(this.preferences.musicVolume, 0.1);
-        this.preferences.effectsVolume = Math.min(this.preferences.effectsVolume, 0.2);
+        // Slightly reduce default volumes for better battery life, but keep audible
+        this.preferences.musicVolume = Math.min(this.preferences.musicVolume, 0.55);
+        this.preferences.effectsVolume = Math.min(this.preferences.effectsVolume, 0.65);
 
         console.log('AudioManager: Applied mobile optimizations');
     }
