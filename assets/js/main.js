@@ -260,8 +260,11 @@ export function closeTask() {
     hideElement('gameOverScreen');
     hideElement('gameSuccessScreen');
 
-    // Return to appropriate view
-    if (isCampaignMode()) {
+    // Return to appropriate view based on mode
+    // Free Play Mode always returns to mode selection
+    if (gameState.freePlayMode) {
+        showElement('gameModeSelection');
+    } else if (isCampaignMode()) {
         showElement('campaignOverview');
     } else {
         showElement('gameModeSelection');
