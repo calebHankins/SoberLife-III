@@ -44,6 +44,9 @@ export async function initializeGame() {
     // Set up close button event listeners
     setupCloseButtons();
 
+    // Set up browser back button handling
+    setupBrowserBackButton();
+
     // Initialize campaign system
     initializeCampaign();
 
@@ -66,6 +69,87 @@ export async function initializeGame() {
     setTimeout(() => {
         updateAdaptiveMusic();
     }, 1000); // Delay to ensure audio system is initialized
+}
+
+// Setup browser back button handling
+function setupBrowserBackButton() {
+    // Push initial state
+    history.pushState({ screen: 'modeSelection' }, '', '');
+
+    // Handle browser back button
+    window.addEventListener('popstate', (event) => {
+        // Prevent default back navigation
+        event.preventDefault();
+
+        // Determine current screen and navigate back appropriately
+        const currentScreen = getCurrentScreen();
+
+        switch (currentScreen) {
+            case 'gameArea':
+            case 'taskInfo':
+                // In game - go back to survey or campaign
+                closeTask();
+                break;
+
+            case 'surveySection':
+                // In survey - go back to mode selection or campaign
+                closeSurvey();
+                break;
+
+            case 'campaignOverview':
+                // In campaign overview - go back to mode selection
+                closeCampaign();
+                break;
+
+            case 'upgradeShop':
+                // In shop - go back to campaign or mode selection
+                closeShopWrapper();
+                break;
+
+            case 'gameSuccessScreen':
+            case 'gameOverScreen':
+                // On end screen - go back to appropriate view
+                if (gameState.freePlayMode) {
+                    returnToModeSelection();
+                } else if (isCampaignMode()) {
+                    returnToCampaign();
+                } else {
+                    returnToModeSelection();
+                }
+                break;
+
+            case 'modeSelection':
+            default:
+                // Already at main menu - do nothing or show confirmation
+                break;
+        }
+
+        // Push state again to prevent actually leaving the page
+        history.pushState({ screen: currentScreen }, '', '');
+    });
+}
+
+// Get current visible screen
+function getCurrentScreen() {
+    const screens = [
+        'gameModeSelection',
+        'campaignOverview',
+        'surveySection',
+        'taskInfo',
+        'gameArea',
+        'upgradeShop',
+        'gameSuccessScreen',
+        'gameOverScreen'
+    ];
+
+    for (const screenId of screens) {
+        const element = document.getElementById(screenId);
+        if (element && !element.classList.contains('hidden')) {
+            return screenId;
+        }
+    }
+
+    return 'modeSelection';
 }
 
 // Setup global button click sound effects

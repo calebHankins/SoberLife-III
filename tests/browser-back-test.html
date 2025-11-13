@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Back Button Test - SoberLife III</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-family: 'Comic Sans MS', sans-serif;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .info {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        h1,
+        h2 {
+            margin-top: 0;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🔙 Browser Back Button Test</h1>
+
+        <div class="instructions">
+            <h3>Test Instructions:</h3>
+            <ol>
+                <li>Navigate through different screens using the buttons</li>
+                <li>Use your browser's back button (or swipe back on mobile)</li>
+                <li>Verify that you navigate back within the app instead of leaving the page</li>
+                <li>Check the console for navigation logs</li>
+            </ol>
+        </div>
+
+        <div class="info">
+            <strong>Current Screen:</strong> <span id="currentScreenDisplay">Mode Selection</span>
+        </div>
+
+        <!-- Mode Selection Screen -->
+        <div id="modeSelection" class="screen active">
+            <h2>🎮 Mode Selection</h2>
+            <p>This is the main menu. Back button should do nothing here.</p>
+            <button onclick="navigateTo('campaign')">Start Campaign</button>
+            <button onclick="navigateTo('survey')">Jump Into Task</button>
+            <button onclick="navigateTo('freePlay')">Free Play</button>
+        </div>
+
+        <!-- Campaign Screen -->
+        <div id="campaign" class="screen">
+            <h2>📋 Campaign Overview</h2>
+            <p>Campaign task list. Back button should return to mode selection.</p>
+            <button onclick="navigateTo('survey')">Start Task</button>
+            <button onclick="navigateTo('shop')">Visit Shop</button>
+            <button onclick="navigateTo('modeSelection')">Back to Menu</button>
+        </div>
+
+        <!-- Survey Screen -->
+        <div id="survey" class="screen">
+            <h2>📝 Survey</h2>
+            <p>Pre-task assessment. Back button should return to previous screen.</p>
+            <button onclick="navigateTo('game')">Start Game</button>
+            <button onclick="navigateTo('campaign')">Cancel</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game" class="screen">
+            <h2>🎴 Game Area</h2>
+            <p>Active gameplay. Back button should confirm and return to campaign/menu.</p>
+            <button onclick="navigateTo('success')">Win Game</button>
+            <button onclick="navigateTo('gameOver')">Lose Game</button>
+            <button onclick="navigateTo('campaign')">Exit Game</button>
+        </div>
+
+        <!-- Shop Screen -->
+        <div id="shop" class="screen">
+            <h2>🛒 Upgrade Shop</h2>
+            <p>Deck upgrades. Back button should return to campaign.</p>
+            <button onclick="navigateTo('campaign')">Back to Campaign</button>
+        </div>
+
+        <!-- Success Screen -->
+        <div id="success" class="screen">
+            <h2>✅ Success!</h2>
+            <p>Task completed. Back button should return to campaign.</p>
+            <button onclick="navigateTo('shop')">Visit Shop</button>
+            <button onclick="navigateTo('campaign')">Continue Campaign</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOver" class="screen">
+            <h2>❌ Game Over</h2>
+            <p>Task failed. Back button should return to campaign.</p>
+            <button onclick="navigateTo('campaign')">Return to Campaign</button>
+            <button onclick="navigateTo('modeSelection')">Main Menu</button>
+        </div>
+
+        <!-- Free Play Screen -->
+        <div id="freePlay" class="screen">
+            <h2>🎯 Free Play Mode</h2>
+            <p>Pure blackjack gameplay. Back button should return to mode selection.</p>
+            <button onclick="navigateTo('modeSelection')">Exit Free Play</button>
+        </div>
+
+        <div class="info">
+            <strong>Navigation History:</strong>
+            <div id="navigationLog" style="max-height: 200px; overflow-y: auto; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <script>
+        let navigationHistory = [];
+        let currentScreen = 'modeSelection';
+
+        // Initialize history state
+        history.pushState({ screen: 'modeSelection' }, '', '');
+
+        // Handle browser back button
+        window.addEventListener('popstate', (event) => {
+            console.log('Popstate event triggered:', event.state);
+
+            // Determine where to go based on current screen
+            const backDestination = getBackDestination(currentScreen);
+
+            if (backDestination) {
+                logNavigation(`Back button: ${currentScreen} → ${backDestination}`);
+                showScreen(backDestination);
+            } else {
+                logNavigation(`Back button: At main menu, staying put`);
+            }
+
+            // Push state again to prevent leaving the page
+            history.pushState({ screen: currentScreen }, '', '');
+        });
+
+        // Get back destination based on current screen
+        function getBackDestination(screen) {
+            const backMap = {
+                'campaign': 'modeSelection',
+                'survey': 'campaign',
+                'game': 'campaign',
+                'shop': 'campaign',
+                'success': 'campaign',
+                'gameOver': 'campaign',
+                'freePlay': 'modeSelection',
+                'modeSelection': null // Already at root
+            };
+
+            return backMap[screen];
+        }
+
+        // Navigate to a screen
+        function navigateTo(screenId) {
+            logNavigation(`Button: ${currentScreen} → ${screenId}`);
+            showScreen(screenId);
+
+            // Push state for browser history
+            history.pushState({ screen: screenId }, '', '');
+        }
+
+        // Show a specific screen
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+
+            // Show target screen
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+                currentScreen = screenId;
+
+                // Update display
+                const displayName = screenId.charAt(0).toUpperCase() + screenId.slice(1);
+                document.getElementById('currentScreenDisplay').textContent = displayName;
+            }
+        }
+
+        // Log navigation
+        function logNavigation(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            navigationHistory.push(`[${timestamp}] ${message}`);
+
+            const logElement = document.getElementById('navigationLog');
+            logElement.innerHTML = navigationHistory
+                .slice(-10) // Show last 10 entries
+                .reverse()
+                .map(entry => `<div>${entry}</div>`)
+                .join('');
+
+            console.log(message);
+        }
+
+        // Initial log
+        logNavigation('App initialized at Mode Selection');
+    </script>
+</body>
+
+</html>
