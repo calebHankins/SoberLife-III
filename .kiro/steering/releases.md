@@ -249,16 +249,83 @@ npm run release
 
 ## CI/CD Integration
 
-Release-it works seamlessly with GitHub Actions:
+### Automated Releases via GitHub Actions
 
-1. **Manual Release:**
-   - Developer runs `npm run release` locally
-   - Changes pushed to main trigger deployment
+SoberLife III supports two automated release workflows:
 
-2. **Automated Release (Future):**
-   - Can be integrated into GitHub Actions workflow
-   - Use `--ci` flag for non-interactive mode
-   - Requires proper authentication setup
+#### Option 1: Manual Trigger (Recommended)
+
+Trigger releases directly from GitHub's Actions tab:
+
+1. **Navigate to Actions Tab:**
+   - Go to your repository on GitHub
+   - Click "Actions" tab
+   - Select "Release" workflow
+
+2. **Run Workflow:**
+   - Click "Run workflow" button
+   - Select branch (usually `main` or `master`)
+   - Choose version increment: `patch`, `minor`, or `major`
+   - Click "Run workflow"
+
+3. **Automated Process:**
+   - Runs full test suite
+   - Creates version bump commit
+   - Creates git tag
+   - Pushes changes to repository
+   - Triggers deployment workflow
+
+**Benefits:**
+- Full control over release timing
+- No local setup required
+- Works from any device with web access
+- Clear audit trail in Actions tab
+
+#### Option 2: PR Label-Based Releases
+
+Automatically create releases when PRs are merged with specific labels:
+
+1. **Add Label to PR:**
+   - `release:patch` - Bug fixes and minor updates
+   - `release:minor` - New features
+   - `release:major` - Breaking changes
+
+2. **Merge PR:**
+   - When PR is merged to main/master
+   - Workflow automatically triggers
+   - Creates release based on label
+
+3. **Automated Process:**
+   - Detects release label
+   - Runs full test suite
+   - Creates appropriate version bump
+   - Pushes changes and tags
+   - Triggers deployment
+
+**Benefits:**
+- Seamless integration with PR workflow
+- No manual trigger needed
+- Release tied to specific PR
+- Team can see release intent before merge
+
+### Local Releases (Still Supported)
+
+You can still run releases locally if preferred:
+
+```bash
+# Interactive release
+npm run release
+
+# Non-interactive release
+npm run release -- --ci --increment patch
+```
+
+### Workflow Files
+
+The automated release workflows are defined in:
+- `.github/workflows/release.yml` - Manual trigger workflow
+- `.github/workflows/release-on-pr.yml` - PR label-based workflow
+- `.github/workflows/deploy.yml` - Deployment workflow (triggered after release)
 
 ## Resources
 
@@ -266,17 +333,65 @@ Release-it works seamlessly with GitHub Actions:
 - **Semantic Versioning:** https://semver.org/
 - **Conventional Commits:** https://www.conventionalcommits.org/
 
+## Troubleshooting GitHub Actions Releases
+
+### Issue: Workflow Permission Denied
+
+**Symptoms:**
+- Workflow fails with "permission denied" error
+- Cannot push tags or commits
+
+**Solution:**
+1. Go to repository Settings → Actions → General
+2. Under "Workflow permissions", select "Read and write permissions"
+3. Check "Allow GitHub Actions to create and approve pull requests"
+4. Save changes
+
+### Issue: Tests Fail in Workflow
+
+**Symptoms:**
+- Release workflow fails during test step
+- Tests pass locally but fail in CI
+
+**Solution:**
+1. Check test output in Actions tab
+2. Verify all dependencies are installed
+3. Ensure Playwright browsers are cached correctly
+4. Run tests locally with `npm test` before triggering release
+
+### Issue: Deployment Not Triggered
+
+**Symptoms:**
+- Release completes but site doesn't update
+- No deployment workflow runs
+
+**Solution:**
+1. Check that release workflow pushed to correct branch
+2. Verify deployment workflow is enabled
+3. Check GitHub Pages settings are correct
+4. Manually trigger deployment workflow if needed
+
 ## Summary
+
+**Automated Release Options:**
+```
+GitHub Actions (Manual):  Actions tab → Release → Run workflow → Select version
+GitHub Actions (PR):      Add release:patch/minor/major label → Merge PR
+Local (Traditional):      npm run release
+```
 
 **Quick Commands:**
 ```bash
-npm run release              # Interactive release
-npm run release -- --dry-run # Preview changes
-npm test && npm run release  # Test then release
+npm run release              # Interactive local release
+npm run release -- --dry-run # Preview changes locally
+npm test && npm run release  # Test then release locally
 ```
 
 **Remember:**
-- Test before releasing
-- Follow semantic versioning
+- Automated releases run tests automatically
+- Manual trigger gives most control
+- PR labels integrate with review process
+- Local releases still work if needed
+- Follow semantic versioning guidelines
 - Never publish to npm (configured to skip)
-- Releases auto-deploy via GitHub Actions
+- All releases auto-deploy via GitHub Actions
