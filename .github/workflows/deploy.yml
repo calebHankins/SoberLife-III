@@ -32,11 +32,19 @@ jobs:
         id: check-release
         run: |
           # Check if this is a merge commit from a PR with a release label
+          # OR if this is a release commit created by the release workflow
           # If so, skip tests since release workflow will run them
           if [ "${{ github.event_name }}" = "push" ]; then
             # Get the commit message
             COMMIT_MSG=$(git log -1 --pretty=%B)
             echo "Commit message: $COMMIT_MSG"
+            
+            # Check if this is a release commit (created by release-it)
+            if echo "$COMMIT_MSG" | grep -qE "^chore: release v[0-9]+\.[0-9]+\.[0-9]+"; then
+              echo "Release commit detected - skipping duplicate deploy"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
             
             # Check if this is a merge commit from a PR
             if echo "$COMMIT_MSG" | grep -qE "^.*\(#[0-9]+\)$"; then
