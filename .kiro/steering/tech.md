@@ -84,10 +84,50 @@ npx serve . -p 8000          # Node.js (PREFERRED METHOD)
 - **State validation**: Comprehensive validation to prevent corrupted data
 
 ## Testing Strategy
-- **Unit tests**: Individual module functionality testing
-- **Integration tests**: Campaign flow and state management testing
-- **Manual testing**: User experience and edge case validation
+
+### Automated Testing with Playwright
+
+The project uses Playwright for comprehensive end-to-end regression testing:
+
+**Test Coverage:**
+- **Game Modes**: All three modes (Jump Into Task, Campaign, Free Play)
+- **Mobile Viewports**: iPhone SE, iPad Pro, landscape orientations
+- **Accessibility**: ARIA labels, keyboard navigation, screen readers
+- **Core Features**: Gameplay mechanics, shop system, stress management
+- **UI Components**: Modals, forms, buttons, navigation
+
+**Running Tests:**
+```bash
+npm test                    # Run all tests
+npm run test:headed         # Run with visible browser
+npm run test:mobile         # Run mobile-specific tests
+npm run test:ui             # Interactive UI mode for debugging
+```
+
+**When to Run Tests:**
+- **Before committing**: Always run tests before pushing changes
+- **After feature additions**: Verify new features don't break existing functionality
+- **UI changes**: Test responsive design and mobile viewports
+- **State management changes**: Verify persistence and navigation flows
+
+**Test Maintenance:**
+- Tests are located in `tests/playwright/`
+- Each spec file covers a specific feature area
+- Update tests when adding new features or changing UI
+- Fix failing tests before merging changes
+- See `tests/playwright/README.md` for detailed documentation
+
+**CI/CD Integration:**
+- Tests run automatically on all PRs and pushes to main/master
+- GitHub Actions workflow installs browsers and runs full test suite
+- Test reports are uploaded as artifacts for review
+- Failing tests block deployment to prevent regressions
+
+### Manual Testing
+- **User experience**: Edge case validation and usability testing
 - **Error simulation**: Testing recovery mechanisms and fallbacks
+- **Cross-browser**: Verify functionality in different browsers
+- **Performance**: Monitor load times and responsiveness
 
 ## Debugging & QA Guidelines
 

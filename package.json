@@ -1,0 +1,25 @@
+{
+    "name": "soberlife-iii",
+    "version": "0.21.0",
+    "description": "Stress management game combining blackjack mechanics with real-world task completion scenarios",
+    "scripts": {
+        "test": "playwright test",
+        "test:headed": "playwright test --headed",
+        "test:debug": "playwright test --debug",
+        "test:ui": "playwright test --ui",
+        "test:mobile": "playwright test --project=mobile",
+        "test:report": "playwright show-report",
+        "serve": "npx serve . -p 8000"
+    },
+    "keywords": [
+        "stress-management",
+        "blackjack",
+        "game",
+        "wellness"
+    ],
+    "author": "Caleb Hankins",
+    "license": "MIT",
+    "devDependencies": {
+        "@playwright/test": "^1.48.0"
+    }
+}

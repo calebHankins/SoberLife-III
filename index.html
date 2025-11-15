@@ -36,8 +36,9 @@
         <div class="avatar-container">
             <div class="avatar" id="avatar">😊</div>
             <div>
-                <div>Stress Level</div>
-                <div class="stress-meter">
+                <div id="stressLevelLabel">Stress Level</div>
+                <div class="stress-meter" role="progressbar" aria-labelledby="stressLevelLabel" aria-valuenow="0"
+                    aria-valuemin="0" aria-valuemax="100">
                     <div class="stress-fill" id="stressFill"></div>
                 </div>
                 <div class="zen-points" id="zenPoints">Zen Points: 100</div>
@@ -303,7 +304,7 @@
             <div class="shop-content">
                 <div class="shop-header">
                     <h2>🧘 Mindfulness Upgrades</h2>
-                    <button class="shop-close-btn" id="shopCloseBtn" aria-label="Close shop">×</button>
+                    <button class="shop-close-btn" id="shopCloseBtn" aria-label="Close shop modal">×</button>
                 </div>
                 <p>Spend your remaining zen points to upgrade your deck for future challenges!</p>
 
