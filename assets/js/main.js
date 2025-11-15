@@ -690,6 +690,7 @@ export function startFreePlayMode() {
         hideElement('gameModeSelection');
         hideElement('surveySection');
         hideElement('campaignOverview');
+        hideElement('freePlayOverview');
         hideElement('gameOverScreen');
         hideElement('gameSuccessScreen');
 
