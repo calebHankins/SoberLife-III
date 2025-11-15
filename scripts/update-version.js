@@ -42,14 +42,29 @@ export const BUILD_DATE = '${buildDate}';
 fs.writeFileSync(versionJsPath, versionJsContent);
 console.log(`✓ Updated ${versionJsPath}`);
 
-// Update index.html version footer fallback
+// Update index.html version footer fallback and add cache busting query strings
 const indexPath = 'index.html';
 let indexContent = fs.readFileSync(indexPath, 'utf8');
+
+// Update version footer
 indexContent = indexContent.replace(
     /(<div id="versionFooter"[^>]*>)\s*v[\d.]+[^\n]*/,
     `$1\n        v${version}`
 );
+
+// Add cache busting query strings to CSS files
+indexContent = indexContent.replace(
+    /href="assets\/css\/([\w-]+\.css)(\?v=[\w.-]+)?"/g,
+    `href="assets/css/$1?v=${version}"`
+);
+
+// Add cache busting query strings to JS files
+indexContent = indexContent.replace(
+    /src="assets\/js\/([\w-]+\.js)(\?v=[\w.-]+)?"/g,
+    `src="assets/js/$1?v=${version}"`
+);
+
 fs.writeFileSync(indexPath, indexContent);
-console.log(`✓ Updated ${indexPath}`);
+console.log(`✓ Updated ${indexPath} with cache busting`);
 
 console.log(`Version update complete! v${version} (${gitHash})`);

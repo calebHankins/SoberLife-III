@@ -171,6 +171,10 @@ test.describe('Free Play Mode', () => {
 
     test('should show version footer when closing free play', async ({ page }) => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
+
+        // Wait for game area to be visible (ensures Free Play mode has started)
+        await expect(page.locator('#gameArea')).toBeVisible();
+
         const versionFooter = page.locator('#versionFooter');
         await expect(versionFooter).toBeHidden();
 
