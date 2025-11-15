@@ -149,11 +149,11 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  # Deploy job only for main/master branch pushes
+  # Deploy job only for main/master branch pushes or workflow_dispatch
   deploy:
-    # Only run deploy job on main/master branch pushes (not PRs) and when tests weren't skipped
+    # Only run deploy job on main/master branch pushes/dispatches (not PRs) and when tests weren't skipped
     if: |
-      github.event_name == 'push' && 
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') &&
       needs.test.outputs.skip != 'true'
     needs: test
