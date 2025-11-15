@@ -19,24 +19,68 @@ jobs:
   # Test job for all branches/PRs
   test:
     runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check-release.outputs.skip }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if release workflow will run
+        id: check-release
+        run: |
+          # Check if this is a merge commit from a PR with a release label
+          # If so, skip tests since release workflow will run them
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # Get the commit message
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            echo "Commit message: $COMMIT_MSG"
+            
+            # Check if this is a merge commit from a PR
+            if echo "$COMMIT_MSG" | grep -qE "^.*\(#[0-9]+\)$"; then
+              PR_NUM=$(echo "$COMMIT_MSG" | grep -oE "#[0-9]+" | grep -oE "[0-9]+")
+              echo "Detected PR merge: #$PR_NUM"
+              
+              # Check if PR has a release label
+              LABELS=$(gh pr view $PR_NUM --json labels --jq '.labels[].name' || echo "")
+              echo "PR labels: $LABELS"
+              
+              if echo "$LABELS" | grep -qE "^release:(patch|minor|major)$"; then
+                echo "Release label detected - release workflow will handle testing and deployment"
+                echo "skip=true" >> $GITHUB_OUTPUT
+                exit 0
+              fi
+            fi
+          fi
+          echo "skip=false" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Skip if release workflow will run
+        if: steps.check-release.outputs.skip == 'true'
+        run: |
+          echo "⏭️ Skipping tests - release workflow will handle testing and deployment"
+          exit 0
 
       - name: Setup Node.js
+        if: steps.check-release.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
+        if: steps.check-release.outputs.skip != 'true'
         run: npm ci
 
       - name: Get Playwright version
+        if: steps.check-release.outputs.skip != 'true'
         id: playwright-version
         run: echo "version=$(npm list @playwright/test --depth=0 --json | jq -r '.dependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
 
       - name: Cache Playwright browsers
+        if: steps.check-release.outputs.skip != 'true'
         uses: actions/cache@v4
         id: playwright-cache
         with:
@@ -44,14 +88,15 @@ jobs:
           key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
 
       - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.check-release.outputs.skip != 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Install Playwright system dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        if: steps.check-release.outputs.skip != 'true' && steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
       - name: Validate HTML
+        if: steps.check-release.outputs.skip != 'true'
         run: |
           echo "Running basic validation checks..."
           # Check if index.html exists
@@ -74,6 +119,7 @@ jobs:
           echo "All validation checks passed!"
 
       - name: Run Node.js test files
+        if: steps.check-release.outputs.skip != 'true'
         run: |
           echo "Running Node.js test files in tests/..."
           for testfile in tests/*.test.js; do
@@ -83,11 +129,12 @@ jobs:
           echo "All Node.js tests completed."
 
       - name: Run Playwright tests
+        if: steps.check-release.outputs.skip != 'true'
         run: npm test
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.check-release.outputs.skip != 'true'
         with:
           name: playwright-report
           path: playwright-report/
@@ -95,8 +142,11 @@ jobs:
 
   # Deploy job only for main/master branch pushes
   deploy:
-    # Only run deploy job on main/master branch pushes (not PRs)
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    # Only run deploy job on main/master branch pushes (not PRs) and when tests weren't skipped
+    if: |
+      github.event_name == 'push' && 
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') &&
+      needs.test.outputs.skip != 'true'
     needs: test
     environment:
       name: github-pages
