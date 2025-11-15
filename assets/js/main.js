@@ -359,6 +359,25 @@ function setupCloseButtons() {
     if (shopCloseBtn) {
         shopCloseBtn.addEventListener('click', closeShopWrapper);
     }
+
+    // Mind Palace close button and backdrop
+    const mindPalaceCloseBtn = document.getElementById('mindPalaceCloseBtn');
+    if (mindPalaceCloseBtn) {
+        mindPalaceCloseBtn.addEventListener('click', closeMindPalaceWrapper);
+    }
+
+    const mindPalaceBackdrop = document.getElementById('mindPalaceBackdrop');
+    if (mindPalaceBackdrop) {
+        mindPalaceBackdrop.addEventListener('click', closeMindPalaceWrapper);
+    }
+
+    // Mind Palace Escape key handler
+    document.addEventListener('keydown', (event) => {
+        const mindPalaceModal = document.getElementById('mindPalaceModal');
+        if (mindPalaceModal && !mindPalaceModal.classList.contains('hidden') && event.key === 'Escape') {
+            closeMindPalaceWrapper();
+        }
+    });
 }
 
 // Close survey and return to mode selection or campaign
@@ -419,7 +438,10 @@ export function closeTask() {
     const wasFreePlayMode = gameState.freePlayMode;
     const wasCampaignMode = isCampaignMode();
 
-    // Return to appropriate view based on mode (BEFORE resetting state)
+    // Clean up game state BEFORE navigating (but after checking mode flags)
+    resetGameState();
+
+    // Return to appropriate view based on mode
     if (wasFreePlayMode) {
         // Free Play Mode returns to Free Play overview
         updateCampaignState({ campaignMode: false });
@@ -450,14 +472,25 @@ export function closeTask() {
         // Show version footer when returning to landing page
         showVersionFooter();
     }
-
-    // Clean up game state AFTER determining where to navigate
-    resetGameState();
 }
 
 // Close shop wrapper
 export function closeShopWrapper() {
     closeShop();
+    if (gameState.freePlayMode) {
+        showFreePlayOverview();
+    } else if (isCampaignMode()) {
+        showElement('campaignOverview');
+    } else {
+        showElement('gameModeSelection');
+        // Show version footer when returning to landing page
+        showVersionFooter();
+    }
+}
+
+// Close Mind Palace wrapper - handles navigation based on current mode
+export function closeMindPalaceWrapper() {
+    hideMindPalace();
     if (gameState.freePlayMode) {
         showFreePlayOverview();
     } else if (isCampaignMode()) {
@@ -1628,6 +1661,9 @@ export function showFreePlayOverview() {
         hideElement('gameSuccessScreen');
         hideElement('upgradeShop');
         hideElement('campaignOverview');
+
+        // Set Free Play mode flag so navigation works correctly
+        updateGameState({ freePlayMode: true });
 
         // Sync zen points from campaign state to game state for UI display
         const currentBalance = ZenPointsManager.getCurrentBalance();

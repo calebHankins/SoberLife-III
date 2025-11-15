@@ -418,4 +418,70 @@ test.describe('Free Play Overview', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
         await expect(page.locator('#freePlayOverview h2')).toContainText('Free Play Mode');
     });
+
+    test('should handle Mind Palace navigation from Free Play overview', async ({ page }) => {
+        // Start free play mode
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#gameArea')).toBeVisible();
+
+        // Exit game early
+        page.once('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+
+        // Verify we're at Free Play overview
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Click Mind Palace button
+        await page.getByRole('button', { name: /Visit Mind Palace/i }).click();
+
+        // Verify Mind Palace modal is shown
+        await expect(page.locator('#mindPalaceModal')).toBeVisible();
+        await expect(page.locator('#mindPalaceTitle')).toContainText('Mind Palace');
+
+        // Exit Mind Palace
+        await page.locator('#mindPalaceCloseBtn').click();
+
+        // BUG TEST: Verify we return to Free Play overview (not blank page)
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Verify mode selection is NOT shown (should still be hidden)
+        await expect(page.locator('#gameModeSelection')).toHaveClass(/hidden/);
+
+        // Verify other screens are hidden
+        await expect(page.locator('#campaignOverview')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameArea')).toHaveClass(/hidden/);
+        await expect(page.locator('#mindPalaceModal')).toHaveClass(/hidden/);
+
+        // Verify we can still interact with Free Play overview
+        await expect(page.getByRole('button', { name: /Play Again/i })).toBeVisible();
+        await expect(page.getByRole('button', { name: /Visit Shop/i })).toBeVisible();
+    });
+
+    test('should handle Shop navigation from Free Play overview', async ({ page }) => {
+        // Start free play mode
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#gameArea')).toBeVisible();
+
+        // Exit game early
+        page.once('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+
+        // Verify we're at Free Play overview
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Click Shop button
+        await page.getByRole('button', { name: /Visit Shop/i }).click();
+
+        // Verify Shop is shown
+        await expect(page.locator('#upgradeShop')).toBeVisible();
+
+        // Exit Shop
+        await page.locator('#shopCloseBtn').click();
+
+        // Verify we return to Free Play overview
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Verify mode selection is NOT shown
+        await expect(page.locator('#gameModeSelection')).toHaveClass(/hidden/);
+    });
 });
