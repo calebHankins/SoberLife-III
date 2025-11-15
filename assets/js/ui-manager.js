@@ -76,6 +76,7 @@ export function updateDisplay() {
 
     // Update stress meter
     const stressFill = document.getElementById('stressFill');
+    const stressMeter = document.querySelector('.stress-meter');
     const stressPercent = gameState.stressLevel;
 
     if (stressFill) {
@@ -89,6 +90,11 @@ export function updateDisplay() {
         } else {
             stressFill.style.background = 'linear-gradient(90deg, #E74C3C, #C0392B)';
         }
+    }
+
+    // Update ARIA attributes for screen readers
+    if (stressMeter) {
+        stressMeter.setAttribute('aria-valuenow', stressPercent.toString());
     }
 
     // Update avatar based on stress

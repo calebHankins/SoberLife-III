@@ -44,6 +44,7 @@
         "kiro",
         "LIFX",
         "lofi",
+        "networkidle",
         "Noticeability",
         "Noto",
         "playtesting",
@@ -59,6 +60,7 @@
         "timbral",
         "unlockable",
         "unmute",
+        "valuenow",
         "viewports"
     ],
     "editor.formatOnSave": true,
