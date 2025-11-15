@@ -48,7 +48,7 @@ test.describe('Mobile Viewport Tests', () => {
         await page.getByRole('button', { name: /Start Campaign/i }).click();
 
         await expect(page.locator('#campaignOverview')).toBeVisible();
-        await expect(page.locator('.campaign-progress')).toBeVisible();
+        await expect(page.locator('#campaignOverview .campaign-progress')).toBeVisible();
         await expect(page.locator('#taskList')).toBeVisible();
     });
 

@@ -109,9 +109,19 @@ function setupBrowserBackButton() {
                 closeCampaign();
                 break;
 
+            case 'freePlayOverview':
+                // In Free Play overview - go back to mode selection
+                closeFreePlayOverview();
+                break;
+
             case 'upgradeShop':
-                // In shop - go back to campaign or mode selection
-                closeShopWrapper();
+                // In shop - go back to campaign or Free Play overview
+                if (gameState.freePlayMode) {
+                    closeShop();
+                    showFreePlayOverview();
+                } else {
+                    closeShopWrapper();
+                }
                 break;
 
             case 'gameSuccessScreen':
@@ -142,6 +152,7 @@ function getCurrentScreen() {
     const screens = [
         'gameModeSelection',
         'campaignOverview',
+        'freePlayOverview',
         'surveySection',
         'taskInfo',
         'gameArea',
@@ -303,10 +314,32 @@ function setupCloseButtons() {
         surveyCloseBtn.addEventListener('click', closeSurvey);
     }
 
-    // Task close button
+    // Task close button with debounce to prevent double-click issues
     const taskCloseBtn = document.getElementById('taskCloseBtn');
     if (taskCloseBtn) {
-        taskCloseBtn.addEventListener('click', closeTask);
+        taskCloseBtn.addEventListener('click', (e) => {
+            // Check if button is already processing a click
+            if (taskCloseBtn.dataset.processing === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
+            // Mark button as processing
+            taskCloseBtn.dataset.processing = 'true';
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Call closeTask and reset processing flag after completion
+            try {
+                closeTask();
+            } finally {
+                // Reset processing flag after a delay
+                setTimeout(() => {
+                    taskCloseBtn.dataset.processing = 'false';
+                }, 1000);
+            }
+        });
     }
 
     // Campaign close button
@@ -315,11 +348,36 @@ function setupCloseButtons() {
         campaignCloseBtn.addEventListener('click', closeCampaign);
     }
 
+    // Free Play close button
+    const freePlayCloseBtn = document.getElementById('freePlayCloseBtn');
+    if (freePlayCloseBtn) {
+        freePlayCloseBtn.addEventListener('click', closeFreePlayOverview);
+    }
+
     // Shop close button
     const shopCloseBtn = document.getElementById('shopCloseBtn');
     if (shopCloseBtn) {
         shopCloseBtn.addEventListener('click', closeShopWrapper);
     }
+
+    // Mind Palace close button and backdrop
+    const mindPalaceCloseBtn = document.getElementById('mindPalaceCloseBtn');
+    if (mindPalaceCloseBtn) {
+        mindPalaceCloseBtn.addEventListener('click', closeMindPalaceWrapper);
+    }
+
+    const mindPalaceBackdrop = document.getElementById('mindPalaceBackdrop');
+    if (mindPalaceBackdrop) {
+        mindPalaceBackdrop.addEventListener('click', closeMindPalaceWrapper);
+    }
+
+    // Mind Palace Escape key handler
+    document.addEventListener('keydown', (event) => {
+        const mindPalaceModal = document.getElementById('mindPalaceModal');
+        if (mindPalaceModal && !mindPalaceModal.classList.contains('hidden') && event.key === 'Escape') {
+            closeMindPalaceWrapper();
+        }
+    });
 }
 
 // Close survey and return to mode selection or campaign
@@ -376,32 +434,40 @@ export function closeTask() {
         }
     }
 
-    // Check mode before resetting state (since reset clears these flags)
+    // Check mode BEFORE resetting state (since reset clears these flags)
     const wasFreePlayMode = gameState.freePlayMode;
     const wasCampaignMode = isCampaignMode();
 
-    // Clean up game state
+    // Clean up game state BEFORE navigating (but after checking mode flags)
     resetGameState();
-    hideElement('taskInfo');
-    hideElement('zenActivities');
-    hideElement('gameArea');
-    hideElement('gameOverScreen');
-    hideElement('gameSuccessScreen');
-    hideElement('campaignOverview');
-    hideElement('upgradeShop');
-    hideElement('surveySection');
 
     // Return to appropriate view based on mode
-    // Free Play Mode always returns to mode selection
     if (wasFreePlayMode) {
-        // Ensure campaign mode is disabled when returning from Free Play
+        // Free Play Mode returns to Free Play overview
         updateCampaignState({ campaignMode: false });
-        showElement('gameModeSelection');
-        // Show version footer when returning to landing page
-        showVersionFooter();
+        showFreePlayOverview();
     } else if (wasCampaignMode) {
+        // Hide all game screens except campaign overview
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        hideElement('gameOverScreen');
+        hideElement('gameSuccessScreen');
+        hideElement('freePlayOverview');
+        hideElement('upgradeShop');
+        hideElement('surveySection');
         showElement('campaignOverview');
     } else {
+        // Hide all game screens
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        hideElement('gameOverScreen');
+        hideElement('gameSuccessScreen');
+        hideElement('campaignOverview');
+        hideElement('freePlayOverview');
+        hideElement('upgradeShop');
+        hideElement('surveySection');
         showElement('gameModeSelection');
         // Show version footer when returning to landing page
         showVersionFooter();
@@ -411,7 +477,23 @@ export function closeTask() {
 // Close shop wrapper
 export function closeShopWrapper() {
     closeShop();
-    if (isCampaignMode()) {
+    if (gameState.freePlayMode) {
+        showFreePlayOverview();
+    } else if (isCampaignMode()) {
+        showElement('campaignOverview');
+    } else {
+        showElement('gameModeSelection');
+        // Show version footer when returning to landing page
+        showVersionFooter();
+    }
+}
+
+// Close Mind Palace wrapper - handles navigation based on current mode
+export function closeMindPalaceWrapper() {
+    hideMindPalace();
+    if (gameState.freePlayMode) {
+        showFreePlayOverview();
+    } else if (isCampaignMode()) {
         showElement('campaignOverview');
     } else {
         showElement('gameModeSelection');
@@ -608,6 +690,7 @@ export function startFreePlayMode() {
         hideElement('gameModeSelection');
         hideElement('surveySection');
         hideElement('campaignOverview');
+        hideElement('freePlayOverview');
         hideElement('gameOverScreen');
         hideElement('gameSuccessScreen');
 
@@ -1494,13 +1577,19 @@ function updateFreePlaySuccessButtons() {
 
         if (continueToShopBtn) {
             continueToShopBtn.classList.remove('hidden');
-            continueToShopBtn.onclick = () => openShop(ZenPointsManager.getCurrentBalance());
+            continueToShopBtn.onclick = () => {
+                hideElement('gameSuccessScreen');
+                openShop(ZenPointsManager.getCurrentBalance());
+            };
         }
 
         if (continueCampaignBtn) {
             continueCampaignBtn.classList.remove('hidden');
-            continueCampaignBtn.textContent = 'Return to Menu';
-            continueCampaignBtn.onclick = () => returnToModeSelection();
+            continueCampaignBtn.textContent = 'View Session';
+            continueCampaignBtn.onclick = () => {
+                hideElement('gameSuccessScreen');
+                showFreePlayOverview();
+            };
         }
 
         if (playAgainBtn) {
@@ -1538,6 +1627,7 @@ export function returnToModeSelection() {
         hideElement('zenActivities');
         hideElement('gameArea');
         hideElement('campaignOverview');
+        hideElement('freePlayOverview');
         hideElement('surveySection');
 
         // Reset game state
@@ -1556,6 +1646,95 @@ export function returnToModeSelection() {
 
     } catch (error) {
         console.error('Error returning to mode selection:', error);
+    }
+}
+
+// Show Free Play overview screen after session ends
+export function showFreePlayOverview() {
+    try {
+        // Hide other screens
+        hideElement('gameModeSelection');
+        hideElement('surveySection');
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        hideElement('gameOverScreen');
+        hideElement('gameSuccessScreen');
+        hideElement('upgradeShop');
+        hideElement('campaignOverview');
+
+        // Set Free Play mode flag so navigation works correctly
+        updateGameState({ freePlayMode: true });
+
+        // Sync zen points from campaign state to game state for UI display
+        const currentBalance = ZenPointsManager.getCurrentBalance();
+        updateGameState({ zenPoints: currentBalance });
+
+        // Update the header display with current zen points
+        updateDisplay();
+
+        // Update Free Play overview UI
+        updateFreePlayOverviewUI();
+
+        // Show Free Play overview
+        showElement('freePlayOverview');
+
+    } catch (error) {
+        console.error('Error showing Free Play overview:', error);
+    }
+}
+
+// Update Free Play overview UI
+function updateFreePlayOverviewUI() {
+    try {
+        // Update deck composition display
+        const deckCompositionElement = document.getElementById('freePlayDeckComposition');
+        if (deckCompositionElement) {
+            const { aces, jokers, totalCards } = campaignState.deckComposition;
+            if (jokers > 0) {
+                deckCompositionElement.textContent = `Aces: ${aces}, Jokers: ${jokers} / ${totalCards} Cards`;
+            } else {
+                deckCompositionElement.textContent = `Aces: ${aces} / ${totalCards} Cards`;
+            }
+        }
+
+        // Update Free Play session stats
+        const statsElement = document.getElementById('freePlayStats');
+        if (statsElement) {
+            const tasksCompleted = gameState.freePlayTasksCompleted;
+            const totalRounds = gameState.freePlayRounds;
+            statsElement.textContent = `Tasks Completed: ${tasksCompleted} • Total Rounds: ${totalRounds}`;
+        }
+
+    } catch (error) {
+        console.error('Error updating Free Play overview UI:', error);
+    }
+}
+
+// Close Free Play overview and return to mode selection
+export function closeFreePlayOverview() {
+    hideElement('freePlayOverview');
+    showElement('gameModeSelection');
+    showVersionFooter();
+}
+
+// Open shop from Free Play overview
+export function openFreePlayShop() {
+    try {
+        openShop(ZenPointsManager.getCurrentBalance());
+        hideElement('freePlayOverview');
+    } catch (error) {
+        console.error('Error opening Free Play shop:', error);
+    }
+}
+
+// Visit Mind Palace from Free Play overview
+export function visitFreePlayMindPalace() {
+    try {
+        showMindPalace();
+        hideElement('freePlayOverview');
+    } catch (error) {
+        console.error('Error visiting Free Play Mind Palace:', error);
     }
 }
 

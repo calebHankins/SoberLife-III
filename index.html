@@ -98,6 +98,29 @@
             </div>
         </div>
 
+        <!-- Free Play Overview -->
+        <div class="campaign-overview hidden" id="freePlayOverview">
+            <button class="campaign-close-btn" id="freePlayCloseBtn" aria-label="Exit to mode selection">×</button>
+            <h2>🃏 Free Play Mode</h2>
+
+            <div class="campaign-progress">
+                <div class="deck-status">
+                    <h4>🃏 Your Deck Power</h4>
+                    <p id="freePlayDeckComposition">Aces: 4 / 52 Cards</p>
+                </div>
+                <div class="total-progress">
+                    <h4>📊 Session Stats</h4>
+                    <p id="freePlayStats">Tasks Completed: 0 • Total Rounds: 0</p>
+                </div>
+            </div>
+
+            <div class="campaign-actions">
+                <button onclick="openFreePlayShop()" class="primary-btn">🛒 Visit Shop</button>
+                <button onclick="visitFreePlayMindPalace()" class="secondary-btn">🧠 Visit Mind Palace</button>
+                <button onclick="startFreePlayMode()" class="secondary-btn">Play Again</button>
+            </div>
+        </div>
+
         <!-- Survey Section -->
         <div class="survey hidden" id="surveySection">
             <button class="survey-close-btn" id="surveyCloseBtn" aria-label="Close survey">×</button>
@@ -647,6 +670,10 @@
                 window.endFreePlaySession = mainModule.endFreePlaySession;
                 window.restartFreePlay = mainModule.restartFreePlay;
                 window.returnToModeSelection = mainModule.returnToModeSelection;
+                window.showFreePlayOverview = mainModule.showFreePlayOverview;
+                window.closeFreePlayOverview = mainModule.closeFreePlayOverview;
+                window.openFreePlayShop = mainModule.openFreePlayShop;
+                window.visitFreePlayMindPalace = mainModule.visitFreePlayMindPalace;
                 window.startTask = mainModule.startTask;
                 window.startGame = mainModule.startTask;
                 window.hit = mainModule.hit;
@@ -661,7 +688,7 @@
                 window.continueCampaign = mainModule.continueCampaign;
                 window.closeShopToCampaign = mainModule.closeShopToCampaign;
                 window.visitMindPalace = mainModule.visitMindPalace;
-                window.closeMindPalace = mainModule.closeMindPalace;
+                window.closeMindPalace = mainModule.closeMindPalaceWrapper;
                 window.startCampaignTask = campaignModule.startCampaignTask;
                 window.resetCampaign = campaignModule.resetCampaign;
                 window.returnToCampaign = campaignModule.returnToCampaign;

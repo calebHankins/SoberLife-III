@@ -2546,34 +2546,12 @@ function updatePremiumActivitiesDisplay() {
 }
 
 function setupMindPalaceEventListeners() {
-    const closeBtn = document.getElementById('mindPalaceCloseBtn');
-    const backdrop = document.getElementById('mindPalaceBackdrop');
-
-    if (closeBtn) {
-        closeBtn.addEventListener('click', hideMindPalace);
-    }
-
-    if (backdrop) {
-        backdrop.addEventListener('click', hideMindPalace);
-    }
-
-    // Keyboard navigation
-    document.addEventListener('keydown', handleMindPalaceKeydown);
+    // Note: All Mind Palace event listeners (close button, backdrop, Escape key) are now set up in main.js
+    // to handle mode-specific navigation properly. This function is kept for potential future use.
 }
 
 function cleanupMindPalaceEventListeners() {
-    const closeBtn = document.getElementById('mindPalaceCloseBtn');
-    const backdrop = document.getElementById('mindPalaceBackdrop');
-
-    if (closeBtn) {
-        closeBtn.removeEventListener('click', hideMindPalace);
-    }
-
-    if (backdrop) {
-        backdrop.removeEventListener('click', hideMindPalace);
-    }
-
-    document.removeEventListener('keydown', handleMindPalaceKeydown);
+    // Note: All Mind Palace event listeners are managed in main.js, not cleaned up here
 }
 
 function handleMindPalaceKeydown(event) {
