@@ -721,6 +721,21 @@
             }
         });
     </script>
+
+    <!-- Version Footer -->
+    <div id="versionFooter"
+        style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #999; font-family: 'Comic Sans MS', sans-serif; z-index: 1000; cursor: help; text-align: center;"
+        title="Loading version info...">
+        v0.22.0
+    </div>
+    <script type="module">
+        // Update version footer dynamically from version.js
+        import { VERSION, GIT_HASH, GIT_BRANCH, BUILD_DATE } from './assets/js/version.js';
+        const versionEl = document.getElementById('versionFooter');
+        versionEl.textContent = `v${VERSION}`;
+        const buildDateFormatted = new Date(BUILD_DATE).toLocaleString();
+        versionEl.title = `Version: ${VERSION}\nCommit: ${GIT_HASH}\nBranch: ${GIT_BRANCH}\nBuilt: ${buildDateFormatted}`;
+    </script>
 </body>
 
 </html>

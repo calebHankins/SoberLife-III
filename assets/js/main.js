@@ -10,12 +10,17 @@ import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateSh
 import { getTaskDefinition, getNextAvailableTask } from './task-definitions.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 import { AudioManager } from './audio-system.js';
+import { VERSION, GIT_HASH, GIT_BRANCH, BUILD_DATE } from './version.js';
 
 // Global audio manager instance
 let audioManager = null;
 
 // Initialize the game when page loads
 export async function initializeGame() {
+    // Log game version with build info
+    console.log(`🧘 SoberLife III v${VERSION} - Stress Management Game`);
+    console.log(`📦 Build: ${GIT_HASH} (${GIT_BRANCH}) - ${new Date(BUILD_DATE).toLocaleString()}`);
+
     // Initialize audio system
     try {
         audioManager = new AudioManager();
