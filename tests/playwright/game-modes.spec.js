@@ -184,6 +184,31 @@ test.describe('Free Play Mode', () => {
 
         await expect(versionFooter).toBeVisible();
     });
+
+    test('should display zen points correctly when returning from free play mode', async ({ page }) => {
+        // Get initial zen points from landing page
+        const zenPointsElement = page.locator('#zenPoints');
+        const initialZenPoints = await zenPointsElement.textContent();
+
+        // Start Free Play Mode
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#gameArea')).toBeVisible();
+
+        // Zen points should still be visible in game area
+        await expect(zenPointsElement).toBeVisible();
+
+        // Return to mode selection
+        page.on('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+
+        // Verify we're back at mode selection
+        await expect(page.locator('#gameModeSelection')).toBeVisible();
+
+        // Verify zen points are displayed and match initial value
+        await expect(zenPointsElement).toBeVisible();
+        const finalZenPoints = await zenPointsElement.textContent();
+        expect(finalZenPoints).toBe(initialZenPoints);
+    });
 });
 
 test.describe('Screen Navigation - Bug Fix', () => {
