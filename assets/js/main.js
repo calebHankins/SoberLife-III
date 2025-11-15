@@ -1549,6 +1549,9 @@ export function returnToModeSelection() {
         // Show version footer when returning to landing page
         showVersionFooter();
 
+        // Update display to show current zen points balance from ZenPointsManager
+        updateDisplay();
+
         console.log('Returned to mode selection');
 
     } catch (error) {
