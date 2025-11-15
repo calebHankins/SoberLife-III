@@ -241,6 +241,47 @@ Consider enabling branch protection on main:
    - ✅ Require branches to be up to date before merging
    - ✅ Include administrators (enforce for everyone)
 
+## Branch Protection and Repository Rules
+
+### Common Issues When Merging PRs
+
+**Issue: "Pull request is not mergeable: the base branch policy prohibits the merge"**
+
+This can happen due to several repository rules:
+
+1. **Branch is out of date:**
+   ```bash
+   # Update your branch with latest main
+   git fetch origin main
+   git merge origin/main
+   git push origin your-branch-name
+   ```
+
+2. **Approval required from another user:**
+   - If you're working solo and hit "New changes require approval from someone other than the last pusher"
+   - **Solution**: Merge via GitHub web interface (it allows bypassing for admins)
+   - **Or**: Temporarily disable the rule in Settings → Rules → Rulesets
+   - **Or**: Use `--admin` flag with gh CLI (may still require web interface for some rules)
+
+3. **Status checks not complete:**
+   - Wait for all CI checks to pass
+   - Check with: `gh pr checks PR-NUMBER`
+
+### Merging When Branch Protection Blocks CLI
+
+If `gh pr merge` fails due to approval requirements:
+
+```bash
+# Option 1: Use GitHub web interface
+# Go to the PR page and click "Merge pull request"
+
+# Option 2: Temporarily disable the rule
+# Settings → Rules → Rulesets → Edit the ruleset → Disable or modify
+
+# Option 3: Use auto-merge (will merge when requirements met)
+gh pr merge PR-NUMBER --auto --merge --delete-branch
+```
+
 ## Summary
 
 **Always:**
@@ -249,6 +290,7 @@ Consider enabling branch protection on main:
 - ✅ Wait for CI checks to pass
 - ✅ Use regular merge (preserve history)
 - ✅ Delete branch after merge
+- ✅ Update branch if it's out of date before merging
 
 **Never:**
 - ❌ Commit directly to main
@@ -262,3 +304,5 @@ Consider enabling branch protection on main:
 - Changes are reviewed
 - History is preserved
 - Rollback is easier if needed
+
+**Branch Protection:** If you encounter merge issues due to repository rules requiring approval and you're working solo, use the GitHub web interface to merge as an admin.

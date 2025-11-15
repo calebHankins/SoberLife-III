@@ -47,8 +47,8 @@ jobs:
             fi
             
             # Check if this is a merge commit from a PR
-            if echo "$COMMIT_MSG" | grep -qE "^.*\(#[0-9]+\)$"; then
-              PR_NUM=$(echo "$COMMIT_MSG" | grep -oE "#[0-9]+" | grep -oE "[0-9]+")
+            if echo "$COMMIT_MSG" | grep -qE "^Merge pull request #[0-9]+"; then
+              PR_NUM=$(echo "$COMMIT_MSG" | grep -oE "#[0-9]+" | head -1 | grep -oE "[0-9]+")
               echo "Detected PR merge: #$PR_NUM"
               
               # Check if PR has a release label
