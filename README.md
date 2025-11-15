@@ -132,6 +132,33 @@ The game is organized into separate modules for maintainability:
 3. **Run regression tests** to verify your changes don't break existing functionality
 4. No build process required - files are served directly
 
+### Release Management
+
+The project uses `release-it` for version management:
+
+```bash
+# Run interactive release (recommended)
+npm run release
+
+# Preview changes without committing
+npm run release -- --dry-run
+
+# Non-interactive release
+npm run release -- --ci --increment patch
+```
+
+**Before releasing:**
+- Ensure all tests pass: `npm test`
+- Update documentation if needed
+- Verify no security vulnerabilities: `npm audit`
+
+**Version guidelines:**
+- **Patch** (0.21.0 → 0.21.1): Bug fixes, documentation updates
+- **Minor** (0.21.0 → 0.22.0): New features, new tasks, UI improvements
+- **Major** (0.21.0 → 1.0.0): Breaking changes, major redesigns
+
+Releases automatically deploy to GitHub Pages via GitHub Actions.
+
 ### Testing
 
 The project includes comprehensive Playwright end-to-end tests for regression testing:

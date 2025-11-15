@@ -10,7 +10,11 @@
         "test:mobile": "playwright test --project=mobile",
         "test:report": "playwright show-report",
         "serve": "npx serve . -p 8000",
-        "release": "release-it"
+        "release": "release-it",
+        "release:patch": "release-it --ci --increment patch",
+        "release:minor": "release-it --ci --increment minor",
+        "release:major": "release-it --ci --increment major",
+        "release:dry": "release-it --dry-run"
     },
     "keywords": [
         "stress-management",
