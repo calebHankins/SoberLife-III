@@ -42,12 +42,12 @@ All workflows use identical base environments:
 **Environment:**
 - Runner: `ubuntu-latest`
 - Node.js: `20` with npm cache
-- Playwright: Cached by version (same as deploy)
 
 **Optimization:**
-- Reuses Playwright browser cache from deploy workflow
+- No tests run (operates on already-vetted commits)
+- Release commit will be tested by deploy workflow
+- Fast execution (~30 seconds)
 - Reuses npm cache from previous runs
-- Only installs browsers if cache miss
 
 ### 3. Release on PR Merge (`.github/workflows/release-on-pr.yml`)
 
@@ -57,12 +57,12 @@ All workflows use identical base environments:
 **Environment:**
 - Runner: `ubuntu-latest`
 - Node.js: `20` with npm cache
-- Playwright: Cached by version (same as deploy)
 
 **Optimization:**
-- Reuses Playwright browser cache from deploy workflow
+- No tests run (operates on already-vetted commits from merged PR)
+- Release commit will be tested by deploy workflow
+- Fast execution (~30 seconds)
 - Reuses npm cache from previous runs
-- Only installs browsers if cache miss
 
 ## Cache Strategy
 
@@ -87,7 +87,7 @@ All workflows use `actions/setup-node@v4` with `cache: "npm"`:
 
 ### Playwright Browsers
 
-All workflows use identical Playwright caching:
+Only the deploy workflow uses Playwright (for testing):
 
 ```yaml
 - name: Get Playwright version
@@ -114,9 +114,11 @@ All workflows use identical Playwright caching:
 
 **Benefits:**
 - Browsers downloaded once per Playwright version
-- Shared across all workflows (deploy, release, release-on-pr)
+- Cached for reuse across deploy workflow runs
 - Saves ~2 minutes per workflow run on cache hit
 - System dependencies installed separately when using cached browsers
+
+**Note:** Release workflows don't run tests - they operate on already-vetted commits and produce a release commit that will be tested by the deploy workflow.
 
 ## Cache Sharing
 
@@ -133,9 +135,7 @@ GitHub Actions caches are shared across workflows in the same repository:
 │  └─ Used by: release-on-pr.yml                               │
 │                                                               │
 │  Playwright Cache (playwright-Linux-<version>)               │
-│  ├─ Used by: deploy.yml                                      │
-│  ├─ Used by: release.yml                                     │
-│  └─ Used by: release-on-pr.yml                               │
+│  └─ Used by: deploy.yml (only workflow that runs tests)     │
 │                                                               │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -146,8 +146,13 @@ GitHub Actions caches are shared across workflows in the same repository:
 2. **Second PR:** Deploy workflow runs, uses cached browsers (saves ~2 min)
 3. **PR Merge with release label:** 
    - Deploy workflow skips (detects release label)
-   - Release-on-pr workflow runs, uses cached browsers (saves ~2 min)
-4. **Manual Release:** Release workflow runs, uses cached browsers (saves ~2 min)
+   - Release-on-pr workflow runs (~30s, no tests)
+   - Release commit pushed
+   - Deploy workflow runs on release commit, uses cached browsers
+4. **Manual Release:** 
+   - Release workflow runs (~30s, no tests)
+   - Release commit pushed
+   - Deploy workflow runs on release commit, uses cached browsers
 
 ## Environment Consistency Benefits
 
@@ -213,13 +218,16 @@ Caches are automatically invalidated when:
 
 Typical workflow run times:
 
-| Workflow          | With Cache | Without Cache | Savings |
-| ----------------- | ---------- | ------------- | ------- |
-| Deploy (test job) | ~3 minutes | ~5 minutes    | ~40%    |
-| Release           | ~3 minutes | ~5 minutes    | ~40%    |
-| Release-on-PR     | ~3 minutes | ~5 minutes    | ~40%    |
+| Workflow          | With Cache  | Without Cache | Notes                       |
+| ----------------- | ----------- | ------------- | --------------------------- |
+| Deploy (test job) | ~3 minutes  | ~5 minutes    | Runs full test suite        |
+| Release           | ~30 seconds | ~30 seconds   | No tests, just version bump |
+| Release-on-PR     | ~30 seconds | ~30 seconds   | No tests, just version bump |
 
-**Note:** Times vary based on test suite size and complexity.
+**Note:** 
+- Deploy workflow times vary based on test suite size and complexity
+- Release workflows are fast because they don't run tests
+- Release commits are tested by the deploy workflow that runs after them
 
 ## Troubleshooting
 
