@@ -73,6 +73,7 @@ This mode uses your campaign progress and upgraded deck, making it ideal for pla
 - **Contextual Actions**: Task-specific choices that affect gameplay
 - **Responsive Design**: Works on desktop and mobile devices
 - **Progress Persistence**: Campaign progress saves automatically
+- **Comprehensive Testing**: 220+ automated tests for quality assurance
 
 ## 🚀 Local Development
 
@@ -128,15 +129,51 @@ The game is organized into separate modules for maintainability:
 
 1. Make changes to the appropriate files (HTML, CSS, or JavaScript modules)
 2. Refresh your browser to see changes
-3. Run tests in `tests/` directory to verify functionality
+3. **Run regression tests** to verify your changes don't break existing functionality
 4. No build process required - files are served directly
 
-### Serving with a Local Server (Optional)
+### Testing
 
-For testing ES6 modules, you may want to serve the files through a local server:
+The project includes comprehensive Playwright end-to-end tests for regression testing:
 
 ```bash
-# Node.js
+# Install dependencies (first time only)
+npm install
+
+# Run all tests
+npm test
+
+# Run tests in headed mode (see browser)
+npm run test:headed
+
+# Run mobile tests specifically
+npm run test:mobile
+
+# Run tests with UI mode for debugging
+npm run test:ui
+```
+
+**When to run tests:**
+- Before committing changes
+- After adding new features
+- When modifying game mechanics
+- When updating UI components
+
+**Test coverage includes:**
+- All three game modes (Jump Into Task, Campaign, Free Play)
+- Mobile viewports (iPhone, iPad, landscape)
+- Accessibility compliance
+- Shop and Mind Palace features
+- Gameplay mechanics and stress management
+
+See `tests/playwright/README.md` for detailed testing documentation.
+
+### Serving with a Local Server
+
+For development and testing, serve the files through a local server:
+
+```bash
+# Node.js (required for Playwright tests)
 npx serve . -p 8000
 ```
 
