@@ -185,3 +185,157 @@ test.describe('Free Play Mode', () => {
         await expect(versionFooter).toBeVisible();
     });
 });
+
+test.describe('Screen Navigation - Bug Fix', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+    });
+
+    test('should only show mode selection when exiting campaign mode', async ({ page }) => {
+        // Start campaign mode
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+
+        // Exit campaign mode
+        await page.locator('#campaignCloseBtn').click();
+
+        // Verify only mode selection is visible
+        await expect(page.locator('#gameModeSelection')).toBeVisible();
+        await expect(page.locator('#campaignOverview')).toHaveClass(/hidden/);
+        await expect(page.locator('#surveySection')).toHaveClass(/hidden/);
+        await expect(page.locator('#taskInfo')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameArea')).toHaveClass(/hidden/);
+        await expect(page.locator('#upgradeShop')).toHaveClass(/hidden/);
+    });
+
+    test('should only show mode selection when exiting free play mode', async ({ page }) => {
+        // Start free play mode
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#gameArea')).toBeVisible();
+
+        // Exit free play mode
+        page.on('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+
+        // Verify only mode selection is visible
+        await expect(page.locator('#gameModeSelection')).toBeVisible();
+        await expect(page.locator('#campaignOverview')).toHaveClass(/hidden/);
+        await expect(page.locator('#taskInfo')).toHaveClass(/hidden/);
+        await expect(page.locator('#zenActivities')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameArea')).toHaveClass(/hidden/);
+        await expect(page.locator('#upgradeShop')).toHaveClass(/hidden/);
+    });
+
+    test('should not show campaign overview when exiting free play', async ({ page }) => {
+        // Start free play mode
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#gameArea')).toBeVisible();
+
+        // Exit free play mode
+        page.on('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+
+        // Specifically verify campaign overview is hidden (the bug was showing it)
+        const campaignOverview = page.locator('#campaignOverview');
+        await expect(campaignOverview).toHaveClass(/hidden/);
+
+        // Verify it's not visible in the DOM
+        const isVisible = await campaignOverview.isVisible();
+        expect(isVisible).toBe(false);
+    });
+
+    test('should show only mode selection after campaign then free play exit', async ({ page }) => {
+        // Start campaign mode
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+
+        // Exit campaign
+        await page.locator('#campaignCloseBtn').click();
+        await expect(page.locator('#gameModeSelection')).toBeVisible();
+
+        // Start free play mode
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#gameArea')).toBeVisible();
+
+        // Exit free play mode
+        page.on('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+
+        // Verify clean state - only mode selection visible
+        await expect(page.locator('#gameModeSelection')).toBeVisible();
+        await expect(page.locator('#campaignOverview')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameArea')).toHaveClass(/hidden/);
+    });
+
+    test('should show only mode selection after free play then campaign exit', async ({ page }) => {
+        // Start free play mode
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#gameArea')).toBeVisible();
+
+        // Exit free play mode
+        page.on('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+        await expect(page.locator('#gameModeSelection')).toBeVisible();
+
+        // Start campaign mode
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+
+        // Exit campaign
+        await page.locator('#campaignCloseBtn').click();
+
+        // Verify clean state - only mode selection visible
+        await expect(page.locator('#gameModeSelection')).toBeVisible();
+        await expect(page.locator('#campaignOverview')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameArea')).toHaveClass(/hidden/);
+    });
+
+    test('should properly hide all screens when exiting campaign', async ({ page }) => {
+        // Start campaign mode
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+
+        // Exit campaign mode
+        await page.locator('#campaignCloseBtn').click();
+
+        // Verify all game screens are hidden
+        const hiddenScreens = [
+            '#campaignOverview',
+            '#surveySection',
+            '#taskInfo',
+            '#zenActivities',
+            '#gameArea',
+            '#gameOverScreen',
+            '#gameSuccessScreen',
+            '#upgradeShop'
+        ];
+
+        for (const screenId of hiddenScreens) {
+            await expect(page.locator(screenId)).toHaveClass(/hidden/);
+        }
+    });
+
+    test('should properly hide all screens when exiting free play', async ({ page }) => {
+        // Start free play mode
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+
+        // Exit free play mode
+        page.on('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+
+        // Verify all game screens are hidden
+        const hiddenScreens = [
+            '#campaignOverview',
+            '#surveySection',
+            '#taskInfo',
+            '#zenActivities',
+            '#gameArea',
+            '#gameOverScreen',
+            '#gameSuccessScreen',
+            '#upgradeShop'
+        ];
+
+        for (const screenId of hiddenScreens) {
+            await expect(page.locator(screenId)).toHaveClass(/hidden/);
+        }
+    });
+});

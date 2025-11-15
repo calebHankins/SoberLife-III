@@ -346,8 +346,15 @@ export function closeSurvey() {
 
 // Close campaign overview and return to mode selection
 export function closeCampaign() {
+    // Hide all game screens to ensure clean state
     hideElement('campaignOverview');
     hideElement('upgradeShop');
+    hideElement('surveySection');
+    hideElement('taskInfo');
+    hideElement('zenActivities');
+    hideElement('gameArea');
+    hideElement('gameOverScreen');
+    hideElement('gameSuccessScreen');
 
     // Clear campaign mode flag
     updateCampaignState({ campaignMode: false });
@@ -380,10 +387,15 @@ export function closeTask() {
     hideElement('gameArea');
     hideElement('gameOverScreen');
     hideElement('gameSuccessScreen');
+    hideElement('campaignOverview');
+    hideElement('upgradeShop');
+    hideElement('surveySection');
 
     // Return to appropriate view based on mode
     // Free Play Mode always returns to mode selection
     if (wasFreePlayMode) {
+        // Ensure campaign mode is disabled when returning from Free Play
+        updateCampaignState({ campaignMode: false });
         showElement('gameModeSelection');
         // Show version footer when returning to landing page
         showVersionFooter();
