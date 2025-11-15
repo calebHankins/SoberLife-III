@@ -314,10 +314,32 @@ function setupCloseButtons() {
         surveyCloseBtn.addEventListener('click', closeSurvey);
     }
 
-    // Task close button
+    // Task close button with debounce to prevent double-click issues
     const taskCloseBtn = document.getElementById('taskCloseBtn');
     if (taskCloseBtn) {
-        taskCloseBtn.addEventListener('click', closeTask);
+        taskCloseBtn.addEventListener('click', (e) => {
+            // Check if button is already processing a click
+            if (taskCloseBtn.dataset.processing === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
+            // Mark button as processing
+            taskCloseBtn.dataset.processing = 'true';
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Call closeTask and reset processing flag after completion
+            try {
+                closeTask();
+            } finally {
+                // Reset processing flag after a delay
+                setTimeout(() => {
+                    taskCloseBtn.dataset.processing = 'false';
+                }, 1000);
+            }
+        });
     }
 
     // Campaign close button
@@ -393,36 +415,44 @@ export function closeTask() {
         }
     }
 
-    // Check mode before resetting state (since reset clears these flags)
+    // Check mode BEFORE resetting state (since reset clears these flags)
     const wasFreePlayMode = gameState.freePlayMode;
     const wasCampaignMode = isCampaignMode();
 
-    // Clean up game state
-    resetGameState();
-    hideElement('taskInfo');
-    hideElement('zenActivities');
-    hideElement('gameArea');
-    hideElement('gameOverScreen');
-    hideElement('gameSuccessScreen');
-    hideElement('campaignOverview');
-    hideElement('upgradeShop');
-    hideElement('surveySection');
-
-    // Return to appropriate view based on mode
-    // Free Play Mode always returns to mode selection
+    // Return to appropriate view based on mode (BEFORE resetting state)
     if (wasFreePlayMode) {
-        // Ensure campaign mode is disabled when returning from Free Play
+        // Free Play Mode returns to Free Play overview
         updateCampaignState({ campaignMode: false });
-        showElement('gameModeSelection');
-        // Show version footer when returning to landing page
-        showVersionFooter();
+        showFreePlayOverview();
     } else if (wasCampaignMode) {
+        // Hide all game screens except campaign overview
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        hideElement('gameOverScreen');
+        hideElement('gameSuccessScreen');
+        hideElement('freePlayOverview');
+        hideElement('upgradeShop');
+        hideElement('surveySection');
         showElement('campaignOverview');
     } else {
+        // Hide all game screens
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        hideElement('gameOverScreen');
+        hideElement('gameSuccessScreen');
+        hideElement('campaignOverview');
+        hideElement('freePlayOverview');
+        hideElement('upgradeShop');
+        hideElement('surveySection');
         showElement('gameModeSelection');
         // Show version footer when returning to landing page
         showVersionFooter();
     }
+
+    // Clean up game state AFTER determining where to navigate
+    resetGameState();
 }
 
 // Close shop wrapper
@@ -1611,8 +1641,6 @@ export function showFreePlayOverview() {
 
         // Show Free Play overview
         showElement('freePlayOverview');
-
-        console.log('Free Play overview displayed');
 
     } catch (error) {
         console.error('Error showing Free Play overview:', error);
