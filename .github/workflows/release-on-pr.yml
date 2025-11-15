@@ -62,3 +62,12 @@ jobs:
       - name: Push changes
         run: |
           git push --follow-tags origin ${{ github.event.pull_request.base.ref }}
+
+      - name: Trigger deployment
+        run: |
+          # Wait a moment for the push to be processed
+          sleep 5
+          # Trigger the deploy workflow for the release commit
+          gh workflow run deploy.yml --ref ${{ github.event.pull_request.base.ref }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

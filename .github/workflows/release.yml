@@ -53,7 +53,11 @@ jobs:
         run: |
           git push --follow-tags origin main || git push --follow-tags origin master
 
-  # Trigger deployment after successful release
-  deploy:
-    needs: release
-    uses: ./.github/workflows/deploy.yml
+      - name: Trigger deployment
+        run: |
+          # Wait a moment for the push to be processed
+          sleep 5
+          # Trigger the deploy workflow for the release commit
+          gh workflow run deploy.yml --ref main || gh workflow run deploy.yml --ref master
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
