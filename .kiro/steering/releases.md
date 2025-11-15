@@ -112,8 +112,41 @@ Release configuration is in `.release-it.json`:
   },
   "github": {
     "release": false  // No GitHub releases (using tags only)
+  },
+  "hooks": {
+    "after:bump": [
+      "node scripts/update-version.js"  // Auto-update version in source files
+    ]
   }
 }
+```
+
+### Version Management
+
+The version is automatically synchronized across:
+- `package.json` (source of truth)
+- `assets/js/version.js` (imported by JavaScript modules)
+- `index.html` (version footer fallback)
+
+When you run `npm run release`, the `scripts/update-version.js` script automatically updates all version references after bumping package.json.
+
+#### Build Information
+
+The version system includes additional build metadata:
+- **VERSION**: Semantic version from package.json (e.g., "0.21.0")
+- **GIT_HASH**: Short commit hash (e.g., "56ca618")
+- **GIT_BRANCH**: Current git branch (e.g., "main")
+- **BUILD_DATE**: ISO timestamp of when version was updated
+
+This information is:
+- Logged to console on game initialization
+- Displayed in tooltip when hovering over version footer
+- Available for debugging and support purposes
+
+Example console output:
+```
+🧘 SoberLife III v0.21.0 - Stress Management Game
+📦 Build: 56ca618 (main) - 11/15/2025, 11:58:06 AM
 ```
 
 ## Common Scenarios

@@ -9,5 +9,10 @@
     },
     "github": {
         "release": false
+    },
+    "hooks": {
+        "after:bump": [
+            "node scripts/update-version.js"
+        ]
     }
 }
