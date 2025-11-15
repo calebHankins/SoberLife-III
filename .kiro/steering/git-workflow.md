@@ -72,6 +72,22 @@ For releases, add one of:
 - `release:minor` - New features
 - `release:major` - Breaking changes
 
+**How to add labels:**
+
+```bash
+# Method 1: Using gh CLI with API (RECOMMENDED - works reliably)
+echo '{"labels":["release:patch"]}' | gh api repos/OWNER/REPO/issues/PR-NUMBER/labels --method POST --input -
+
+# Example:
+echo '{"labels":["release:patch"]}' | gh api repos/calebHankins/SoberLife-III/issues/29/labels --method POST --input -
+
+# Method 2: Using gh pr edit (may have issues with some configurations)
+gh pr edit PR-NUMBER --add-label "release:patch"
+
+# Method 3: Via GitHub web interface
+# Go to PR page → Labels section → Select appropriate release label
+```
+
 ### 6. Wait for CI Checks
 
 - All tests must pass
