@@ -65,6 +65,21 @@ export function showElement(id) {
     }
 }
 
+// Version footer visibility management
+export function hideVersionFooter() {
+    const versionFooter = document.getElementById('versionFooter');
+    if (versionFooter) {
+        versionFooter.style.display = 'none';
+    }
+}
+
+export function showVersionFooter() {
+    const versionFooter = document.getElementById('versionFooter');
+    if (versionFooter) {
+        versionFooter.style.display = 'block';
+    }
+}
+
 // Update main game display (zen points, stress meter, avatar)
 export function updateDisplay() {
     // Update zen points using the manager
