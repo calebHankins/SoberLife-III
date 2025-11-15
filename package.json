@@ -8,6 +8,7 @@
         "test:debug": "playwright test --debug",
         "test:ui": "playwright test --ui",
         "test:mobile": "playwright test --project=mobile",
+        "test:report": "playwright show-report",
         "serve": "npx serve . -p 8000"
     },
     "keywords": [

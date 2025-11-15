@@ -58,10 +58,17 @@ Accessibility compliance:
 npm install
 ```
 
-### Run All Tests
+### Run All Tests (Non-Interactive)
 ```bash
 npm test
 ```
+Tests run in non-interactive mode by default, outputting results to the console. The HTML report is generated but not automatically opened.
+
+### View HTML Report
+```bash
+npm run test:report
+```
+Opens the detailed HTML report in your browser after tests have completed.
 
 ### Run Tests in Headed Mode (see browser)
 ```bash
@@ -73,7 +80,7 @@ npm run test:headed
 npm run test:debug
 ```
 
-### Run Tests with UI Mode
+### Run Tests with UI Mode (Interactive)
 ```bash
 npm run test:ui
 ```
@@ -167,6 +174,8 @@ test.describe('Feature Name', () => {
 
 ### View Test Report
 ```bash
+npm run test:report
+# or
 npx playwright show-report
 ```
 
@@ -183,6 +192,16 @@ Traces are captured on first retry and can be viewed with:
 ```bash
 npx playwright show-trace trace.zip
 ```
+
+## Automation-Friendly Testing
+
+Tests are configured to run in non-interactive mode by default, making them suitable for:
+- **CI/CD pipelines**: No user input required
+- **Automated testing**: Results output directly to console
+- **Agent workflows**: AI agents can consume test results immediately
+- **Batch testing**: Run multiple test suites without interruption
+
+The HTML report is always generated but only opened when explicitly requested with `npm run test:report`.
 
 ## Test Coverage
 

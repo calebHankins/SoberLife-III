@@ -14,8 +14,11 @@ SoberLife III uses Playwright for automated end-to-end testing to ensure quality
 # Install dependencies (first time only)
 npm install
 
-# Run all tests
+# Run all tests (non-interactive, outputs to console)
 npm test
+
+# View HTML report after tests complete
+npm run test:report
 
 # Run tests with visible browser (helpful for debugging)
 npm run test:headed
@@ -254,11 +257,14 @@ Tests run automatically in GitHub Actions:
 # Run tests in debug mode
 npm run test:debug
 
-# Run tests with UI mode
+# Run tests with UI mode (interactive)
 npm run test:ui
 
 # Run single test file
 npx playwright test tests/playwright/game-modes.spec.js
+
+# View HTML report (after tests have run)
+npm run test:report
 ```
 
 ### Common Issues
@@ -320,8 +326,15 @@ await page.waitForTimeout(500); // Use sparingly
 
 **Quick Commands:**
 ```bash
-npm test              # Run all tests
+npm test              # Run all tests (non-interactive)
+npm run test:report   # View HTML report
 npm run test:headed   # See browser
 npm run test:mobile   # Mobile tests
-npm run test:ui       # Debug mode
+npm run test:ui       # Interactive debug mode
 ```
+
+**For Automation:**
+- Tests run in non-interactive mode by default
+- Results output to console with list reporter
+- HTML report generated but not auto-opened
+- Use `npm run test:report` to view detailed HTML report when needed
