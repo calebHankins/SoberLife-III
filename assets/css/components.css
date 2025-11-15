@@ -86,9 +86,12 @@
 }
 
 .stress-fill {
+    width: 0%;
+    min-width: 2px;
     height: 100%;
     transition: all 0.5s ease;
     border-radius: 8px;
+    background: linear-gradient(90deg, #2ECC71 0%, #F39C12 50%, #E74C3C 100%);
 }
 
 .zen-points {

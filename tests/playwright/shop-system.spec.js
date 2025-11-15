@@ -10,7 +10,7 @@ test.describe('Shop System', () => {
     test('should open shop from campaign overview', async ({ page }) => {
         await page.getByRole('button', { name: /Visit Shop/i }).click();
         await expect(page.locator('#upgradeShop')).toBeVisible();
-        await expect(page.locator('h2')).toContainText('Mindfulness Upgrades');
+        await expect(page.locator('#upgradeShop h2')).toContainText('Mindfulness Upgrades');
     });
 
     test('should display zen points balance in shop', async ({ page }) => {
@@ -41,7 +41,7 @@ test.describe('Shop System', () => {
         await page.getByRole('button', { name: /Visit Shop/i }).click();
 
         await expect(page.getByRole('button', { name: /Continue Campaign/i })).toBeVisible();
-        await expect(page.getByRole('button', { name: /Close Shop/i })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Close Shop', exact: true })).toBeVisible();
     });
 
     test('should allow closing shop', async ({ page }) => {
