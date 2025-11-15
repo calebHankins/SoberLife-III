@@ -23,6 +23,12 @@ test.describe('Game Mode Selection', () => {
         await expect(page.locator('.stress-meter')).toBeVisible();
         await expect(page.locator('#zenPoints')).toContainText('Zen Points:');
     });
+
+    test('should display version footer on landing page', async ({ page }) => {
+        const versionFooter = page.locator('#versionFooter');
+        await expect(versionFooter).toBeVisible();
+        await expect(versionFooter).toHaveText(/v\d+\.\d+\.\d+/);
+    });
 });
 
 test.describe('Campaign Mode', () => {
@@ -34,6 +40,23 @@ test.describe('Campaign Mode', () => {
         await page.getByRole('button', { name: /Start Campaign/i }).click();
         await expect(page.locator('#campaignOverview')).toBeVisible();
         await expect(page.locator('#campaignOverview h2')).toContainText('Stress Management Campaign');
+    });
+
+    test('should hide version footer when entering campaign mode', async ({ page }) => {
+        const versionFooter = page.locator('#versionFooter');
+        await expect(versionFooter).toBeVisible();
+
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+        await expect(versionFooter).toBeHidden();
+    });
+
+    test('should show version footer when returning to mode selection from campaign', async ({ page }) => {
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+        const versionFooter = page.locator('#versionFooter');
+        await expect(versionFooter).toBeHidden();
+
+        await page.locator('#campaignCloseBtn').click();
+        await expect(versionFooter).toBeVisible();
     });
 
     test('should display campaign progress and deck status', async ({ page }) => {
@@ -72,6 +95,23 @@ test.describe('Jump Into Task Mode', () => {
         await page.getByRole('button', { name: /Start Next Task/i }).click();
         await expect(page.locator('#surveySection')).toBeVisible();
         await expect(page.locator('#surveySection h3')).toContainText('Pre-Task Assessment');
+    });
+
+    test('should hide version footer when entering task mode', async ({ page }) => {
+        const versionFooter = page.locator('#versionFooter');
+        await expect(versionFooter).toBeVisible();
+
+        await page.getByRole('button', { name: /Start Next Task/i }).click();
+        await expect(versionFooter).toBeHidden();
+    });
+
+    test('should show version footer when closing task', async ({ page }) => {
+        await page.getByRole('button', { name: /Start Next Task/i }).click();
+        const versionFooter = page.locator('#versionFooter');
+        await expect(versionFooter).toBeHidden();
+
+        await page.locator('#surveyCloseBtn').click();
+        await expect(versionFooter).toBeVisible();
     });
 
     test('should require all survey questions to be answered', async ({ page }) => {
@@ -119,5 +159,25 @@ test.describe('Free Play Mode', () => {
         // Verify generic button text (not contextual)
         await expect(page.locator('#hitBtn')).toContainText('Hit');
         await expect(page.locator('#standBtn')).toContainText('Stand');
+    });
+
+    test('should hide version footer when entering free play mode', async ({ page }) => {
+        const versionFooter = page.locator('#versionFooter');
+        await expect(versionFooter).toBeVisible();
+
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(versionFooter).toBeHidden();
+    });
+
+    test('should show version footer when closing free play', async ({ page }) => {
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        const versionFooter = page.locator('#versionFooter');
+        await expect(versionFooter).toBeHidden();
+
+        // Handle confirmation dialog if game is in progress
+        page.on('dialog', dialog => dialog.accept());
+        await page.locator('#taskCloseBtn').click();
+
+        await expect(versionFooter).toBeVisible();
     });
 });

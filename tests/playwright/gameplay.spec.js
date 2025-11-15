@@ -27,11 +27,28 @@ test.describe('Blackjack Gameplay', () => {
 
     test('should update player score when hitting', async ({ page }) => {
         const initialScore = await page.locator('#playerScore').textContent();
+        const initialCardCount = await page.locator('#playerCards .card').count();
 
         await page.locator('#hitBtn').click();
-        await page.waitForTimeout(500); // Wait for card animation
+
+        // Wait for a new card to be added to the player's hand
+        await page.waitForFunction(
+            (count) => document.querySelectorAll('#playerCards .card').length > count,
+            initialCardCount,
+            { timeout: 2000 }
+        );
+
+        // Wait for score to update
+        await page.waitForFunction(
+            (initial) => document.querySelector('#playerScore').textContent !== initial,
+            initialScore,
+            { timeout: 2000 }
+        );
 
         const newScore = await page.locator('#playerScore').textContent();
+        const newCardCount = await page.locator('#playerCards .card').count();
+
+        expect(newCardCount).toBeGreaterThan(initialCardCount);
         expect(newScore).not.toBe(initialScore);
     });
 

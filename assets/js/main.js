@@ -3,7 +3,7 @@
 
 import { gameState, updateGameState, resetGameState, steps, incrementHitCount, resetHandState, setLastAction, campaignState, handState, activityState, loadActivityStateFromCampaign, canUseActivity, updateCampaignState } from './game-state.js';
 import { createDeck, createCustomDeck, shuffleDeck, calculateScore, resetJokerValues, handContainsJokers } from './card-system.js';
-import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showMindPalace, hideMindPalace, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay, updateFreePlayUI } from './ui-manager.js';
+import { updateDisplay, updateCards, updateZenActivities, showGameOver, showGameSuccess, hideElement, showElement, updateTaskDescription, showHelpModal, hideHelpModal, updateContextualButtons, showFlavorText, emphasizeTaskInfo, updateOutcomeMessage, showStressManagementTip, showInitialFlavorText, showMindPalace, hideMindPalace, showJokerCalculationFeedback, showJokerPerfectScoreFeedback, updateSplitHandDisplay, showSplitHandsUI, hideSplitHandsUI, updateCompartmentalizedCardDisplay, updateFreePlayUI, hideVersionFooter, showVersionFooter } from './ui-manager.js';
 import { calculateSurveyStress, updateStressLevel, switchSplitHand, showZenActivityFeedback, useZenActivity, zenActivities, completeSplitHand, getActiveSplitHand } from './stress-system.js';
 import { initializeCampaign, showCampaignOverview, isCampaignMode, getCurrentTask, completeCurrentTask, returnToCampaign, resetCampaign, startCampaignTask, updateCampaignUI } from './campaign-manager.js';
 import { openShop, closeShop, purchaseAceUpgrade, purchaseJokerUpgrade, updateShopUI, showPurchaseFeedback, purchasePremiumActivityWrapper } from './shop-system.js';
@@ -62,6 +62,9 @@ export async function initializeGame() {
     hideElement('taskInfo');
     hideElement('zenActivities');
     hideElement('gameArea');
+
+    // Show version footer on landing page
+    showVersionFooter();
 
     // Set up global button click sound effects
     setupButtonClickSounds();
@@ -331,9 +334,13 @@ export function closeSurvey() {
         // Clear the current task since user cancelled
         updateCampaignState({ currentTask: null });
         showElement('gameModeSelection');
+        // Show version footer when returning to landing page
+        showVersionFooter();
     } else {
         // Regular single task mode
         showElement('gameModeSelection');
+        // Show version footer when returning to landing page
+        showVersionFooter();
     }
 }
 
@@ -347,6 +354,9 @@ export function closeCampaign() {
 
     // Show mode selection
     showElement('gameModeSelection');
+
+    // Show version footer when returning to landing page
+    showVersionFooter();
 }
 
 // Close task and return to campaign or mode selection
@@ -359,6 +369,10 @@ export function closeTask() {
         }
     }
 
+    // Check mode before resetting state (since reset clears these flags)
+    const wasFreePlayMode = gameState.freePlayMode;
+    const wasCampaignMode = isCampaignMode();
+
     // Clean up game state
     resetGameState();
     hideElement('taskInfo');
@@ -369,12 +383,16 @@ export function closeTask() {
 
     // Return to appropriate view based on mode
     // Free Play Mode always returns to mode selection
-    if (gameState.freePlayMode) {
+    if (wasFreePlayMode) {
         showElement('gameModeSelection');
-    } else if (isCampaignMode()) {
+        // Show version footer when returning to landing page
+        showVersionFooter();
+    } else if (wasCampaignMode) {
         showElement('campaignOverview');
     } else {
         showElement('gameModeSelection');
+        // Show version footer when returning to landing page
+        showVersionFooter();
     }
 }
 
@@ -385,6 +403,8 @@ export function closeShopWrapper() {
         showElement('campaignOverview');
     } else {
         showElement('gameModeSelection');
+        // Show version footer when returning to landing page
+        showVersionFooter();
     }
 }
 
@@ -513,6 +533,9 @@ export function startSingleTaskMode() {
     hideElement('campaignOverview');
     showElement('surveySection');
 
+    // Hide version footer when leaving landing page
+    hideVersionFooter();
+
     // Update survey for the specific task context
     const surveyDescription = document.getElementById('surveyDescription');
     if (surveyDescription) {
@@ -536,6 +559,9 @@ export function startCampaignMode() {
     // Initialize and show campaign
     initializeCampaign();
     showCampaignOverview();
+
+    // Hide version footer when leaving landing page
+    hideVersionFooter();
 }
 
 // Start Free Play Mode
@@ -572,6 +598,9 @@ export function startFreePlayMode() {
         hideElement('campaignOverview');
         hideElement('gameOverScreen');
         hideElement('gameSuccessScreen');
+
+        // Hide version footer when leaving landing page
+        hideVersionFooter();
 
         // Show game elements
         showElement('taskInfo');
@@ -1505,6 +1534,9 @@ export function returnToModeSelection() {
         // Show mode selection
         showElement('gameModeSelection');
 
+        // Show version footer when returning to landing page
+        showVersionFooter();
+
         console.log('Returned to mode selection');
 
     } catch (error) {
@@ -1532,6 +1564,9 @@ export function restartGame() {
         hideElement('zenActivities');
         hideElement('gameArea');
         hideElement('campaignOverview');
+
+        // Show version footer when returning to landing page
+        showVersionFooter();
     }
 
     // Reset survey
