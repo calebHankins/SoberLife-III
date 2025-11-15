@@ -2,6 +2,8 @@
 
 Get started with automated releases in 5 minutes!
 
+> **Note:** Workflows include automatic Playwright browser installation for testing.
+
 ## ⚡ Super Quick Setup
 
 ### 1. Enable Permissions (2 minutes)
