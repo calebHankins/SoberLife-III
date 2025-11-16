@@ -2349,6 +2349,15 @@ export function showMindPalace() {
 
         mindPalaceModal.classList.remove('hidden');
 
+        // Reset scroll position to top AFTER showing modal
+        // Use setTimeout to ensure DOM has updated
+        const mindPalaceBody = mindPalaceModal.querySelector('.mind-palace-body');
+        if (mindPalaceBody) {
+            setTimeout(() => {
+                mindPalaceBody.scrollTop = 0;
+            }, 0);
+        }
+
         // Focus management for accessibility
         const closeBtn = document.getElementById('mindPalaceCloseBtn');
         if (closeBtn) {
@@ -2384,6 +2393,12 @@ export function hideMindPalace() {
 
         mindPalaceModal.classList.add('hidden');
 
+        // Reset scroll position to top
+        const mindPalaceBody = mindPalaceModal.querySelector('.mind-palace-body');
+        if (mindPalaceBody) {
+            mindPalaceBody.scrollTop = 0;
+        }
+
         // Restore focus to previously focused element
         if (previouslyFocusedElementForMindPalace) {
             try {
@@ -2401,6 +2416,16 @@ export function hideMindPalace() {
 
         // Clean up event listeners
         cleanupMindPalaceEventListeners();
+
+        // If in Free Play mode, restore Free Play overview
+        // Check after cleanup to ensure proper state
+        if (gameState && gameState.freePlayMode) {
+            const freePlayOverview = document.getElementById('freePlayOverview');
+            if (freePlayOverview && freePlayOverview.classList.contains('hidden')) {
+                freePlayOverview.classList.remove('hidden');
+                console.log('Restored Free Play overview after closing Mind Palace');
+            }
+        }
 
     } catch (error) {
         console.error('Error hiding Mind Palace:', error);

@@ -11,6 +11,9 @@ import { getTaskDefinition, getNextAvailableTask } from './task-definitions.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 import { AudioManager } from './audio-system.js';
 import { VERSION, GIT_HASH, GIT_BRANCH, BUILD_DATE } from './version.js';
+import { initializeAchievements, updateStatistic, checkMilestones, achievementState } from './achievement-manager.js';
+import { renderAchievementsInMindPalace } from './achievement-ui.js';
+import { DebugHelper } from './debug-helper.js';
 
 // Global audio manager instance
 let audioManager = null;
@@ -48,6 +51,9 @@ export async function initializeGame() {
 
     // Set up close button event listeners
     setupCloseButtons();
+
+    // Initialize achievement system
+    initializeAchievements();
 
     // Set up browser back button handling
     setupBrowserBackButton();
@@ -847,12 +853,13 @@ export function startNewRound() {
         // Reset hand state for fresh progressive flavor text
         resetHandState();
 
-        // Create deck based on mode (custom for campaign/task mode, standard for pure single task)
+        // Create deck based on mode (custom for campaign/task/free play mode, standard for pure single task)
         let playerDeck, houseDeck;
-        if (isCampaignMode() || campaignState.currentTask) {
+        if (isCampaignMode() || campaignState.currentTask || gameState.freePlayMode) {
             playerDeck = createCustomDeck(campaignState.deckComposition);
             houseDeck = createDeck();
             console.log('[DEBUG] Custom player deck generated:', playerDeck);
+            console.log('[DEBUG] Deck composition:', campaignState.deckComposition);
             console.log('[DEBUG] Standard house deck generated:', houseDeck);
         } else {
             playerDeck = createDeck();
@@ -1476,11 +1483,26 @@ export function continueFreePlayTask(taskBonus) {
 
         // Increment task counter and increase difficulty
         const newMultiplier = gameState.freePlayStressMultiplier + 0.15;
+        const newTaskCount = gameState.freePlayTasksCompleted + 1;
+        const newRunCount = gameState.freePlayCurrentTaskRounds + 5; // Just completed 5 rounds
+
         updateGameState({
-            freePlayTasksCompleted: gameState.freePlayTasksCompleted + 1,
+            freePlayTasksCompleted: newTaskCount,
             freePlayCurrentTaskRounds: 0,
             freePlayStressMultiplier: newMultiplier
         });
+
+        // Update achievement statistics
+        updateStatistic('freePlayTasksTotal', achievementState.statistics.freePlayTasksTotal + 1);
+        updateStatistic('currentFreePlayRun', achievementState.statistics.currentFreePlayRun + 1);
+
+        // Check for Free Play milestone achievements
+        checkMilestones('free_play', achievementState.statistics.freePlayTasksTotal);
+
+        // Update max run if current run is higher
+        if (achievementState.statistics.currentFreePlayRun > achievementState.statistics.freePlayMaxRun) {
+            updateStatistic('freePlayMaxRun', achievementState.statistics.currentFreePlayRun);
+        }
 
         // Remove modal
         const modal = document.getElementById('freePlayCompletionModal');
@@ -1491,7 +1513,7 @@ export function continueFreePlayTask(taskBonus) {
         updateDisplay();
         startNewRound();
 
-        console.log(`Free Play: Continuing to task ${gameState.freePlayTasksCompleted + 1} with ${newMultiplier.toFixed(2)}x stress multiplier`);
+        console.log(`Free Play: Continuing to task ${newTaskCount} with ${newMultiplier.toFixed(2)}x stress multiplier`);
 
     } catch (error) {
         console.error('Error continuing Free Play task:', error);
@@ -1505,9 +1527,25 @@ export function endFreePlaySession(taskBonus) {
         ZenPointsManager.addPoints(taskBonus, ZEN_TRANSACTION_TYPES.TASK_COMPLETION);
 
         // Increment task counter for final stats
+        const newTaskCount = gameState.freePlayTasksCompleted + 1;
         updateGameState({
-            freePlayTasksCompleted: gameState.freePlayTasksCompleted + 1
+            freePlayTasksCompleted: newTaskCount
         });
+
+        // Update achievement statistics
+        updateStatistic('freePlayTasksTotal', achievementState.statistics.freePlayTasksTotal + 1);
+        updateStatistic('currentFreePlayRun', achievementState.statistics.currentFreePlayRun + 1);
+
+        // Check for Free Play milestone achievements
+        checkMilestones('free_play', achievementState.statistics.freePlayTasksTotal);
+
+        // Update max run if current run is higher
+        if (achievementState.statistics.currentFreePlayRun > achievementState.statistics.freePlayMaxRun) {
+            updateStatistic('freePlayMaxRun', achievementState.statistics.currentFreePlayRun);
+        }
+
+        // Reset current run counter (session ended)
+        updateStatistic('currentFreePlayRun', 0);
 
         // Remove modal
         const modal = document.getElementById('freePlayCompletionModal');
@@ -1634,6 +1672,9 @@ function updateFreePlaySuccessButtons() {
 // Restart Free Play Mode
 export function restartFreePlay() {
     try {
+        // Reset current Free Play run counter when restarting
+        updateStatistic('currentFreePlayRun', 0);
+
         // Reset game state but keep Free Play Mode active
         resetGameState();
         startFreePlayMode();
@@ -1753,6 +1794,9 @@ export function closeFreePlayOverview() {
     showElement('gameModeSelection');
     showVersionFooter();
 
+    // Reset current Free Play run counter when exiting
+    updateStatistic('currentFreePlayRun', 0);
+
     // Update display to show current zen points balance from ZenPointsManager
     updateDisplay();
 }
@@ -1770,8 +1814,8 @@ export function openFreePlayShop() {
 // Visit Mind Palace from Free Play overview
 export function visitFreePlayMindPalace() {
     try {
-        showMindPalace();
         hideElement('freePlayOverview');
+        visitMindPalace(); // Use the main visitMindPalace function which handles achievements
     } catch (error) {
         console.error('Error visiting Free Play Mind Palace:', error);
     }
@@ -2223,29 +2267,43 @@ export function closeShopToCampaign() {
 }
 
 export function visitMindPalace() {
-    try {
-        console.log('visitMindPalace called');
+    console.log('=== visitMindPalace CALLED ===');
+    console.log('isCampaignMode:', isCampaignMode());
+    console.log('campaignState.currentTask:', campaignState.currentTask);
+    console.log('gameState.freePlayMode:', gameState.freePlayMode);
 
-        // Validate campaign mode or jump into task mode
-        if (!isCampaignMode() && !campaignState.currentTask) {
-            console.warn('Mind Palace only available in campaign mode');
-            showPopupNotification('Mind Palace only available in campaign mode', 'error');
+    try {
+        // Allow Mind Palace in Campaign Mode, Jump Into Task, or Free Play Mode
+        const isValidMode = isCampaignMode() || campaignState.currentTask || gameState.freePlayMode;
+
+        console.log('isValidMode:', isValidMode);
+
+        if (!isValidMode) {
+            console.warn('Mind Palace only available in game modes');
             return;
         }
 
         // Validate campaign state
         if (!campaignState.deckComposition) {
             console.error('Invalid campaign state - missing deck composition');
-            showPopupNotification('Unable to load Mind Palace information', 'error');
             return;
         }
 
-        console.log('Current campaign state before showing Mind Palace:', campaignState);
+        console.log('Showing Mind Palace modal...');
         showMindPalace();
+
+        console.log('Updating deck info...');
+        updateMindPalaceDeckInfo();
+
+        console.log('Updating activities...');
+        updateMindPalaceActivities();
+
+        console.log('Rendering achievements...');
+        renderAchievementsInMindPalace();
+        console.log('=== visitMindPalace COMPLETE ===');
 
     } catch (error) {
         console.error('Error opening Mind Palace:', error);
-        showPopupNotification('Unable to open Mind Palace. Please try again.', 'error');
     }
 }
 
@@ -2257,15 +2315,18 @@ export function closeMindPalace() {
 if (typeof window !== 'undefined') {
     window.startSingleTaskMode = startSingleTaskMode;
     window.startCampaignMode = startCampaignMode;
+    window.startFreePlayMode = startFreePlayMode;
     window.startTask = startTask;
     window.startGame = startTask;
     window.hit = hit;
     window.stand = stand;
+    window.startNewRound = startNewRound;
     window.nextStep = nextStep;
     window.restartGame = restartGame;
     window.showHelp = showHelp;
     window.enableGameControls = enableGameControls;
     window.openCampaignShop = openCampaignShop;
+    window.openFreePlayShop = openFreePlayShop;
     window.openShop = openShopWithZen;
     window.purchaseJokerUpgrade = purchaseJoker;
     window.purchasePremiumActivityWrapper = purchasePremiumActivityWrapper;
@@ -2276,6 +2337,11 @@ if (typeof window !== 'undefined') {
     window.closeShopToCampaign = closeShopToCampaign;
     window.visitMindPalace = visitMindPalace;
     window.closeMindPalace = closeMindPalace;
+    window.showFreePlayOverview = showFreePlayOverview;
+    window.closeFreePlayOverview = closeFreePlayOverview;
+    window.continueFreePlayTask = continueFreePlayTask;
+    window.endFreePlaySession = endFreePlaySession;
+    window.restartFreePlay = restartFreePlay;
     window.startCampaignTask = startCampaignTask;
     window.resetCampaign = resetCampaign;
     window.returnToCampaign = returnToCampaign;
@@ -2292,6 +2358,16 @@ if (typeof window !== 'undefined') {
     window.isCampaignMode = isCampaignMode;
     window.getCurrentTask = getCurrentTask;
 
+    // Expose state objects for testing
+    window.gameState = gameState;
+    window.campaignState = campaignState;
+
+    // Expose card system functions for testing
+    import('./card-system.js').then(cardSystem => {
+        window.calculateScore = cardSystem.calculateScore;
+        window.JokerCard = cardSystem.JokerCard;
+    });
+
     // Make UI functions available for zen points manager
     window.showZenPointAnimation = (amount, type, direction) => {
         import('./ui-manager.js').then(ui => ui.showZenPointAnimation(amount, type, direction));
@@ -2307,3 +2383,160 @@ if (document.readyState === 'loading') {
 } else {
     initializeGame();
 }
+
+// ===================================
+// FREE PLAY ACHIEVEMENT INTEGRATION
+// ===================================
+//
+// When Free Play mode is fully implemented, add the following achievement tracking:
+//
+// 1. On Free Play Task Completion:
+//    - Increment total tasks: updateStatistic('freePlayTasksTotal', achievementState.statistics.freePlayTasksTotal + 1)
+//    - Increment current run: updateStatistic('currentFreePlayRun', achievementState.statistics.currentFreePlayRun + 1)
+//    - Check milestones: checkMilestones('free_play', achievementState.statistics.freePlayTasksTotal)
+//    - Update max run if needed:
+//      if (achievementState.statistics.currentFreePlayRun > achievementState.statistics.freePlayMaxRun) {
+//          updateStatistic('freePlayMaxRun', achievementState.statistics.currentFreePlayRun);
+//      }
+//
+// 2. On Free Play Session End (exit or game over):
+//    - Reset current run: updateStatistic('currentFreePlayRun', 0)
+//
+// Example integration point (add to Free Play task completion function):
+/*
+function completeFreePlayTask() {
+    // ... existing task completion logic ...
+
+    // Achievement tracking
+    import { updateStatistic, checkMilestones, achievementState } from './achievement-manager.js';
+
+    // Increment counters
+    const newTotal = achievementState.statistics.freePlayTasksTotal + 1;
+    const newRun = achievementState.statistics.currentFreePlayRun + 1;
+
+    updateStatistic('freePlayTasksTotal', newTotal);
+    updateStatistic('currentFreePlayRun', newRun);
+
+    // Check for milestone achievements
+    checkMilestones('free_play', newTotal);
+
+    // Update max run if this is a new record
+    if (newRun > achievementState.statistics.freePlayMaxRun) {
+        updateStatistic('freePlayMaxRun', newRun);
+    }
+
+    console.log(`Free Play: Task completed. Total: ${newTotal}, Current run: ${newRun}`);
+}
+
+function endFreePlaySession() {
+    // ... existing session end logic ...
+
+    // Reset current run counter
+    updateStatistic('currentFreePlayRun', 0);
+    console.log('Free Play: Session ended, run counter reset');
+}
+*/
+
+
+// ===================================
+// MIND PALACE FUNCTIONS
+// ===================================
+
+/**
+ * Visit Mind Palace from Free Play mode
+ */
+window.visitFreePlayMindPalace = function () {
+    window.visitMindPalace();
+};
+
+/**
+ * Close Mind Palace modal
+ */
+window.closeMindPalace = function () {
+    try {
+        const modal = document.getElementById('mindPalaceModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+
+        // Navigate back to appropriate view based on current mode
+        if (isCampaignMode()) {
+            showElement('campaignOverview');
+        } else if (gameState.freePlayMode) {
+            showFreePlayOverview();
+        } else {
+            showElement('gameModeSelection');
+            showVersionFooter();
+        }
+    } catch (error) {
+        console.error('Error closing Mind Palace:', error);
+    }
+};
+
+/**
+ * Update Mind Palace deck information
+ */
+function updateMindPalaceDeckInfo() {
+    try {
+        const jokerCount = document.getElementById('jokerCount');
+        const aceCount = document.getElementById('aceCount');
+        const regularCount = document.getElementById('regularCount');
+        const deckPowerFill = document.getElementById('deckPowerFill');
+        const deckPowerText = document.getElementById('deckPowerText');
+
+        if (campaignState && campaignState.deckComposition) {
+            const { aces, jokers, totalCards } = campaignState.deckComposition;
+            const regularCards = totalCards - aces - jokers;
+            const specialCards = aces + jokers;
+            const powerLevel = Math.round((specialCards / totalCards) * 100);
+
+            if (jokerCount) jokerCount.textContent = jokers;
+            if (aceCount) aceCount.textContent = aces;
+            if (regularCount) regularCount.textContent = regularCards;
+            if (deckPowerFill) deckPowerFill.style.width = `${powerLevel}%`;
+            if (deckPowerText) {
+                deckPowerText.textContent = `Power Level: ${powerLevel}% (${specialCards} special cards out of ${totalCards})`;
+            }
+        }
+    } catch (error) {
+        console.error('Error updating Mind Palace deck info:', error);
+    }
+}
+
+/**
+ * Update Mind Palace activities display
+ */
+function updateMindPalaceActivities() {
+    try {
+        // Update mindful breathing status
+        const mindfulBreathingStatus = document.getElementById('mindfulBreathingActivityStatus');
+        if (mindfulBreathingStatus && campaignState.unlockedActivities) {
+            const isUnlocked = campaignState.unlockedActivities.mindfulBreathing;
+            mindfulBreathingStatus.textContent = isUnlocked ? '✓ Unlocked' : '🔒 Locked';
+            mindfulBreathingStatus.className = isUnlocked ? 'activity-status unlocked' : 'activity-status locked';
+        }
+
+        // Update compartmentalize status
+        const compartmentalizeStatus = document.getElementById('compartmentalizeActivityStatus');
+        if (compartmentalizeStatus && campaignState.unlockedActivities) {
+            const isUnlocked = campaignState.unlockedActivities.compartmentalize;
+            compartmentalizeStatus.textContent = isUnlocked ? '✓ Unlocked' : '🔒 Locked';
+            compartmentalizeStatus.className = isUnlocked ? 'activity-status unlocked' : 'activity-status locked';
+        }
+    } catch (error) {
+        console.error('Error updating Mind Palace activities:', error);
+    }
+}
+
+// Set up Mind Palace modal close button
+document.addEventListener('DOMContentLoaded', () => {
+    const mindPalaceCloseBtn = document.getElementById('mindPalaceCloseBtn');
+    if (mindPalaceCloseBtn) {
+        mindPalaceCloseBtn.addEventListener('click', window.closeMindPalace);
+    }
+
+    const mindPalaceBackdrop = document.getElementById('mindPalaceBackdrop');
+    if (mindPalaceBackdrop) {
+        mindPalaceBackdrop.addEventListener('click', window.closeMindPalace);
+    }
+});

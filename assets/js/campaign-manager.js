@@ -6,6 +6,7 @@ import { taskDefinitions, getTaskDefinition, isTaskUnlocked, getNextAvailableTas
 import { openShop, updateShopUI, validateShopState } from './shop-system.js';
 import { hideElement, showElement, updateDisplay } from './ui-manager.js';
 import { ZenPointsManager } from './zen-points-manager.js';
+import { updateStatistic, checkAchievement } from './achievement-manager.js';
 
 // Initialize campaign system
 export function initializeCampaign() {
@@ -292,6 +293,10 @@ export function completeCurrentTask(zenPointsEarned) {
         // Check if campaign is complete
         const totalTasks = Object.keys(taskDefinitions).length;
         if (campaignState.completedTasks.length >= totalTasks) {
+            // Mark campaign as completed for achievements
+            updateStatistic('campaignCompleted', true);
+            checkAchievement('campaign_master');
+
             showCampaignComplete();
             return true;
         }

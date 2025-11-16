@@ -3,6 +3,7 @@
 
 import { gameState, updateGameState, campaignState, updateCampaignState } from './game-state.js';
 import { isCampaignMode } from './campaign-manager.js';
+import { updateStatistic, checkMilestones } from './achievement-manager.js';
 
 // Zen point transaction types
 export const ZEN_TRANSACTION_TYPES = {
@@ -79,6 +80,12 @@ export class ZenPointsManager {
 
             // Update appropriate state
             this.setBalance(newBalance);
+
+            // Check for wealth milestone achievements
+            // Use window.checkZenPointsAchievements if available (set by achievement-manager)
+            if (typeof window !== 'undefined' && typeof window.checkZenPointsAchievements === 'function') {
+                window.checkZenPointsAchievements(newBalance);
+            }
 
             // Show visual feedback if requested
             if (showAnimation && amount > 0) {

@@ -27,6 +27,28 @@ npm run test:headed
 npm run test:mobile
 ```
 
+## Debug Helper for Testing
+
+SoberLife III includes a built-in debug helper that makes manual and automated testing easier. See `.kiro/steering/debug-helper.md` for full documentation.
+
+**Quick Examples:**
+```javascript
+// In browser console or Playwright tests
+DebugHelper.addZenPoints(5000);  // Add zen points
+DebugHelper.addJokers(3);        // Add jokers to deck
+DebugHelper.autoWin();           // Auto-win current hand
+DebugHelper.setStress(75);       // Set stress level
+DebugHelper.help();              // Show all commands
+```
+
+**In Playwright Tests:**
+```javascript
+await page.evaluate(() => {
+    window.DebugHelper.addZenPoints(5000);
+    window.DebugHelper.addJokers(3);
+});
+```
+
 ## When to Run Tests
 
 ### Required Testing Scenarios
