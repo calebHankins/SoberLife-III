@@ -426,53 +426,66 @@ export function closeCampaign() {
 
 // Close task and return to campaign or mode selection
 export function closeTask() {
-    // Confirm before closing if game is in progress
-    if (gameState.gameInProgress) {
-        const confirmed = confirm('Are you sure you want to exit? Your progress in this task will be lost.');
-        if (!confirmed) {
-            return;
+    try {
+        // Confirm before closing if game is in progress
+        if (gameState.gameInProgress) {
+            const confirmed = confirm('Are you sure you want to exit? Your progress in this task will be lost.');
+            if (!confirmed) {
+                return;
+            }
         }
-    }
 
-    // Check mode BEFORE resetting state (since reset clears these flags)
-    const wasFreePlayMode = gameState.freePlayMode;
-    const wasCampaignMode = isCampaignMode();
+        // Check mode BEFORE resetting state (since reset clears these flags)
+        const wasFreePlayMode = gameState.freePlayMode;
+        const wasCampaignMode = isCampaignMode();
 
-    console.log('[closeTask] Mode check - Free Play:', wasFreePlayMode, 'Campaign:', wasCampaignMode);
+        // Additional check: if we have Free Play stats, we're in Free Play mode
+        // This handles race conditions where freePlayMode flag might not be set yet
+        const hasFreePlayStats = gameState.freePlayRounds !== undefined &&
+            gameState.freePlayTasksCompleted !== undefined;
 
-    // Clean up game state BEFORE navigating (but after checking mode flags)
-    resetGameState();
+        // Clean up game state BEFORE navigating (but after checking mode flags)
+        resetGameState();
 
-    // Return to appropriate view based on mode
-    if (wasFreePlayMode) {
-        // Free Play Mode returns to Free Play overview
-        console.log('[closeTask] Returning to Free Play overview');
-        updateCampaignState({ campaignMode: false });
-        showFreePlayOverview();
-    } else if (wasCampaignMode) {
-        // Hide all game screens except campaign overview
+        // Return to appropriate view based on mode
+        // Check both the flag AND the presence of Free Play stats
+        if (wasFreePlayMode || hasFreePlayStats) {
+            // Free Play Mode returns to Free Play overview
+            updateCampaignState({ campaignMode: false });
+            showFreePlayOverview();
+        } else if (wasCampaignMode) {
+            // Hide all game screens except campaign overview
+            hideElement('taskInfo');
+            hideElement('zenActivities');
+            hideElement('gameArea');
+            hideElement('gameOverScreen');
+            hideElement('gameSuccessScreen');
+            hideElement('freePlayOverview');
+            hideElement('upgradeShop');
+            hideElement('surveySection');
+            showElement('campaignOverview');
+        } else {
+            // Hide all game screens
+            hideElement('taskInfo');
+            hideElement('zenActivities');
+            hideElement('gameArea');
+            hideElement('gameOverScreen');
+            hideElement('gameSuccessScreen');
+            hideElement('campaignOverview');
+            hideElement('freePlayOverview');
+            hideElement('upgradeShop');
+            hideElement('surveySection');
+            showElement('gameModeSelection');
+            // Show version footer when returning to landing page
+            showVersionFooter();
+        }
+    } catch (error) {
+        console.error('[closeTask] Error during close:', error);
+        // Emergency fallback - ensure we show something
         hideElement('taskInfo');
         hideElement('zenActivities');
         hideElement('gameArea');
-        hideElement('gameOverScreen');
-        hideElement('gameSuccessScreen');
-        hideElement('freePlayOverview');
-        hideElement('upgradeShop');
-        hideElement('surveySection');
-        showElement('campaignOverview');
-    } else {
-        // Hide all game screens
-        hideElement('taskInfo');
-        hideElement('zenActivities');
-        hideElement('gameArea');
-        hideElement('gameOverScreen');
-        hideElement('gameSuccessScreen');
-        hideElement('campaignOverview');
-        hideElement('freePlayOverview');
-        hideElement('upgradeShop');
-        hideElement('surveySection');
         showElement('gameModeSelection');
-        // Show version footer when returning to landing page
         showVersionFooter();
     }
 }
@@ -691,6 +704,12 @@ export function startFreePlayMode() {
         // Initialize zen points from campaign balance
         ZenPointsManager.initializeCampaignBalance();
 
+        // Reset close button processing flag (fix for mobile navigation bug)
+        const taskCloseBtn = document.getElementById('taskCloseBtn');
+        if (taskCloseBtn) {
+            taskCloseBtn.dataset.processing = 'false';
+        }
+
         // Hide mode selection and other screens
         hideElement('gameModeSelection');
         hideElement('surveySection');
@@ -801,6 +820,12 @@ export function startTask() {
 
     // Update adaptive music to match initial stress level
     updateAdaptiveMusic();
+
+    // Reset close button processing flag (fix for mobile navigation bug)
+    const taskCloseBtn = document.getElementById('taskCloseBtn');
+    if (taskCloseBtn) {
+        taskCloseBtn.dataset.processing = 'false';
+    }
 
     // Hide survey and show game elements
     hideElement('surveySection');

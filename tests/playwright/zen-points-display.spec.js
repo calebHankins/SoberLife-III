@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Zen Points Display - Free Play Mode Bug', () => {
     test.beforeEach(async ({ page }) => {
@@ -205,6 +205,12 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
     test('should maintain zen points display across multiple Free Play sessions', async ({ page }) => {
         const zenPointsElement = page.locator('#zenPoints');
 
+        // Capture page errors
+        const pageErrors = [];
+        page.on('pageerror', error => {
+            pageErrors.push(error.message);
+        });
+
         // Session 1: Start and exit Free Play
         await page.getByRole('button', { name: /Start Free Play/i }).click();
         await expect(page.locator('#gameArea')).toBeVisible();
@@ -234,40 +240,41 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
-        // Check if there's actually a game in progress (maybe no dialog on fresh start)
-        const gameInProgress = await page.evaluate(() => {
-            // @ts-ignore - gameState is added to window by the application
-            return window.gameState && window.gameState.gameInProgress;
-        });
+        // Wait for the game to fully initialize (cards should be dealt)
+        // This ensures startFreePlayMode() and startNewRound() have completed
+        await expect(page.locator('#playerCards .card')).toHaveCount(2, { timeout: 5000 });
 
-        if (gameInProgress) {
-            // Set up dialog handler only if game is in progress
-            page.once('dialog', dialog => dialog.accept());
-        }
-
-        await page.locator('#taskCloseBtn').click();
-
-        // Wait a bit for navigation to complete
+        // Additional wait for mobile devices to ensure all async operations complete
         await page.waitForTimeout(1000);
 
-        // Check what's actually visible and get state
-        const freePlayVisible = await page.locator('#freePlayOverview').isVisible();
-        const modeSelectionVisible = await page.locator('#gameModeSelection').isVisible();
-        const campaignVisible = await page.locator('#campaignOverview').isVisible();
-        const gameAreaVisible = await page.locator('#gameArea').isVisible();
-
-        const allScreens = await page.evaluate(() => {
-            const screens = ['gameModeSelection', 'freePlayOverview', 'campaignOverview', 'gameArea', 'taskInfo'];
-            return screens.map(id => {
-                const el = document.getElementById(id);
-                return { id, hidden: el ? el.classList.contains('hidden') : 'not found', visible: el ? !el.classList.contains('hidden') : false };
-            });
+        // Check if close button is visible and enabled
+        const closeBtn = page.locator('#taskCloseBtn');
+        await expect(closeBtn).toBeVisible();
+        const buttonState = await closeBtn.evaluate(el => {
+            // Check if event listeners are attached (can't directly check addEventListener listeners)
+            // But we can trigger a click and see if it works
+            return {
+                enabled: !(el instanceof HTMLButtonElement && el.disabled),
+                processing: el.dataset.processing,
+                hasOnclick: el.onclick !== null,
+                hasAttribute: el.getAttribute('onclick') !== null,
+                id: el.id,
+                className: el.className
+            };
         });
+        console.log('Close button state:', buttonState);
 
-        console.log('After second close - Screens:', JSON.stringify(allScreens, null, 2));
-        console.log('FreePlay visible:', freePlayVisible, 'Mode selection visible:', modeSelectionVisible, 'Campaign visible:', campaignVisible, 'Game area visible:', gameAreaVisible);
+        // Wait a bit to ensure any previous processing is complete
+        await page.waitForTimeout(1500);
 
-        // The app should show Free Play overview
+        // Set up dialog handler for session 2 (same as session 1)
+        page.once('dialog', dialog => dialog.accept());
+
+        // Click the close button normally (not via evaluate)
+        await closeBtn.click();
+
+        // BUG: On mobile, the app gets stuck showing game area instead of Free Play overview
+        // This is the navigation bug we're testing for
         await expect(page.locator('#freePlayOverview')).toBeVisible({ timeout: 10000 });
         await page.locator('#freePlayCloseBtn').click();
         await expect(page.locator('#gameModeSelection')).toBeVisible();
