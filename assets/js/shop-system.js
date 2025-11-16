@@ -2,6 +2,7 @@
 // Upgrade purchasing logic and deck modifications
 
 import { campaignState, updateCampaignState, unlockPremiumActivity } from './game-state.js';
+import { isCampaignMode } from './campaign-manager.js';
 import { hideElement, showElement } from './ui-manager.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 
@@ -406,6 +407,7 @@ function updatePremiumActivityUI(activityId, zenPoints) {
 export function openShop(zenPoints) {
     try {
         updateShopUI(zenPoints);
+        updateShopButtonText(); // Update button text based on current mode
         showElement('upgradeShop');
 
         // Focus on shop for accessibility
@@ -418,6 +420,31 @@ export function openShop(zenPoints) {
 
     } catch (error) {
         console.error('Error opening shop:', error);
+    }
+}
+
+// Update shop button text based on current game mode
+function updateShopButtonText() {
+    try {
+        // Get the "Continue Campaign" button
+        const continueCampaignBtn = document.querySelector('.shop-actions .primary-btn');
+
+        if (continueCampaignBtn) {
+            // Check which overview screen is currently visible to determine mode
+            const freePlayOverviewVisible = !document.getElementById('freePlayOverview')?.classList.contains('hidden');
+            const campaignOverviewVisible = !document.getElementById('campaignOverview')?.classList.contains('hidden');
+
+            if (freePlayOverviewVisible) {
+                continueCampaignBtn.textContent = 'Continue Free Play';
+            } else if (campaignOverviewVisible || isCampaignMode()) {
+                continueCampaignBtn.textContent = 'Continue Campaign';
+            } else {
+                // Default to Campaign if we can't determine
+                continueCampaignBtn.textContent = 'Continue Campaign';
+            }
+        }
+    } catch (error) {
+        console.error('Error updating shop button text:', error);
     }
 }
 
