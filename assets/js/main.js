@@ -1808,11 +1808,8 @@ export function purchaseAce() {
 
 export function openCampaignShop() {
     try {
-        // Validate campaign mode or jump into task mode
-        if (!isCampaignMode() && !campaignState.currentTask) {
-            console.warn('Cannot open campaign shop - not in campaign or task mode');
-            return;
-        }
+        // Shop is accessible from all game modes - no restrictions needed
+        // Players can upgrade their deck and purchase activities regardless of mode
 
         // Get zen points from the manager
         const zenPoints = ZenPointsManager.getCurrentBalance();
