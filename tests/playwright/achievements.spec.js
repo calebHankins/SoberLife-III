@@ -218,8 +218,9 @@ test.describe('Achievements System', () => {
         // Wait for first notification
         await expect(page.locator('.achievement-notification')).toBeVisible({ timeout: 2000 });
 
-        // Wait for notification to disappear
-        await expect(page.locator('.achievement-notification')).not.toBeVisible({ timeout: 6000 });
+        // Wait for notification to disappear (auto-dismiss after 5 seconds + 350ms animation)
+        await page.waitForTimeout(5500);
+        await expect(page.locator('.achievement-notification')).not.toBeVisible();
 
         // Try to unlock the same achievement again
         await page.evaluate(() => {
@@ -274,8 +275,9 @@ test.describe('Achievements System', () => {
         // Wait for notification to appear
         await expect(page.locator('.achievement-notification')).toBeVisible({ timeout: 2000 });
 
-        // Wait for auto-dismiss (5 seconds + animation time)
-        await expect(page.locator('.achievement-notification')).not.toBeVisible({ timeout: 6000 });
+        // Wait for auto-dismiss (5 seconds + 350ms animation)
+        await page.waitForTimeout(5500);
+        await expect(page.locator('.achievement-notification')).not.toBeVisible();
     });
 
     test('should manually close notification when close button clicked', async ({ page }) => {
