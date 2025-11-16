@@ -1775,8 +1775,8 @@ export function openFreePlayShop() {
 // Visit Mind Palace from Free Play overview
 export function visitFreePlayMindPalace() {
     try {
-        showMindPalace();
         hideElement('freePlayOverview');
+        visitMindPalace(); // Use the main visitMindPalace function which handles achievements
     } catch (error) {
         console.error('Error visiting Free Play Mind Palace:', error);
     }
@@ -2228,32 +2228,43 @@ export function closeShopToCampaign() {
 }
 
 export function visitMindPalace() {
-    try {
-        console.log('visitMindPalace called');
+    console.log('=== visitMindPalace CALLED ===');
+    console.log('isCampaignMode:', isCampaignMode());
+    console.log('campaignState.currentTask:', campaignState.currentTask);
+    console.log('gameState.freePlayMode:', gameState.freePlayMode);
 
-        // Validate campaign mode or jump into task mode
-        if (!isCampaignMode() && !campaignState.currentTask) {
-            console.warn('Mind Palace only available in campaign mode');
-            showPopupNotification('Mind Palace only available in campaign mode', 'error');
+    try {
+        // Allow Mind Palace in Campaign Mode, Jump Into Task, or Free Play Mode
+        const isValidMode = isCampaignMode() || campaignState.currentTask || gameState.freePlayMode;
+
+        console.log('isValidMode:', isValidMode);
+
+        if (!isValidMode) {
+            console.warn('Mind Palace only available in game modes');
             return;
         }
 
         // Validate campaign state
         if (!campaignState.deckComposition) {
             console.error('Invalid campaign state - missing deck composition');
-            showPopupNotification('Unable to load Mind Palace information', 'error');
             return;
         }
 
-        console.log('Current campaign state before showing Mind Palace:', campaignState);
+        console.log('Showing Mind Palace modal...');
         showMindPalace();
 
-        // Render achievements in the Growth Journey section
+        console.log('Updating deck info...');
+        updateMindPalaceDeckInfo();
+
+        console.log('Updating activities...');
+        updateMindPalaceActivities();
+
+        console.log('Rendering achievements...');
         renderAchievementsInMindPalace();
+        console.log('=== visitMindPalace COMPLETE ===');
 
     } catch (error) {
         console.error('Error opening Mind Palace:', error);
-        showPopupNotification('Unable to open Mind Palace. Please try again.', 'error');
     }
 }
 
@@ -2265,6 +2276,7 @@ export function closeMindPalace() {
 if (typeof window !== 'undefined') {
     window.startSingleTaskMode = startSingleTaskMode;
     window.startCampaignMode = startCampaignMode;
+    window.startFreePlayMode = startFreePlayMode;
     window.startTask = startTask;
     window.startGame = startTask;
     window.hit = hit;
@@ -2274,6 +2286,7 @@ if (typeof window !== 'undefined') {
     window.showHelp = showHelp;
     window.enableGameControls = enableGameControls;
     window.openCampaignShop = openCampaignShop;
+    window.openFreePlayShop = openFreePlayShop;
     window.openShop = openShopWithZen;
     window.purchaseJokerUpgrade = purchaseJoker;
     window.purchasePremiumActivityWrapper = purchasePremiumActivityWrapper;
@@ -2284,6 +2297,11 @@ if (typeof window !== 'undefined') {
     window.closeShopToCampaign = closeShopToCampaign;
     window.visitMindPalace = visitMindPalace;
     window.closeMindPalace = closeMindPalace;
+    window.showFreePlayOverview = showFreePlayOverview;
+    window.closeFreePlayOverview = closeFreePlayOverview;
+    window.continueFreePlayTask = continueFreePlayTask;
+    window.endFreePlaySession = endFreePlaySession;
+    window.restartFreePlay = restartFreePlay;
     window.startCampaignTask = startCampaignTask;
     window.resetCampaign = resetCampaign;
     window.returnToCampaign = returnToCampaign;
@@ -2375,33 +2393,6 @@ function endFreePlaySession() {
 // ===================================
 
 /**
- * Visit Mind Palace (show modal with achievements and deck info)
- */
-window.visitMindPalace = function () {
-    try {
-        const modal = document.getElementById('mindPalaceModal');
-        if (modal) {
-            modal.classList.remove('hidden');
-
-            // Render achievements in the Growth Journey section
-            import('./achievement-ui.js').then(module => {
-                module.renderAchievementsInMindPalace();
-            }).catch(error => {
-                console.error('Error loading achievement UI:', error);
-            });
-
-            // Update deck composition display
-            updateMindPalaceDeckInfo();
-
-            // Update premium activities display
-            updateMindPalaceActivities();
-        }
-    } catch (error) {
-        console.error('Error opening Mind Palace:', error);
-    }
-};
-
-/**
  * Visit Mind Palace from Free Play mode
  */
 window.visitFreePlayMindPalace = function () {
@@ -2416,6 +2407,16 @@ window.closeMindPalace = function () {
         const modal = document.getElementById('mindPalaceModal');
         if (modal) {
             modal.classList.add('hidden');
+        }
+
+        // Navigate back to appropriate view based on current mode
+        if (isCampaignMode()) {
+            showElement('campaignOverview');
+        } else if (gameState.freePlayMode) {
+            showFreePlayOverview();
+        } else {
+            showElement('gameModeSelection');
+            showVersionFooter();
         }
     } catch (error) {
         console.error('Error closing Mind Palace:', error);
