@@ -541,13 +541,34 @@ export function startNewCampaign() {
 // Reset campaign progress
 export function resetCampaign() {
     try {
-        const confirmed = confirm('Are you sure you want to reset your campaign progress? This will delete all completed tasks and deck upgrades.');
+        const confirmed = confirm(
+            '⚠️ WARNING: RESET ENTIRE GAME PROGRESS ⚠️\n\n' +
+            'This will permanently delete:\n' +
+            '• All completed campaign tasks\n' +
+            '• All deck upgrades (jokers)\n' +
+            '• All unlocked premium activities\n' +
+            '• All zen points\n' +
+            '• All achievements and statistics\n\n' +
+            'This action CANNOT be undone!\n\n' +
+            'Are you absolutely sure you want to reset everything?'
+        );
 
         if (confirmed) {
-            resetCampaignState();
-            resetGameState(); // Also reset the game state
-            updateCampaignUI();
-            console.log('Campaign progress reset');
+            // Double confirmation for safety
+            const doubleConfirm = confirm(
+                '⚠️ FINAL CONFIRMATION ⚠️\n\n' +
+                'This is your last chance!\n\n' +
+                'Click OK to permanently delete all progress.\n' +
+                'Click Cancel to keep your progress.'
+            );
+
+            if (doubleConfirm) {
+                resetCampaignState();
+                resetGameState(); // Also reset the game state
+                updateCampaignUI();
+                console.log('Campaign progress reset');
+                alert('✅ All progress has been reset. Starting fresh!');
+            }
         }
 
     } catch (error) {
@@ -785,20 +806,39 @@ export function restoreCampaignBackup() {
 export function emergencyResetCampaign() {
     try {
         const confirmed = confirm(
-            'EMERGENCY RESET: This will completely reset your campaign progress and cannot be undone. ' +
-            'Are you absolutely sure you want to continue?'
+            '⚠️ EMERGENCY RESET ⚠️\n\n' +
+            'This will permanently delete ALL game data:\n' +
+            '• Campaign progress\n' +
+            '• Deck upgrades\n' +
+            '• Unlocked activities\n' +
+            '• Zen points\n' +
+            '• Achievements\n' +
+            '• All backups\n\n' +
+            'This action CANNOT be undone!\n\n' +
+            'Are you absolutely sure?'
         );
 
         if (confirmed) {
-            // Clear all campaign data
-            localStorage.removeItem('soberlife-campaign');
-            localStorage.removeItem('soberlife-campaign-backup');
+            // Double confirmation for safety
+            const doubleConfirm = confirm(
+                '⚠️ FINAL WARNING ⚠️\n\n' +
+                'This will erase EVERYTHING including backups!\n\n' +
+                'Click OK to permanently delete all data.\n' +
+                'Click Cancel to keep your data.'
+            );
 
-            // Reset to default state
-            resetCampaignState();
+            if (doubleConfirm) {
+                // Clear all campaign data
+                localStorage.removeItem('soberlife-campaign');
+                localStorage.removeItem('soberlife-campaign-backup');
 
-            console.log('Emergency campaign reset completed');
-            return true;
+                // Reset to default state
+                resetCampaignState();
+
+                console.log('Emergency campaign reset completed');
+                alert('✅ All data has been erased. Starting fresh!');
+                return true;
+            }
         }
 
         return false;

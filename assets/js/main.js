@@ -631,9 +631,9 @@ export function startSingleTaskMode() {
     const nextTask = getNextAvailableTask(campaignState.completedTasks);
 
     if (!nextTask) {
-        // All tasks completed - show campaign overview instead
-        alert('Congratulations! You\'ve completed all available tasks. Check out Campaign Mode to replay tasks or visit the shop!');
-        startCampaignMode();
+        // All tasks completed - redirect to Free Play mode
+        alert('🎉 Congratulations! You\'ve completed all campaign tasks!\n\nReady for a new challenge? Let\'s try Free Play Mode - pure blackjack mechanics with progressive difficulty!');
+        startFreePlayMode();
         return;
     }
 
