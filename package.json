@@ -1,6 +1,6 @@
 {
     "name": "soberlife-iii",
-    "version": "0.25.2",
+    "version": "0.25.3",
     "description": "Stress management game combining blackjack mechanics with real-world task completion scenarios",
     "scripts": {
         "serve": "npx serve . -p 8000",
