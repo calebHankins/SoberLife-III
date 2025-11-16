@@ -2128,12 +2128,13 @@ function determineOverallOutcome(hand1Result, hand2Result) {
 
 export function purchaseJoker() {
     try {
-        // Validate campaign mode or jump into task mode (which has a current task)
-        if (!isCampaignMode() && !campaignState.currentTask) {
-            console.warn('Cannot purchase Joker - not in campaign or task mode');
+        // Validate that we're in a valid game mode (Campaign, Jump Into Task, or Free Play)
+        // Free Play mode shares the campaign deck and shop system
+        if (!isCampaignMode() && !campaignState.currentTask && !gameState.freePlayMode) {
+            console.warn('Cannot purchase Joker - not in a valid game mode');
             showPurchaseFeedback({
                 success: false,
-                message: 'Joker upgrades only available in campaign mode'
+                message: 'Joker upgrades not available in this mode'
             });
             return;
         }
