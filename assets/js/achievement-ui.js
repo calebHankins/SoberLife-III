@@ -274,15 +274,18 @@ function dismissNotification(notification) {
             return;
         }
 
+        // Add dismissing class to trigger animation
+        notification.classList.add('dismissing');
         notification.style.opacity = '0';
         notification.style.transform = 'translateX(400px)';
         notification.style.transition = 'all 0.3s ease-out';
 
+        // Remove from DOM after animation
         setTimeout(() => {
-            if (notification.parentNode) {
+            if (notification && notification.parentNode) {
                 notification.parentNode.removeChild(notification);
             }
-        }, 300);
+        }, 350);
 
     } catch (error) {
         console.error('Error dismissing notification:', error);

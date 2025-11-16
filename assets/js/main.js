@@ -11,7 +11,7 @@ import { getTaskDefinition, getNextAvailableTask } from './task-definitions.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 import { AudioManager } from './audio-system.js';
 import { VERSION, GIT_HASH, GIT_BRANCH, BUILD_DATE } from './version.js';
-import { initializeAchievements, updateStatistic, checkMilestones } from './achievement-manager.js';
+import { initializeAchievements, updateStatistic, checkMilestones, achievementState } from './achievement-manager.js';
 import { renderAchievementsInMindPalace } from './achievement-ui.js';
 
 // Global audio manager instance
@@ -1481,11 +1481,26 @@ export function continueFreePlayTask(taskBonus) {
 
         // Increment task counter and increase difficulty
         const newMultiplier = gameState.freePlayStressMultiplier + 0.15;
+        const newTaskCount = gameState.freePlayTasksCompleted + 1;
+        const newRunCount = gameState.freePlayCurrentTaskRounds + 5; // Just completed 5 rounds
+
         updateGameState({
-            freePlayTasksCompleted: gameState.freePlayTasksCompleted + 1,
+            freePlayTasksCompleted: newTaskCount,
             freePlayCurrentTaskRounds: 0,
             freePlayStressMultiplier: newMultiplier
         });
+
+        // Update achievement statistics
+        updateStatistic('freePlayTasksTotal', achievementState.statistics.freePlayTasksTotal + 1);
+        updateStatistic('currentFreePlayRun', achievementState.statistics.currentFreePlayRun + 1);
+
+        // Check for Free Play milestone achievements
+        checkMilestones('free_play', achievementState.statistics.freePlayTasksTotal);
+
+        // Update max run if current run is higher
+        if (achievementState.statistics.currentFreePlayRun > achievementState.statistics.freePlayMaxRun) {
+            updateStatistic('freePlayMaxRun', achievementState.statistics.currentFreePlayRun);
+        }
 
         // Remove modal
         const modal = document.getElementById('freePlayCompletionModal');
@@ -1496,7 +1511,7 @@ export function continueFreePlayTask(taskBonus) {
         updateDisplay();
         startNewRound();
 
-        console.log(`Free Play: Continuing to task ${gameState.freePlayTasksCompleted + 1} with ${newMultiplier.toFixed(2)}x stress multiplier`);
+        console.log(`Free Play: Continuing to task ${newTaskCount} with ${newMultiplier.toFixed(2)}x stress multiplier`);
 
     } catch (error) {
         console.error('Error continuing Free Play task:', error);
@@ -1510,9 +1525,25 @@ export function endFreePlaySession(taskBonus) {
         ZenPointsManager.addPoints(taskBonus, ZEN_TRANSACTION_TYPES.TASK_COMPLETION);
 
         // Increment task counter for final stats
+        const newTaskCount = gameState.freePlayTasksCompleted + 1;
         updateGameState({
-            freePlayTasksCompleted: gameState.freePlayTasksCompleted + 1
+            freePlayTasksCompleted: newTaskCount
         });
+
+        // Update achievement statistics
+        updateStatistic('freePlayTasksTotal', achievementState.statistics.freePlayTasksTotal + 1);
+        updateStatistic('currentFreePlayRun', achievementState.statistics.currentFreePlayRun + 1);
+
+        // Check for Free Play milestone achievements
+        checkMilestones('free_play', achievementState.statistics.freePlayTasksTotal);
+
+        // Update max run if current run is higher
+        if (achievementState.statistics.currentFreePlayRun > achievementState.statistics.freePlayMaxRun) {
+            updateStatistic('freePlayMaxRun', achievementState.statistics.currentFreePlayRun);
+        }
+
+        // Reset current run counter (session ended)
+        updateStatistic('currentFreePlayRun', 0);
 
         // Remove modal
         const modal = document.getElementById('freePlayCompletionModal');
@@ -1639,6 +1670,9 @@ function updateFreePlaySuccessButtons() {
 // Restart Free Play Mode
 export function restartFreePlay() {
     try {
+        // Reset current Free Play run counter when restarting
+        updateStatistic('currentFreePlayRun', 0);
+
         // Reset game state but keep Free Play Mode active
         resetGameState();
         startFreePlayMode();
@@ -1757,6 +1791,9 @@ export function closeFreePlayOverview() {
     hideElement('freePlayOverview');
     showElement('gameModeSelection');
     showVersionFooter();
+
+    // Reset current Free Play run counter when exiting
+    updateStatistic('currentFreePlayRun', 0);
 
     // Update display to show current zen points balance from ZenPointsManager
     updateDisplay();

@@ -2417,6 +2417,16 @@ export function hideMindPalace() {
         // Clean up event listeners
         cleanupMindPalaceEventListeners();
 
+        // If in Free Play mode, restore Free Play overview
+        // Check after cleanup to ensure proper state
+        if (gameState && gameState.freePlayMode) {
+            const freePlayOverview = document.getElementById('freePlayOverview');
+            if (freePlayOverview && freePlayOverview.classList.contains('hidden')) {
+                freePlayOverview.classList.remove('hidden');
+                console.log('Restored Free Play overview after closing Mind Palace');
+            }
+        }
+
     } catch (error) {
         console.error('Error hiding Mind Palace:', error);
     }
