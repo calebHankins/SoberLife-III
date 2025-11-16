@@ -439,22 +439,13 @@ export function closeTask() {
         const wasFreePlayMode = gameState.freePlayMode;
         const wasCampaignMode = isCampaignMode();
 
-        // Additional check: if we have Free Play stats, we're in Free Play mode
-        // This handles race conditions where freePlayMode flag might not be set yet
-        const hasFreePlayStats = gameState.freePlayRounds !== undefined &&
-            gameState.freePlayTasksCompleted !== undefined;
-
         // Clean up game state BEFORE navigating (but after checking mode flags)
         resetGameState();
 
         // Return to appropriate view based on mode
-        // Check both the flag AND the presence of Free Play stats
-        if (wasFreePlayMode || hasFreePlayStats) {
-            // Free Play Mode returns to Free Play overview
-            updateCampaignState({ campaignMode: false });
-            showFreePlayOverview();
-        } else if (wasCampaignMode) {
-            // Hide all game screens except campaign overview
+        // Priority: Campaign mode takes precedence over Free Play mode
+        if (wasCampaignMode) {
+            // Campaign Mode returns to campaign overview
             hideElement('taskInfo');
             hideElement('zenActivities');
             hideElement('gameArea');
@@ -464,8 +455,12 @@ export function closeTask() {
             hideElement('upgradeShop');
             hideElement('surveySection');
             showElement('campaignOverview');
+        } else if (wasFreePlayMode) {
+            // Free Play Mode returns to Free Play overview
+            updateCampaignState({ campaignMode: false });
+            showFreePlayOverview();
         } else {
-            // Hide all game screens
+            // Jump Into Task mode returns to mode selection
             hideElement('taskInfo');
             hideElement('zenActivities');
             hideElement('gameArea');
