@@ -41,8 +41,9 @@ export class ZenPointsManager {
      */
     static getCurrentBalance() {
         try {
-            if (isCampaignMode()) {
-                // In campaign mode, use persistent balance
+            // Use persistent campaign balance for campaign mode AND Free Play mode
+            // Free Play mode shares the same persistent balance as campaign
+            if (isCampaignMode() || gameState.freePlayMode) {
                 return campaignState.zenPointBalance || gameState.zenPoints || 0;
             } else {
                 // In single task mode, use session balance
@@ -148,7 +149,9 @@ export class ZenPointsManager {
             // Validate and clamp amount
             const validAmount = Math.max(ZEN_CONFIG.MIN_BALANCE, Math.min(amount, ZEN_CONFIG.MAX_BALANCE));
 
-            if (isCampaignMode()) {
+            // Use persistent campaign balance for campaign mode AND Free Play mode
+            // Free Play mode shares the same persistent balance as campaign
+            if (isCampaignMode() || gameState.freePlayMode) {
                 // Update campaign state with persistent balance
                 updateCampaignState({
                     zenPointBalance: validAmount,
