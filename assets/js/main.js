@@ -438,12 +438,15 @@ export function closeTask() {
     const wasFreePlayMode = gameState.freePlayMode;
     const wasCampaignMode = isCampaignMode();
 
+    console.log('[closeTask] Mode check - Free Play:', wasFreePlayMode, 'Campaign:', wasCampaignMode);
+
     // Clean up game state BEFORE navigating (but after checking mode flags)
     resetGameState();
 
     // Return to appropriate view based on mode
     if (wasFreePlayMode) {
         // Free Play Mode returns to Free Play overview
+        console.log('[closeTask] Returning to Free Play overview');
         updateCampaignState({ campaignMode: false });
         showFreePlayOverview();
     } else if (wasCampaignMode) {
@@ -1621,6 +1624,9 @@ export function restartFreePlay() {
 // Return to mode selection
 export function returnToModeSelection() {
     try {
+        // Preserve zen points before resetting game state
+        const currentZenBalance = ZenPointsManager.getCurrentBalance();
+
         // Hide all game screens
         hideElement('gameOverScreen');
         hideElement('gameSuccessScreen');
@@ -1634,6 +1640,9 @@ export function returnToModeSelection() {
 
         // Reset game state
         resetGameState();
+
+        // Restore zen points after reset (they should persist across mode transitions)
+        updateGameState({ zenPoints: currentZenBalance });
 
         // Show mode selection
         showElement('gameModeSelection');
@@ -1718,6 +1727,9 @@ export function closeFreePlayOverview() {
     hideElement('freePlayOverview');
     showElement('gameModeSelection');
     showVersionFooter();
+
+    // Update display to show current zen points balance from ZenPointsManager
+    updateDisplay();
 }
 
 // Open shop from Free Play overview
