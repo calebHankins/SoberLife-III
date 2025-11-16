@@ -13,9 +13,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         console.log('Initial zen points:', initialText);
 
         // Extract the number from "Zen Points: 100"
-        const initialMatch = initialText.match(/Zen Points:\s*(\d+)/);
+        expect(initialText).not.toBeNull();
+        const initialMatch = initialText && initialText.match(/Zen Points:\s*(\d+)/);
         expect(initialMatch).not.toBeNull();
-        const initialBalance = parseInt(initialMatch[1]);
+        const initialBalance = initialMatch ? parseInt(initialMatch[1]) : 0;
 
         // Start Free Play Mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
@@ -61,8 +62,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         // Get zen points before playing
         const zenPointsElement = page.locator('#zenPoints');
         const beforePlayText = await zenPointsElement.textContent();
-        const beforeMatch = beforePlayText.match(/Zen Points:\s*(\d+)/);
-        const beforeBalance = parseInt(beforeMatch[1]);
+        expect(beforePlayText).not.toBeNull();
+        const beforeMatch = beforePlayText?.match(/Zen Points:\s*(\d+)/);
+        expect(beforeMatch).not.toBeNull();
+        const beforeBalance = beforeMatch ? parseInt(beforeMatch[1]) : 0;
 
         // Play one round - stand immediately
         await page.locator('#standBtn').click();
@@ -72,8 +75,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
         // Get zen points after playing (should be same or slightly different based on round outcome)
         const afterPlayText = await zenPointsElement.textContent();
-        const afterMatch = afterPlayText.match(/Zen Points:\s*(\d+)/);
-        const afterBalance = parseInt(afterMatch[1]);
+        expect(afterPlayText).not.toBeNull();
+        const afterMatch = afterPlayText?.match(/Zen Points:\s*(\d+)/);
+        expect(afterMatch).not.toBeNull();
+        const afterBalance = afterMatch ? parseInt(afterMatch[1]) : 0;
 
         console.log('Before play:', beforeBalance, 'After play:', afterBalance);
 
@@ -88,8 +93,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
         // BUG TEST: Verify zen points match the balance after playing, not reset to 100
         const finalZenPoints = await zenPointsElement.textContent();
-        const finalMatch = finalZenPoints.match(/Zen Points:\s*(\d+)/);
-        const finalBalance = parseInt(finalMatch[1]);
+        expect(finalZenPoints).not.toBeNull();
+        const finalMatch = finalZenPoints?.match(/Zen Points:\s*(\d+)/);
+        expect(finalMatch).not.toBeNull();
+        const finalBalance = finalMatch ? parseInt(finalMatch[1]) : 0;
 
         console.log('Final balance at mode selection:', finalBalance, 'Expected:', afterBalance);
         expect(finalBalance).toBe(afterBalance);
@@ -109,8 +116,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         // Get zen points in campaign
         const zenPointsElement = page.locator('#zenPoints');
         const campaignZenPoints = await zenPointsElement.textContent();
-        const campaignMatch = campaignZenPoints.match(/Zen Points:\s*(\d+)/);
-        const campaignBalance = parseInt(campaignMatch[1]);
+        expect(campaignZenPoints).not.toBeNull();
+        const campaignMatch = campaignZenPoints?.match(/Zen Points:\s*(\d+)/);
+        expect(campaignMatch).not.toBeNull();
+        const campaignBalance = campaignMatch ? parseInt(campaignMatch[1]) : 0;
 
         console.log('Campaign zen points:', campaignBalance);
 
@@ -133,8 +142,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
         // BUG TEST: Verify zen points still match campaign balance
         const finalZenPoints = await zenPointsElement.textContent();
-        const finalMatch = finalZenPoints.match(/Zen Points:\s*(\d+)/);
-        const finalBalance = parseInt(finalMatch[1]);
+        expect(finalZenPoints).not.toBeNull();
+        const finalMatch = finalZenPoints?.match(/Zen Points:\s*(\d+)/);
+        expect(finalMatch).not.toBeNull();
+        const finalBalance = finalMatch ? parseInt(finalMatch[1]) : 0;
 
         console.log('Final balance after campaign->freeplay->mode:', finalBalance);
         expect(finalBalance).toBe(campaignBalance);
@@ -148,8 +159,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         // Get initial zen points
         const zenPointsElement = page.locator('#zenPoints');
         const initialText = await zenPointsElement.textContent();
-        const initialMatch = initialText.match(/Zen Points:\s*(\d+)/);
-        const initialBalance = parseInt(initialMatch[1]);
+        expect(initialText).not.toBeNull();
+        const initialMatch = initialText?.match(/Zen Points:\s*(\d+)/);
+        expect(initialMatch).not.toBeNull();
+        const initialBalance = initialMatch ? parseInt(initialMatch[1]) : 0;
 
         // Use a zen activity (breath costs 10 points)
         const breathBtn = page.locator('#breathBtn');
@@ -159,8 +172,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
             // Verify zen points decreased
             const afterActivityText = await zenPointsElement.textContent();
-            const afterMatch = afterActivityText.match(/Zen Points:\s*(\d+)/);
-            const afterBalance = parseInt(afterMatch[1]);
+            expect(afterActivityText).not.toBeNull();
+            const afterMatch = afterActivityText?.match(/Zen Points:\s*(\d+)/);
+            expect(afterMatch).not.toBeNull();
+            const afterBalance = afterMatch ? parseInt(afterMatch[1]) : 0;
 
             console.log('After activity:', afterBalance, 'Expected:', initialBalance - 10);
             expect(afterBalance).toBe(initialBalance - 10);
@@ -176,8 +191,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
             // BUG TEST: Verify zen points still reflect the activity cost
             const finalZenPoints = await zenPointsElement.textContent();
-            const finalMatch = finalZenPoints.match(/Zen Points:\s*(\d+)/);
-            const finalBalance = parseInt(finalMatch[1]);
+            expect(finalZenPoints).not.toBeNull();
+            const finalMatch = finalZenPoints?.match(/Zen Points:\s*(\d+)/);
+            expect(finalMatch).not.toBeNull();
+            const finalBalance = finalMatch ? parseInt(finalMatch[1]) : 0;
 
             console.log('Final balance after activity:', finalBalance);
             expect(finalBalance).toBe(afterBalance);
@@ -193,8 +210,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#gameArea')).toBeVisible();
 
         const session1Text = await zenPointsElement.textContent();
-        const session1Match = session1Text.match(/Zen Points:\s*(\d+)/);
-        const session1Balance = parseInt(session1Match[1]);
+        expect(session1Text).not.toBeNull();
+        const session1Match = session1Text?.match(/Zen Points:\s*(\d+)/);
+        expect(session1Match).not.toBeNull();
+        const session1Balance = session1Match ? parseInt(session1Match[1]) : 0;
 
         // Set up dialog handler once for this session
         page.once('dialog', dialog => dialog.accept());
@@ -205,8 +224,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
         // Verify balance after session 1
         const afterSession1Text = await zenPointsElement.textContent();
-        const afterSession1Match = afterSession1Text.match(/Zen Points:\s*(\d+)/);
-        const afterSession1Balance = parseInt(afterSession1Match[1]);
+        expect(afterSession1Text).not.toBeNull();
+        const afterSession1Match = afterSession1Text?.match(/Zen Points:\s*(\d+)/);
+        expect(afterSession1Match).not.toBeNull();
+        const afterSession1Balance = afterSession1Match ? parseInt(afterSession1Match[1]) : 0;
         expect(afterSession1Balance).toBe(session1Balance);
 
         // Session 2: Start and exit Free Play again
@@ -214,7 +235,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Check if there's actually a game in progress (maybe no dialog on fresh start)
-        const gameInProgress = await page.evaluate(() => window.gameState && window.gameState.gameInProgress);
+        const gameInProgress = await page.evaluate(() => {
+            // @ts-ignore - gameState is added to window by the application
+            return window.gameState && window.gameState.gameInProgress;
+        });
 
         if (gameInProgress) {
             // Set up dialog handler only if game is in progress
@@ -250,8 +274,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
         // BUG TEST: Verify balance is still consistent
         const afterSession2Text = await zenPointsElement.textContent();
-        const afterSession2Match = afterSession2Text.match(/Zen Points:\s*(\d+)/);
-        const afterSession2Balance = parseInt(afterSession2Match[1]);
+        expect(afterSession2Text).not.toBeNull();
+        const afterSession2Match = afterSession2Text?.match(/Zen Points:\s*(\d+)/);
+        expect(afterSession2Match).not.toBeNull();
+        const afterSession2Balance = afterSession2Match ? parseInt(afterSession2Match[1]) : 0;
 
         console.log('After session 2:', afterSession2Balance, 'Expected:', session1Balance);
         expect(afterSession2Balance).toBe(session1Balance);
@@ -270,8 +296,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         // Get zen points before shop
         const zenPointsElement = page.locator('#zenPoints');
         const beforeShopText = await zenPointsElement.textContent();
-        const beforeShopMatch = beforeShopText.match(/Zen Points:\s*(\d+)/);
-        const beforeShopBalance = parseInt(beforeShopMatch[1]);
+        expect(beforeShopText).not.toBeNull();
+        const beforeShopMatch = beforeShopText?.match(/Zen Points:\s*(\d+)/);
+        expect(beforeShopMatch).not.toBeNull();
+        const beforeShopBalance = beforeShopMatch ? parseInt(beforeShopMatch[1]) : 0;
 
         // Visit shop
         await page.getByRole('button', { name: /Visit Shop/i }).click();
@@ -283,8 +311,10 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
         // Verify zen points unchanged
         const afterShopText = await zenPointsElement.textContent();
-        const afterShopMatch = afterShopText.match(/Zen Points:\s*(\d+)/);
-        const afterShopBalance = parseInt(afterShopMatch[1]);
+        expect(afterShopText).not.toBeNull();
+        const afterShopMatch = afterShopText?.match(/Zen Points:\s*(\d+)/);
+        expect(afterShopMatch).not.toBeNull();
+        const afterShopBalance = afterShopMatch ? parseInt(afterShopMatch[1]) : 0;
         expect(afterShopBalance).toBe(beforeShopBalance);
 
         // Close Free Play overview
@@ -293,10 +323,14 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
         // BUG TEST: Verify zen points still correct at mode selection
         const finalZenPoints = await zenPointsElement.textContent();
-        const finalMatch = finalZenPoints.match(/Zen Points:\s*(\d+)/);
-        const finalBalance = parseInt(finalMatch[1]);
+        expect(finalZenPoints).not.toBeNull();
+        const finalMatch = finalZenPoints?.match(/Zen Points:\s*(\d+)/);
+        expect(finalMatch).not.toBeNull();
+        const finalBalance = finalMatch ? parseInt(finalMatch[1]) : 0;
 
         console.log('Final balance after shop visit:', finalBalance);
         expect(finalBalance).toBe(beforeShopBalance);
     });
 });
+
+
