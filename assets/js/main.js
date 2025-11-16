@@ -13,6 +13,7 @@ import { AudioManager } from './audio-system.js';
 import { VERSION, GIT_HASH, GIT_BRANCH, BUILD_DATE } from './version.js';
 import { initializeAchievements, updateStatistic, checkMilestones, achievementState } from './achievement-manager.js';
 import { renderAchievementsInMindPalace } from './achievement-ui.js';
+import { DebugHelper } from './debug-helper.js';
 
 // Global audio manager instance
 let audioManager = null;
@@ -852,12 +853,13 @@ export function startNewRound() {
         // Reset hand state for fresh progressive flavor text
         resetHandState();
 
-        // Create deck based on mode (custom for campaign/task mode, standard for pure single task)
+        // Create deck based on mode (custom for campaign/task/free play mode, standard for pure single task)
         let playerDeck, houseDeck;
-        if (isCampaignMode() || campaignState.currentTask) {
+        if (isCampaignMode() || campaignState.currentTask || gameState.freePlayMode) {
             playerDeck = createCustomDeck(campaignState.deckComposition);
             houseDeck = createDeck();
             console.log('[DEBUG] Custom player deck generated:', playerDeck);
+            console.log('[DEBUG] Deck composition:', campaignState.deckComposition);
             console.log('[DEBUG] Standard house deck generated:', houseDeck);
         } else {
             playerDeck = createDeck();
@@ -2318,6 +2320,7 @@ if (typeof window !== 'undefined') {
     window.startGame = startTask;
     window.hit = hit;
     window.stand = stand;
+    window.startNewRound = startNewRound;
     window.nextStep = nextStep;
     window.restartGame = restartGame;
     window.showHelp = showHelp;
@@ -2354,6 +2357,16 @@ if (typeof window !== 'undefined') {
     // Make campaign functions available for game-state.js (needed for internal module communication)
     window.isCampaignMode = isCampaignMode;
     window.getCurrentTask = getCurrentTask;
+
+    // Expose state objects for testing
+    window.gameState = gameState;
+    window.campaignState = campaignState;
+
+    // Expose card system functions for testing
+    import('./card-system.js').then(cardSystem => {
+        window.calculateScore = cardSystem.calculateScore;
+        window.JokerCard = cardSystem.JokerCard;
+    });
 
     // Make UI functions available for zen points manager
     window.showZenPointAnimation = (amount, type, direction) => {
