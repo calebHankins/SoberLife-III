@@ -477,10 +477,11 @@ export function closeTask() {
 // Close shop wrapper
 export function closeShopWrapper() {
     closeShop();
-    if (gameState.freePlayMode) {
-        showFreePlayOverview();
-    } else if (isCampaignMode()) {
+    // Check Campaign Mode first (more specific), then Free Play
+    if (isCampaignMode()) {
         showElement('campaignOverview');
+    } else if (gameState.freePlayMode) {
+        showFreePlayOverview();
     } else {
         showElement('gameModeSelection');
         // Show version footer when returning to landing page
@@ -491,10 +492,11 @@ export function closeShopWrapper() {
 // Close Mind Palace wrapper - handles navigation based on current mode
 export function closeMindPalaceWrapper() {
     hideMindPalace();
-    if (gameState.freePlayMode) {
-        showFreePlayOverview();
-    } else if (isCampaignMode()) {
+    // Check Campaign Mode first (more specific), then Free Play
+    if (isCampaignMode()) {
         showElement('campaignOverview');
+    } else if (gameState.freePlayMode) {
+        showFreePlayOverview();
     } else {
         showElement('gameModeSelection');
         // Show version footer when returning to landing page
@@ -2139,21 +2141,50 @@ export function purchaseJoker() {
 
 export function continueCampaign() {
     closeShop();
-    returnToCampaign();
-    // Update campaign UI to reflect any purchases
-    updateCampaignUI();
+    // Check which mode we're in and return to appropriate view
+    // Check Campaign Mode first (more specific), then Free Play
+    if (isCampaignMode()) {
+        returnToCampaign();
+        // Update campaign UI to reflect any purchases
+        updateCampaignUI();
+    } else if (gameState.freePlayMode) {
+        showFreePlayOverview();
+    } else {
+        // Fallback to campaign for other modes (Jump Into Task, etc.)
+        returnToCampaign();
+        updateCampaignUI();
+    }
 }
 
 export function skipShop() {
     closeShop();
-    returnToCampaign();
+    // Check which mode we're in and return to appropriate view
+    // Check Campaign Mode first (more specific), then Free Play
+    if (isCampaignMode()) {
+        returnToCampaign();
+    } else if (gameState.freePlayMode) {
+        showFreePlayOverview();
+    } else {
+        // Fallback to campaign for other modes (Jump Into Task, etc.)
+        returnToCampaign();
+    }
 }
 
 export function closeShopToCampaign() {
     closeShop();
-    returnToCampaign();
-    // Update campaign UI to reflect any purchases
-    updateCampaignUI();
+    // Check which mode we're in and return to appropriate view
+    // Check Campaign Mode first (more specific), then Free Play
+    if (isCampaignMode()) {
+        returnToCampaign();
+        // Update campaign UI to reflect any purchases
+        updateCampaignUI();
+    } else if (gameState.freePlayMode) {
+        showFreePlayOverview();
+    } else {
+        // Fallback to campaign for other modes (Jump Into Task, etc.)
+        returnToCampaign();
+        updateCampaignUI();
+    }
 }
 
 export function visitMindPalace() {
