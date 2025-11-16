@@ -682,6 +682,10 @@ export function startFreePlayMode() {
         // Initialize campaign to load deck composition and activities
         initializeCampaign();
 
+        // IMPORTANT: Set campaignMode to false in campaignState
+        // This ensures continueCampaign() navigates to Free Play overview, not regular campaign
+        updateCampaignState({ campaignMode: false });
+
         // Set Free Play Mode flags
         updateGameState({
             freePlayMode: true,
@@ -1699,8 +1703,9 @@ export function showFreePlayOverview() {
         hideElement('upgradeShop');
         hideElement('campaignOverview');
 
-        // Set Free Play mode flag so navigation works correctly
+        // Set Free Play mode flags so navigation works correctly
         updateGameState({ freePlayMode: true });
+        updateCampaignState({ campaignMode: false });
 
         // Sync zen points from campaign state to game state for UI display
         const currentBalance = ZenPointsManager.getCurrentBalance();
