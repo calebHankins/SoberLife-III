@@ -11,6 +11,8 @@ import { getTaskDefinition, getNextAvailableTask } from './task-definitions.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
 import { AudioManager } from './audio-system.js';
 import { VERSION, GIT_HASH, GIT_BRANCH, BUILD_DATE } from './version.js';
+import { initializeAchievements, updateStatistic, checkMilestones } from './achievement-manager.js';
+import { renderAchievementsInMindPalace } from './achievement-ui.js';
 
 // Global audio manager instance
 let audioManager = null;
@@ -48,6 +50,9 @@ export async function initializeGame() {
 
     // Set up close button event listeners
     setupCloseButtons();
+
+    // Initialize achievement system
+    initializeAchievements();
 
     // Set up browser back button handling
     setupBrowserBackButton();
@@ -2243,6 +2248,9 @@ export function visitMindPalace() {
         console.log('Current campaign state before showing Mind Palace:', campaignState);
         showMindPalace();
 
+        // Render achievements in the Growth Journey section
+        renderAchievementsInMindPalace();
+
     } catch (error) {
         console.error('Error opening Mind Palace:', error);
         showPopupNotification('Unable to open Mind Palace. Please try again.', 'error');
@@ -2307,3 +2315,177 @@ if (document.readyState === 'loading') {
 } else {
     initializeGame();
 }
+
+// ===================================
+// FREE PLAY ACHIEVEMENT INTEGRATION
+// ===================================
+//
+// When Free Play mode is fully implemented, add the following achievement tracking:
+//
+// 1. On Free Play Task Completion:
+//    - Increment total tasks: updateStatistic('freePlayTasksTotal', achievementState.statistics.freePlayTasksTotal + 1)
+//    - Increment current run: updateStatistic('currentFreePlayRun', achievementState.statistics.currentFreePlayRun + 1)
+//    - Check milestones: checkMilestones('free_play', achievementState.statistics.freePlayTasksTotal)
+//    - Update max run if needed:
+//      if (achievementState.statistics.currentFreePlayRun > achievementState.statistics.freePlayMaxRun) {
+//          updateStatistic('freePlayMaxRun', achievementState.statistics.currentFreePlayRun);
+//      }
+//
+// 2. On Free Play Session End (exit or game over):
+//    - Reset current run: updateStatistic('currentFreePlayRun', 0)
+//
+// Example integration point (add to Free Play task completion function):
+/*
+function completeFreePlayTask() {
+    // ... existing task completion logic ...
+
+    // Achievement tracking
+    import { updateStatistic, checkMilestones, achievementState } from './achievement-manager.js';
+
+    // Increment counters
+    const newTotal = achievementState.statistics.freePlayTasksTotal + 1;
+    const newRun = achievementState.statistics.currentFreePlayRun + 1;
+
+    updateStatistic('freePlayTasksTotal', newTotal);
+    updateStatistic('currentFreePlayRun', newRun);
+
+    // Check for milestone achievements
+    checkMilestones('free_play', newTotal);
+
+    // Update max run if this is a new record
+    if (newRun > achievementState.statistics.freePlayMaxRun) {
+        updateStatistic('freePlayMaxRun', newRun);
+    }
+
+    console.log(`Free Play: Task completed. Total: ${newTotal}, Current run: ${newRun}`);
+}
+
+function endFreePlaySession() {
+    // ... existing session end logic ...
+
+    // Reset current run counter
+    updateStatistic('currentFreePlayRun', 0);
+    console.log('Free Play: Session ended, run counter reset');
+}
+*/
+
+
+// ===================================
+// MIND PALACE FUNCTIONS
+// ===================================
+
+/**
+ * Visit Mind Palace (show modal with achievements and deck info)
+ */
+window.visitMindPalace = function () {
+    try {
+        const modal = document.getElementById('mindPalaceModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+
+            // Render achievements in the Growth Journey section
+            import('./achievement-ui.js').then(module => {
+                module.renderAchievementsInMindPalace();
+            }).catch(error => {
+                console.error('Error loading achievement UI:', error);
+            });
+
+            // Update deck composition display
+            updateMindPalaceDeckInfo();
+
+            // Update premium activities display
+            updateMindPalaceActivities();
+        }
+    } catch (error) {
+        console.error('Error opening Mind Palace:', error);
+    }
+};
+
+/**
+ * Visit Mind Palace from Free Play mode
+ */
+window.visitFreePlayMindPalace = function () {
+    window.visitMindPalace();
+};
+
+/**
+ * Close Mind Palace modal
+ */
+window.closeMindPalace = function () {
+    try {
+        const modal = document.getElementById('mindPalaceModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Error closing Mind Palace:', error);
+    }
+};
+
+/**
+ * Update Mind Palace deck information
+ */
+function updateMindPalaceDeckInfo() {
+    try {
+        const jokerCount = document.getElementById('jokerCount');
+        const aceCount = document.getElementById('aceCount');
+        const regularCount = document.getElementById('regularCount');
+        const deckPowerFill = document.getElementById('deckPowerFill');
+        const deckPowerText = document.getElementById('deckPowerText');
+
+        if (campaignState && campaignState.deckComposition) {
+            const { aces, jokers, totalCards } = campaignState.deckComposition;
+            const regularCards = totalCards - aces - jokers;
+            const specialCards = aces + jokers;
+            const powerLevel = Math.round((specialCards / totalCards) * 100);
+
+            if (jokerCount) jokerCount.textContent = jokers;
+            if (aceCount) aceCount.textContent = aces;
+            if (regularCount) regularCount.textContent = regularCards;
+            if (deckPowerFill) deckPowerFill.style.width = `${powerLevel}%`;
+            if (deckPowerText) {
+                deckPowerText.textContent = `Power Level: ${powerLevel}% (${specialCards} special cards out of ${totalCards})`;
+            }
+        }
+    } catch (error) {
+        console.error('Error updating Mind Palace deck info:', error);
+    }
+}
+
+/**
+ * Update Mind Palace activities display
+ */
+function updateMindPalaceActivities() {
+    try {
+        // Update mindful breathing status
+        const mindfulBreathingStatus = document.getElementById('mindfulBreathingActivityStatus');
+        if (mindfulBreathingStatus && campaignState.unlockedActivities) {
+            const isUnlocked = campaignState.unlockedActivities.mindfulBreathing;
+            mindfulBreathingStatus.textContent = isUnlocked ? '✓ Unlocked' : '🔒 Locked';
+            mindfulBreathingStatus.className = isUnlocked ? 'activity-status unlocked' : 'activity-status locked';
+        }
+
+        // Update compartmentalize status
+        const compartmentalizeStatus = document.getElementById('compartmentalizeActivityStatus');
+        if (compartmentalizeStatus && campaignState.unlockedActivities) {
+            const isUnlocked = campaignState.unlockedActivities.compartmentalize;
+            compartmentalizeStatus.textContent = isUnlocked ? '✓ Unlocked' : '🔒 Locked';
+            compartmentalizeStatus.className = isUnlocked ? 'activity-status unlocked' : 'activity-status locked';
+        }
+    } catch (error) {
+        console.error('Error updating Mind Palace activities:', error);
+    }
+}
+
+// Set up Mind Palace modal close button
+document.addEventListener('DOMContentLoaded', () => {
+    const mindPalaceCloseBtn = document.getElementById('mindPalaceCloseBtn');
+    if (mindPalaceCloseBtn) {
+        mindPalaceCloseBtn.addEventListener('click', window.closeMindPalace);
+    }
+
+    const mindPalaceBackdrop = document.getElementById('mindPalaceBackdrop');
+    if (mindPalaceBackdrop) {
+        mindPalaceBackdrop.addEventListener('click', window.closeMindPalace);
+    }
+});
