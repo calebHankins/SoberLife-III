@@ -408,11 +408,21 @@ export function openShop(zenPoints) {
     try {
         updateShopUI(zenPoints);
         updateShopButtonText(); // Update button text based on current mode
+
         showElement('upgradeShop');
 
-        // Focus on shop for accessibility
+        // Reset scroll position to top AFTER showing shop
+        // Use setTimeout to ensure DOM has updated
         const shopElement = document.getElementById('upgradeShop');
         if (shopElement) {
+            const shopContent = shopElement.querySelector('.shop-content');
+            if (shopContent) {
+                setTimeout(() => {
+                    shopContent.scrollTop = 0;
+                }, 0);
+            }
+
+            // Focus on shop for accessibility
             shopElement.focus();
         }
 
@@ -451,6 +461,15 @@ function updateShopButtonText() {
 // Close shop
 export function closeShop() {
     try {
+        const shopElement = document.getElementById('upgradeShop');
+        if (shopElement) {
+            // Reset scroll position to top
+            const shopContent = shopElement.querySelector('.shop-content');
+            if (shopContent) {
+                shopContent.scrollTop = 0;
+            }
+        }
+
         hideElement('upgradeShop');
         console.log('Shop closed');
     } catch (error) {
