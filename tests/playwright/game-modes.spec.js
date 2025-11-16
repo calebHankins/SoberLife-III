@@ -393,6 +393,129 @@ test.describe('Screen Navigation - Bug Fix', () => {
 
 
 
+test.describe('Campaign Task Exit Bug', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+    });
+
+    test('should return to campaign overview when exiting campaign task early', async ({ page }) => {
+        // Start campaign mode
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+
+        // Start a task from campaign - click the Start button
+        const firstTaskButton = page.locator('.task-card .task-btn').first();
+        await firstTaskButton.click();
+
+        // Should show survey
+        await expect(page.locator('#surveySection')).toBeVisible();
+
+        // Exit task early using close button
+        await page.locator('#surveyCloseBtn').click();
+
+        // BUG TEST: Should return to campaign overview, NOT Free Play overview
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+        await expect(page.locator('#freePlayOverview')).toHaveClass(/hidden/);
+
+        // Verify other screens are hidden
+        await expect(page.locator('#surveySection')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameArea')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameModeSelection')).toHaveClass(/hidden/);
+    });
+
+    // Note: Test for exiting during gameplay removed due to flavor text modal timing issues
+    // The important tests (exiting from survey) are passing and confirm the bug is fixed
+
+    test('should maintain campaign context through multiple task exits', async ({ page }) => {
+        // Start campaign mode
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+
+        // Start and exit first task
+        const firstTaskButton = page.locator('.task-card .task-btn').first();
+        await firstTaskButton.click();
+        await page.locator('#surveyCloseBtn').click();
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+
+        // Start and exit second task
+        await firstTaskButton.click();
+        await page.locator('#surveyCloseBtn').click();
+
+        // Should still be in campaign overview
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+        await expect(page.locator('#freePlayOverview')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameModeSelection')).toHaveClass(/hidden/);
+    });
+
+    test('should not show Free Play overview when exiting campaign task', async ({ page }) => {
+        // Start campaign mode
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+
+        // Start a task - click the Start button
+        const firstTaskButton = page.locator('.task-card .task-btn').first();
+        await firstTaskButton.click();
+
+        // Exit task
+        await page.locator('#surveyCloseBtn').click();
+
+        // Specifically verify Free Play overview is NOT shown
+        const freePlayOverview = page.locator('#freePlayOverview');
+        await expect(freePlayOverview).toHaveClass(/hidden/);
+        const isFreePlayVisible = await freePlayOverview.isVisible();
+        expect(isFreePlayVisible).toBe(false);
+
+        // Campaign overview SHOULD be visible
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+    });
+
+    test('should return to campaign overview when exiting during blackjack gameplay', async ({ page }) => {
+        // Start campaign mode
+        await page.getByRole('button', { name: /Start Campaign/i }).click();
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+
+        // Start a task from campaign
+        const firstTaskButton = page.locator('.task-card .task-btn').first();
+        await firstTaskButton.click();
+
+        // Complete survey
+        await expect(page.locator('#surveySection')).toBeVisible();
+        await page.locator('input[name="sleep"][value="10"]').click();
+        await page.locator('input[name="prepared"][value="10"]').click();
+        await page.locator('input[name="day"][value="10"]').click();
+        await page.locator('#startTaskBtn').click();
+
+        // Wait for and close initial flavor text modal
+        const initialFlavorModal = page.locator('#initialFlavorTextModal');
+        await expect(initialFlavorModal).toBeVisible({ timeout: 5000 });
+        await page.locator('#continueFlavorTextBtn').click();
+        await page.waitForTimeout(500); // Wait for modal to close
+
+        // Should now be in game area
+        await expect(page.locator('#gameArea')).toBeVisible();
+
+        // Set up dialog handler for confirmation
+        page.once('dialog', dialog => {
+            expect(dialog.message()).toContain('exit');
+            dialog.accept();
+        });
+
+        // Exit task during gameplay using close button
+        await page.locator('#taskCloseBtn').click();
+
+        // Wait for UI to update
+        await page.waitForTimeout(500);
+
+        // Should return to campaign overview, NOT Free Play overview
+        await expect(page.locator('#campaignOverview')).toBeVisible();
+        await expect(page.locator('#freePlayOverview')).toHaveClass(/hidden/);
+
+        // Verify other screens are hidden
+        await expect(page.locator('#gameArea')).toHaveClass(/hidden/);
+        await expect(page.locator('#surveySection')).toHaveClass(/hidden/);
+        await expect(page.locator('#gameModeSelection')).toHaveClass(/hidden/);
+    });
+});
+
 test.describe('Free Play Overview', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
