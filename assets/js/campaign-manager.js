@@ -515,8 +515,15 @@ function showCampaignComplete() {
             continueCampaignBtn.classList.remove('hidden');
         }
         if (playAgainBtn) {
-            playAgainBtn.textContent = 'New Campaign';
-            playAgainBtn.onclick = () => startNewCampaign();
+            playAgainBtn.textContent = 'Try Free Play Mode';
+            // Use window.startFreePlayMode to avoid circular dependency
+            playAgainBtn.onclick = () => {
+                if (window.startFreePlayMode) {
+                    window.startFreePlayMode();
+                } else {
+                    console.error('startFreePlayMode not available');
+                }
+            };
         }
 
         console.log('Campaign completed!');
@@ -526,13 +533,40 @@ function showCampaignComplete() {
     }
 }
 
-// Start new campaign (reset progress)
+// Start new campaign (reset progress with confirmation)
+// Note: This function is kept for potential future use but is no longer
+// used in campaign completion flow (which now directs to Free Play mode)
 export function startNewCampaign() {
     try {
-        resetCampaignState();
-        resetGameState(); // Also reset the game state
-        showCampaignOverview();
-        console.log('New campaign started');
+        const confirmed = confirm(
+            '⚠️ WARNING: START NEW CAMPAIGN ⚠️\n\n' +
+            'This will permanently delete:\n' +
+            '• All completed campaign tasks\n' +
+            '• All deck upgrades (jokers)\n' +
+            '• All unlocked premium activities\n' +
+            '• All zen points\n' +
+            '• All achievements and statistics\n\n' +
+            'This action CANNOT be undone!\n\n' +
+            'Are you sure you want to start over?'
+        );
+
+        if (confirmed) {
+            // Double confirmation for safety
+            const doubleConfirm = confirm(
+                '⚠️ FINAL CONFIRMATION ⚠️\n\n' +
+                'This is your last chance!\n\n' +
+                'Click OK to permanently delete all progress and start fresh.\n' +
+                'Click Cancel to keep your progress.'
+            );
+
+            if (doubleConfirm) {
+                resetCampaignState();
+                resetGameState();
+                showCampaignOverview();
+                console.log('New campaign started');
+                alert('✅ All progress has been reset. Starting new campaign!');
+            }
+        }
     } catch (error) {
         console.error('Error starting new campaign:', error);
     }

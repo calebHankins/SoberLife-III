@@ -2,30 +2,47 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Campaign Completion Redirect', () => {
-    test('should redirect to Free Play mode when all campaign tasks are completed', async ({ page }) => {
+    test('should show "Try Free Play Mode" button when campaign is completed', async ({ page }) => {
         await page.goto('/');
 
-        // Start Jump Into Task mode
-        await page.getByRole('button', { name: /Jump Into Task/i }).click();
-
-        // Use debug helper to mark all tasks as completed
+        // Use debug helper to complete all tasks and trigger success screen
         await page.evaluate(() => {
             // Mark all tasks as completed
             window.campaignState.completedTasks = [1, 2, 3, 4];
             window.updateCampaignState({ completedTasks: [1, 2, 3, 4] });
+
+            // Show the campaign completion screen
+            window.showCampaignCompletion();
         });
 
-        // Handle the alert that should appear
-        page.once('dialog', async dialog => {
-            const message = dialog.message();
-            expect(message).toContain('completed all campaign tasks');
-            expect(message).toContain('Free Play Mode');
-            await dialog.accept();
-        });
+        // Wait for success screen
+        await expect(page.locator('#gameSuccessScreen')).toBeVisible({ timeout: 5000 });
 
-        // Click Jump Into Task again (should trigger completion check)
+        // Check that the "Play Again" button now says "Try Free Play Mode"
+        const playAgainBtn = page.locator('#playAgainBtn');
+        await expect(playAgainBtn).toBeVisible();
+        await expect(playAgainBtn).toContainText('Try Free Play Mode');
+    });
+
+    test('should redirect to Free Play mode when clicking "Try Free Play Mode" button', async ({ page }) => {
         await page.goto('/');
-        await page.getByRole('button', { name: /Jump Into Task/i }).click();
+
+        // Use debug helper to complete all tasks and trigger success screen
+        await page.evaluate(() => {
+            // Mark all tasks as completed
+            window.campaignState.completedTasks = [1, 2, 3, 4];
+            window.updateCampaignState({ completedTasks: [1, 2, 3, 4] });
+
+            // Show the campaign completion screen
+            window.showCampaignCompletion();
+        });
+
+        // Wait for success screen
+        await expect(page.locator('#gameSuccessScreen')).toBeVisible({ timeout: 5000 });
+
+        // Click the "Try Free Play Mode" button
+        const playAgainBtn = page.locator('#playAgainBtn');
+        await playAgainBtn.click();
 
         // Should now be in Free Play mode
         await expect(page.locator('#gameArea')).toBeVisible({ timeout: 10000 });
