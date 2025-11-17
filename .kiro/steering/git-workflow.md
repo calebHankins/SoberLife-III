@@ -205,6 +205,33 @@ gh pr create --title "fix: critical bug" --body "Urgent fix" --label "release:pa
 gh pr merge --merge --delete-branch
 ```
 
+## Manual Deployments
+
+For emergency deployments or when you need to deploy without running tests:
+
+### Deploy with Tests (Default)
+
+```bash
+# Trigger via GitHub Actions UI
+# Actions → Deploy to GitHub Pages → Run workflow → Run workflow
+```
+
+### Deploy WITHOUT Tests (Emergency Only)
+
+```bash
+# Trigger via GitHub Actions UI
+# Actions → Deploy to GitHub Pages → Run workflow
+# Check "Skip tests and deploy directly" → Run workflow
+```
+
+**When to skip tests:**
+- Emergency hotfix already tested locally
+- Tests are failing due to infrastructure issues (not code issues)
+- Critical production issue needs immediate fix
+- You're deploying a documentation-only change
+
+**Warning:** Skipping tests bypasses all quality checks. Use only when absolutely necessary and you're confident the changes won't break production.
+
 ## Working with Release Workflows
 
 ### Automated Releases via PR Labels
