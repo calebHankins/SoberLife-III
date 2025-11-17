@@ -58,9 +58,8 @@ test.describe('Mobile Stress Meter Visibility During Gameplay', () => {
     });
 
     test('stress meter should remain visible when interacting with game controls', async ({ page }) => {
-        // Start Free Play mode for simpler testing
+        // Start Free Play mode for simpler testing (goes directly to game, no overview)
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-
         await expect(page.locator('#gameArea')).toBeVisible();
 
         const stressMeter = page.locator('.stress-meter');

@@ -117,6 +117,9 @@ test.describe('Jump Into Task Mode', () => {
     test('should require all survey questions to be answered', async ({ page }) => {
         await page.getByRole('button', { name: /Start Next Task/i }).click();
 
+        // Wait for survey to be visible
+        await expect(page.locator('#surveySection')).toBeVisible();
+
         const startTaskBtn = page.locator('#startTaskBtn');
         await expect(startTaskBtn).toBeDisabled();
 
@@ -267,7 +270,7 @@ test.describe('Screen Navigation - Bug Fix', () => {
     });
 
     test('should not show campaign overview when exiting free play', async ({ page }) => {
-        // Start free play mode
+        // Start free play mode (goes directly to game, no overview)
         await page.getByRole('button', { name: /Start Free Play/i }).click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
@@ -296,7 +299,7 @@ test.describe('Screen Navigation - Bug Fix', () => {
         await page.locator('#campaignCloseBtn').click();
         await expect(page.locator('#gameModeSelection')).toBeVisible();
 
-        // Start free play mode
+        // Start free play mode (goes directly to game, no overview)
         await page.getByRole('button', { name: /Start Free Play/i }).click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
