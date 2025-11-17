@@ -35,16 +35,29 @@ test.describe('Free Play Mode - Joker Deck Integration', () => {
         // Wait for cards to be dealt
         await expect(page.locator('#playerCards .card')).toHaveCount(2, { timeout: 5000 });
 
-        // Step 5: Verify that the player deck was created with jokers
-        const playerDeck = await page.evaluate(() => {
-            return window.gameState.deck;
+        // Step 5: Verify that jokers were added to the deck composition
+        // Note: The actual deck may have fewer jokers because some are dealt to player/house
+        const deckInfo = await page.evaluate(() => {
+            const deck = window.gameState.deck;
+            const playerCards = window.gameState.playerCards;
+            const houseCards = window.gameState.houseCards;
+
+            const jokersInDeck = deck.filter(card => card.isJoker).length;
+            const jokersInPlayerHand = playerCards.filter(card => card.isJoker).length;
+            const jokersInHouseHand = houseCards.filter(card => card.isJoker).length;
+            const totalJokers = jokersInDeck + jokersInPlayerHand + jokersInHouseHand;
+
+            return {
+                jokersInDeck,
+                jokersInPlayerHand,
+                jokersInHouseHand,
+                totalJokers
+            };
         });
 
-        // Count jokers in the deck
-        const jokerCount = playerDeck.filter(card => card.isJoker).length;
-        // Verify we have most of the jokers (allowing for some being dealt)
-        expect(jokerCount).toBeGreaterThanOrEqual(13); // At least 13 of 15 jokers should be in deck
-        console.log(`Player deck contains ${jokerCount} jokers`);
+        // Verify total jokers across deck and dealt cards equals what we added
+        expect(deckInfo.totalJokers).toBe(15);
+        console.log(`Jokers distributed: ${deckInfo.jokersInDeck} in deck, ${deckInfo.jokersInPlayerHand} in player hand, ${deckInfo.jokersInHouseHand} in house hand, ${deckInfo.totalJokers} total`);
 
         // Step 6: Play multiple rounds to verify jokers can be dealt
         // With 15 jokers in ~67 cards, probability of dealing at least one in 20 rounds is very high
@@ -135,13 +148,22 @@ test.describe('Free Play Mode - Joker Deck Integration', () => {
         await expect(page.locator('#playerCards .card')).toHaveCount(2, { timeout: 5000 });
 
         // Step 8: Verify that the player deck contains the purchased joker
-        const playerDeck = await page.evaluate(() => {
-            return window.gameState.deck;
+        // Count jokers across deck and dealt cards
+        const deckInfo = await page.evaluate(() => {
+            const deck = window.gameState.deck;
+            const playerCards = window.gameState.playerCards;
+            const houseCards = window.gameState.houseCards;
+
+            const jokersInDeck = deck.filter(card => card.isJoker).length;
+            const jokersInPlayerHand = playerCards.filter(card => card.isJoker).length;
+            const jokersInHouseHand = houseCards.filter(card => card.isJoker).length;
+            const totalJokers = jokersInDeck + jokersInPlayerHand + jokersInHouseHand;
+
+            return { jokersInDeck, totalJokers };
         });
 
-        const jokerCount = playerDeck.filter(card => card.isJoker).length;
-        expect(jokerCount).toBe(newJokerCount);
-        console.log(`Player deck contains ${jokerCount} joker(s) after purchase`);
+        expect(deckInfo.totalJokers).toBe(newJokerCount);
+        console.log(`Player deck contains ${deckInfo.jokersInDeck} joker(s) in deck, ${deckInfo.totalJokers} total after purchase`);
     });
 
     test('should maintain joker count across Free Play sessions', async ({ page }) => {
@@ -170,13 +192,22 @@ test.describe('Free Play Mode - Joker Deck Integration', () => {
         await expect(page.locator('#playerCards .card')).toHaveCount(2, { timeout: 5000 });
 
         // Step 5: Verify deck was created with jokers
-        const playerDeck = await page.evaluate(() => {
-            return window.gameState.deck;
+        // Count jokers across deck and dealt cards
+        const deckInfo = await page.evaluate(() => {
+            const deck = window.gameState.deck;
+            const playerCards = window.gameState.playerCards;
+            const houseCards = window.gameState.houseCards;
+
+            const jokersInDeck = deck.filter(card => card.isJoker).length;
+            const jokersInPlayerHand = playerCards.filter(card => card.isJoker).length;
+            const jokersInHouseHand = houseCards.filter(card => card.isJoker).length;
+            const totalJokers = jokersInDeck + jokersInPlayerHand + jokersInHouseHand;
+
+            return { jokersInDeck, totalJokers };
         });
 
-        const deckJokerCount = playerDeck.filter(card => card.isJoker).length;
-        expect(deckJokerCount).toBe(2);
-        console.log('Joker count persisted and applied to deck');
+        expect(deckInfo.totalJokers).toBe(2);
+        console.log(`Joker count persisted and applied to deck: ${deckInfo.jokersInDeck} in deck, ${deckInfo.totalJokers} total`);
     });
 
     test('should display joker cards correctly when dealt in Free Play', async ({ page }) => {
