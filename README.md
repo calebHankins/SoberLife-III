@@ -2,6 +2,12 @@
 
 A fun, interactive stress management game that combines blackjack mechanics with real-world scenarios. Practice stress management techniques through engaging gameplay in both single-task and campaign modes.
 
+## 🎮 Part of the SoberLife Series
+
+This is the third installment in the SoberLife series! If you enjoy stress management gameplay, check out the prequel:
+
+**[SoberLife-II](https://github.com/calebHankins/SoberLife-II)** - A Pygame-based board game where you navigate through a full day, managing stress as you move between activities. Written by Bruce Baskir, this turn-based strategy game challenges you to complete your daily tasks without letting stress levels get too high. [Play it here!](https://calebhankins.github.io/SoberLife-II/)
+
 ## 🎮 Play the Game
 
 Visit the [live game on github pages](https://calebhankins.github.io/SoberLife-III/)!
