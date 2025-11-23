@@ -5,6 +5,7 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
     inputs:
       skip_tests:
@@ -37,6 +38,13 @@ jobs:
       - name: Check if release workflow will run
         id: check-release
         run: |
+          # Check if this is a PR with documentation label
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ contains(github.event.pull_request.labels.*.name, 'documentation') }}" = "true" ]; then
+            echo "Documentation label detected - skipping tests"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           # Check if this is a merge commit from a PR with a release label
           # OR if this is a release commit created by the release workflow
           # If so, skip tests since release workflow will run them
