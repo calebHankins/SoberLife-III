@@ -6,6 +6,7 @@
 ## 🧘 Project Context
 
 **SoberLife-III** is a web-based stress management game that combines blackjack mechanics with real-world scenarios.
+
 - **Core Mechanic**: Blackjack represents managing task steps.
 - **Goal**: Complete tasks (like DMV visits) without "busting" (reaching 100% stress).
 - **Tech**: Vanilla HTML/CSS/JS. No frameworks. LocalStorage for persistence.
@@ -15,10 +16,12 @@
 You must follow the guidelines established in the `.kiro/steering` directory and the `model_spec.md`.
 
 ### 📜 Game Design (Authoritative)
+
 - **[model_spec.md](./model_spec.md)**: The **source of truth** for game design, mechanics, features, and user experience.
   - *Rule*: If there is a conflict between general coding practices and the model spec, **defer to the model spec**.
 
 ### 🛠️ Technical Steering
+
 The `.kiro/steering` directory contains the technical standards.
 
 - **[tech.md](.kiro/steering/tech.md)**: Technical stack and coding standards.
@@ -31,13 +34,14 @@ The `.kiro/steering` directory contains the technical standards.
   - *Key*: Playwright for E2E tests. Run `npm test` before committing.
 - **[releases.md](.kiro/steering/releases.md)**: Release process.
 - **[debugging.md](.kiro/steering/debugging.md)**: Debugging tips, especially for Zen Points.
+- **[agent-workflows.md](.kiro/steering/agent-workflows.md)**: specific workflows that AI agents can execute to perform complex tasks autonomously.
 
 ## 🤖 Agent Instructions
 
-1.  **Read the Docs**: Before starting a task, read the relevant steering documents and `model_spec.md`.
-2.  **Follow the Style**: Adhere to the code style in `tech.md` (CamelCase, Semantic naming, etc.).
-3.  **Test Your Work**: Run tests (`npm test`) to ensure no regressions.
-4.  **Update Documentation**: If you change behavior, update the relevant docs (README, specs, etc.).
+1. **Read the Docs**: Before starting a task, read the relevant steering documents and `model_spec.md`.
+2. **Follow the Style**: Adhere to the code style in `tech.md` (CamelCase, Semantic naming, etc.).
+3. **Test Your Work**: Run tests (`npm test`) to ensure no regressions.
+4. **Update Documentation**: If you change behavior, update the relevant docs (README, specs, etc.).
 
 ### 📝 Commit Message Protocol
 
@@ -45,6 +49,7 @@ The `.kiro/steering` directory contains the technical standards.
 > **Mandatory**: End every turn with a concise "commit message" in a markdown code block that describes the currently uncommitted changes.
 
 **Example:**
+
 ```md
 feat: implement new zen activity 'Box Breathing'
 ```
