@@ -17,7 +17,7 @@ This workflow allows the agent to take a GitHub issue number, analyze it, reprod
 5.  **Verify**: Runs the test to confirm the fix and ensures no regressions.
 6.  **Commit**: Commits the changes with a reference to the issue.
 7.  **PR**: Pushes the branch and creates a Pull Request using `gh pr create`.
-8.  **Merge**: Merges the PR using `gh pr merge` and updates the local main branch.
+8.  **Merge**: Merges the PR using `gh pr merge --merge --delete-branch` (use merge commits, not squash) and updates the local main branch.
 
 **Usage**:
 Ensure the `gh` CLI is authenticated and available.
