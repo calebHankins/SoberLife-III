@@ -34,6 +34,7 @@ The `.kiro/steering` directory contains the technical standards.
   - *Key*: Playwright for E2E tests. Run `npm test` before committing.
 - **[releases.md](.kiro/steering/releases.md)**: Release process.
 - **[debugging.md](.kiro/steering/debugging.md)**: Debugging tips, especially for Zen Points.
+- **[agent-workflows.md](.kiro/steering/agent-workflows.md)**: specific workflows that AI agents can execute to perform complex tasks autonomously.
 
 ## 🤖 Agent Instructions
 
