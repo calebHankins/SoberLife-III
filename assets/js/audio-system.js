@@ -232,20 +232,20 @@ class AudioManager {
 
         // Mobile optimization: reduce complexity on mobile devices
         if (this.isMobileDevice()) {
-            console.log('AudioManager: Mobile device detected, applying optimizations');
+            console.log('AudioManager: Mobile device detected, applying optimizations' + (this.musicPlayer && this.musicPlayer.instanceId ? ` (MusicPlayer[${this.musicPlayer.instanceId}])` : ''));
             this.applyMobileOptimizations();
         }
 
         // Handle autoplay policy - context starts in suspended state
         if (this.audioContext.state === 'suspended') {
-            console.log('AudioManager: Audio context suspended, waiting for user interaction');
+            console.log('AudioManager: Audio context suspended, waiting for user interaction' + (this.musicPlayer && this.musicPlayer.instanceId ? ` (MusicPlayer[${this.musicPlayer.instanceId}])` : ''));
             this.setupUserInteractionHandler();
         }
 
         // Initialize components with error handling
         try {
             this.musicPlayer = new AdaptiveMusicPlayer(this.audioContext);
-            console.log('AudioManager: AdaptiveMusicPlayer initialized successfully');
+            console.log('AudioManager: AdaptiveMusicPlayer initialized successfully' + (this.musicPlayer && this.musicPlayer.instanceId ? ` (MusicPlayer[${this.musicPlayer.instanceId}])` : ''));
         } catch (error) {
             console.warn('AudioManager: Failed to initialize AdaptiveMusicPlayer, falling back to MusicPlayer:', error);
             this.musicPlayer = new MusicPlayer(this.audioContext);
@@ -273,7 +273,7 @@ class AudioManager {
     initializeHTML5Audio() {
         console.log('AudioManager: Initializing HTML5 Audio fallback...');
         // Simple fallback implementation
-        this.musicPlayer = new SimpleMusicPlayer();
+        this.musicPlayer = new SimpleMusicPlayer(null);
         this.soundEffects = new SimpleSoundEffects(this);
         this.audioControls = new AudioControls(this);
         this.applyPreferences();
@@ -320,7 +320,7 @@ class AudioManager {
         this.initialized = true;
 
         // Create fallback components
-        this.musicPlayer = new SimpleMusicPlayer();
+        this.musicPlayer = new SimpleMusicPlayer(null);
         this.soundEffects = new SimpleSoundEffects(this);
         this.audioControls = new AudioControls(this);
     }
@@ -492,6 +492,13 @@ class AudioManager {
      */
     startMusic() {
         if (this.preferences.audioEnabled && !this.preferences.musicMuted && this.userInteracted && this.musicPlayer) {
+            // Stop existing music if already playing to ensure clean state
+            // This prevents overlapping audio when switching between game modes
+            if (this.musicPlayer.isPlaying) {
+                console.log('AudioManager: Restarting music (was already playing)');
+                this.musicPlayer.pause();
+            }
+            // Start music with clean state
             this.musicPlayer.play();
         }
     }
@@ -630,7 +637,7 @@ class StressLevelMonitor {
 
         // Trigger transition if mood state changed
         if (newMoodState !== this.currentMoodState) {
-            console.log(`StressLevelMonitor: Transitioning from ${this.currentMoodState} to ${newMoodState} (stress: ${oldLevel}% → ${newLevel}%)`);
+            console.log(`MusicPlayer[${this.musicPlayer && this.musicPlayer.instanceId ? this.musicPlayer.instanceId : 'no-id'}]: StressLevelMonitor: Transitioning from ${this.currentMoodState} to ${newMoodState} (stress: ${oldLevel}% → ${newLevel}%)`);
             this.currentMoodState = newMoodState;
 
             if (this.musicPlayer && this.musicPlayer.transitionToMoodState) {
@@ -713,7 +720,7 @@ class GameEventListener {
         try {
             await this.processEvent(event);
         } catch (error) {
-            console.error('GameEventListener: Error processing event:', error);
+            console.error(`MusicPlayer[${this.musicPlayer && this.musicPlayer.instanceId ? this.musicPlayer.instanceId : 'no-id'}]: GameEventListener: Error processing event:`, error);
         }
 
         // Process next event after a brief delay
@@ -728,7 +735,7 @@ class GameEventListener {
     async processEvent(event) {
         const { type, data } = event;
 
-        console.log(`GameEventListener: Processing ${type} event`);
+        console.log(`MusicPlayer[${this.musicPlayer && this.musicPlayer.instanceId ? this.musicPlayer.instanceId : 'no-id'}]: GameEventListener: Processing ${type} event`);
 
         switch (type) {
             case 'bust':
@@ -744,7 +751,7 @@ class GameEventListener {
                 await this.handleTaskCompleteEvent(data);
                 break;
             default:
-                console.warn(`GameEventListener: Unknown event type: ${type}`);
+                console.warn(`MusicPlayer[${this.musicPlayer && this.musicPlayer.instanceId ? this.musicPlayer.instanceId : 'no-id'}]: GameEventListener: Unknown event type: ${type}`);
         }
     }
 
@@ -887,13 +894,14 @@ class MusicLayerManager {
  * Creates longer, more varied background music loops
  */
 class ExtendedMusicLoop {
-    constructor(audioContext) {
+    constructor(audioContext, ownerId) {
         this.audioContext = audioContext;
         this.sections = adaptiveMusicConfig.extendedLoop.sections;
         this.currentSection = 0;
         this.sectionStartTime = 0;
         this.loopStartTime = 0;
         this.isActive = false;
+        this.ownerId = ownerId;
     }
 
     /**
@@ -907,7 +915,7 @@ class ExtendedMusicLoop {
         this.sectionStartTime = this.loopStartTime;
         this.currentSection = 0;
 
-        console.log('ExtendedMusicLoop: Starting extended loop');
+        console.log(`MusicPlayer[${this.ownerId || 'no-id'}]: ExtendedMusicLoop: Starting extended loop`);
         this.scheduleNextSection();
     }
 
@@ -916,7 +924,7 @@ class ExtendedMusicLoop {
      */
     stop() {
         this.isActive = false;
-        console.log('ExtendedMusicLoop: Stopping extended loop');
+        console.log(`MusicPlayer[${this.ownerId || 'no-id'}]: ExtendedMusicLoop: Stopping extended loop`);
     }
 
     /**
@@ -946,14 +954,14 @@ class ExtendedMusicLoop {
         this.sectionStartTime = this.audioContext.currentTime;
 
         const section = this.sections[this.currentSection];
-        console.log(`ExtendedMusicLoop: Transitioning to section ${this.currentSection}: ${section.name}`);
+        console.log(`MusicPlayer[${this.ownerId || 'no-id'}]: ExtendedMusicLoop: Transitioning to section ${this.currentSection}: ${section.name}`);
 
         // Schedule next section
         this.scheduleNextSection();
 
         // If we've completed a full loop, add a brief pause for seamless restart
         if (this.currentSection === 0) {
-            console.log('ExtendedMusicLoop: Completed full loop, restarting');
+            console.log(`MusicPlayer[${this.ownerId || 'no-id'}]: ExtendedMusicLoop: Completed full loop, restarting`);
         }
     }
 
@@ -994,6 +1002,8 @@ class ExtendedMusicLoop {
 class MusicPlayer {
     constructor(audioContext) {
         this.audioContext = audioContext;
+        // Generate unique instance ID for debugging
+        this.instanceId = `MP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         this.oscillators = [];
         this.gainNodes = [];
         this.filters = [];
@@ -1023,6 +1033,8 @@ class MusicPlayer {
         this.rhythmInterval = null;
 
         this.setupAudioGraph();
+
+        console.log(`MusicPlayer[${this.instanceId}]: Created new instance`);
     }
 
     /**
@@ -1074,6 +1086,7 @@ class MusicPlayer {
      * Create multiple LFOs for organic movement
      */
     createLFOs() {
+        console.log(`MusicPlayer[${this.instanceId}]: Creating LFOs`);
         // Main LFO for gentle pitch modulation
         const mainLFO = this.audioContext.createOscillator();
         const mainLFOGain = this.audioContext.createGain();
@@ -1109,6 +1122,7 @@ class MusicPlayer {
      * Create chord oscillators for harmonic foundation
      */
     createChordOscillators() {
+        console.log(`MusicPlayer[${this.instanceId}]: Creating chord oscillators for chord index ${this.currentChord}`);
         const currentChordNotes = this.chordProgression[this.currentChord];
 
         currentChordNotes.forEach((frequency, index) => {
@@ -1158,6 +1172,7 @@ class MusicPlayer {
      * Setup musical progression and melody
      */
     setupMusicalProgression() {
+        console.log(`MusicPlayer[${this.instanceId}]: Setting up musical progression`);
         // Change chords every 8 seconds
         this.chordChangeInterval = setInterval(() => {
             if (this.isPlaying) {
@@ -1184,6 +1199,7 @@ class MusicPlayer {
      * Change to next chord in progression
      */
     changeChord() {
+        console.log(`MusicPlayer[${this.instanceId}]: Changing chord from index ${this.currentChord}`);
         // Fade out current oscillators
         this.oscillators.forEach((osc, index) => {
             const gain = this.gainNodes[index];
@@ -1213,6 +1229,7 @@ class MusicPlayer {
      * Play a random melody note
      */
     playMelodyNote() {
+        console.log(`MusicPlayer[${this.instanceId}]: Attempting to play melody note`);
         const frequency = this.melodyNotes[Math.floor(Math.random() * this.melodyNotes.length)];
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
@@ -1244,6 +1261,7 @@ class MusicPlayer {
      * Update rhythm pattern for subtle movement
      */
     updateRhythm() {
+        console.log(`MusicPlayer[${this.instanceId}]: Updating rhythm for beat ${this.currentBeat}`);
         const intensity = this.rhythmPattern[this.currentBeat];
         this.currentBeat = (this.currentBeat + 1) % this.rhythmPattern.length;
 
@@ -1261,7 +1279,7 @@ class MusicPlayer {
     play() {
         if (!this.audioContext || this.isPlaying) return;
 
-        console.log('MusicPlayer: Starting rich ambient music');
+        console.log(`MusicPlayer[${this.instanceId}]: Starting rich ambient music`);
         this.isPlaying = true;
 
         // Fade in the music
@@ -1279,7 +1297,7 @@ class MusicPlayer {
     pause() {
         if (!this.audioContext || !this.isPlaying) return;
 
-        console.log('MusicPlayer: Pausing ambient music');
+        console.log(`MusicPlayer[${this.instanceId}]: Pausing ambient music`);
         this.isPlaying = false;
 
         // Clear intervals
@@ -1350,7 +1368,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
             this.stressLevelMonitor = new StressLevelMonitor(this);
             this.gameEventListener = new GameEventListener(this);
             this.musicLayerManager = new MusicLayerManager(audioContext);
-            this.extendedLoop = new ExtendedMusicLoop(audioContext);
+            this.extendedLoop = new ExtendedMusicLoop(audioContext, this.instanceId);
 
             // Adaptive state
             this.currentMoodState = 'moderate';
@@ -1363,9 +1381,9 @@ class AdaptiveMusicPlayer extends MusicPlayer {
                 this.musicLayerManager.connect(this.masterGain);
             }
 
-            console.log('AdaptiveMusicPlayer: Initialized successfully with adaptive features');
+            console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Initialized successfully with adaptive features`);
         } catch (error) {
-            console.error('AdaptiveMusicPlayer: Error during initialization:', error);
+            console.error(`AdaptiveMusicPlayer[${this.instanceId}]: Error during initialization:`, error);
             this.adaptiveEnabled = false;
             // Continue with basic functionality
         }
@@ -1390,9 +1408,9 @@ class AdaptiveMusicPlayer extends MusicPlayer {
             // Check current stress level and set appropriate music immediately
             this.checkCurrentStressLevel();
 
-            console.log('AdaptiveMusicPlayer: Starting adaptive music with extended loop');
+            console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Starting adaptive music with extended loop`);
         } catch (error) {
-            console.error('AdaptiveMusicPlayer: Error starting adaptive music:', error);
+            console.error(`AdaptiveMusicPlayer[${this.instanceId}]: Error starting adaptive music:`, error);
             // Fallback to basic play
             super.play();
         }
@@ -1407,11 +1425,11 @@ class AdaptiveMusicPlayer extends MusicPlayer {
             const currentStressLevel = window.gameState ? window.gameState.stressLevel : 0;
 
             if (this.stressLevelMonitor) {
-                console.log(`AdaptiveMusicPlayer: Checking current stress level: ${currentStressLevel}%`);
+                console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Checking current stress level: ${currentStressLevel}%`);
                 this.stressLevelMonitor.processStressLevelChange(currentStressLevel);
             }
         } catch (error) {
-            console.error('AdaptiveMusicPlayer: Error checking current stress level:', error);
+            console.error(`AdaptiveMusicPlayer[${this.instanceId}]: Error checking current stress level:`, error);
         }
     }
 
@@ -1426,9 +1444,9 @@ class AdaptiveMusicPlayer extends MusicPlayer {
                 this.extendedLoop.stop();
             }
 
-            console.log('AdaptiveMusicPlayer: Pausing adaptive music');
+            console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Pausing adaptive music`);
         } catch (error) {
-            console.error('AdaptiveMusicPlayer: Error pausing adaptive music:', error);
+            console.error(`AdaptiveMusicPlayer[${this.instanceId}]: Error pausing adaptive music:`, error);
             // Fallback to basic pause
             super.pause();
         }
@@ -1443,7 +1461,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
         const oldMoodState = this.currentMoodState;
         this.currentMoodState = newMoodState;
 
-        console.log(`AdaptiveMusicPlayer: Transitioning from ${oldMoodState} to ${newMoodState}`);
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Transitioning from ${oldMoodState} to ${newMoodState}`);
 
         // Apply mood-specific audio changes
         this.applyMoodStateChanges(newMoodState);
@@ -1456,7 +1474,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
         const config = adaptiveMusicConfig.stressLevels[moodState];
         if (!config) return;
 
-        console.log(`AdaptiveMusicPlayer: Applying ${moodState} mood changes - tempo: ${config.tempo}, volume: ${config.volume}`);
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Applying ${moodState} mood changes - tempo: ${config.tempo}, volume: ${config.volume}`);
 
         // Immediately change chord progression for dramatic effect
         this.chordProgression = config.chordProgression;
@@ -1484,7 +1502,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
      * Adjust tempo by modifying interval timings
      */
     adjustTempo(tempoMultiplier) {
-        console.log(`AdaptiveMusicPlayer: Changing tempo to ${tempoMultiplier}x`);
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Changing tempo to ${tempoMultiplier}x`);
 
         // Clear existing intervals
         if (this.chordChangeInterval) {
@@ -1525,7 +1543,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
      * Adjust filter settings for mood
      */
     adjustFilters(cutoffFrequency) {
-        console.log(`AdaptiveMusicPlayer: Adjusting filters to ${cutoffFrequency}Hz`);
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Adjusting filters to ${cutoffFrequency}Hz`);
 
         this.filters.forEach(filter => {
             if (filter && filter.frequency) {
@@ -1563,7 +1581,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
         const targetVolume = this.volume * volumeMultiplier;
         const currentTime = this.audioContext.currentTime;
 
-        console.log(`AdaptiveMusicPlayer: Adjusting volume from ${this.masterGain.gain.value} to ${targetVolume}`);
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Adjusting volume from ${this.masterGain.gain.value} to ${targetVolume}`);
 
         this.masterGain.gain.cancelScheduledValues(currentTime);
         this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, currentTime);
@@ -1577,7 +1595,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
         const eventConfig = adaptiveMusicConfig.gameEvents[eventType];
         if (!eventConfig) return;
 
-        console.log(`AdaptiveMusicPlayer: Playing ${eventType} event audio`);
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Playing ${eventType} event audio`);
 
         switch (eventConfig.type) {
             case 'tension_spike':
@@ -1601,7 +1619,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
     async playTensionSpike(config) {
         if (!this.audioContext) return;
 
-        console.log('AdaptiveMusicPlayer: Playing dramatic tension spike for bust');
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Playing dramatic tension spike for bust`);
 
         const currentTime = this.audioContext.currentTime;
         const duration = config.duration / 1000;
@@ -1678,7 +1696,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
     async playPositiveFlourish(config) {
         if (!this.audioContext) return;
 
-        console.log('AdaptiveMusicPlayer: Playing uplifting flourish for win');
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Playing uplifting flourish for win`);
 
         const currentTime = this.audioContext.currentTime;
         const duration = config.duration / 1000;
@@ -1734,7 +1752,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
         this.energyBoostActive = true;
         this.energyBoostEndTime = this.audioContext.currentTime + (config.energyBoostDuration / 1000);
 
-        console.log('AdaptiveMusicPlayer: Triggering energy boost');
+        console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Triggering energy boost`);
 
         // Temporarily increase tempo and intensity
         this.adjustTempo(1.3);
@@ -1743,7 +1761,7 @@ class AdaptiveMusicPlayer extends MusicPlayer {
         // Schedule return to normal after energy boost
         setTimeout(() => {
             this.energyBoostActive = false;
-            console.log('AdaptiveMusicPlayer: Energy boost ended, returning to normal');
+            console.log(`AdaptiveMusicPlayer[${this.instanceId}]: Energy boost ended, returning to normal`);
 
             // Return to current mood state settings
             this.applyMoodStateChanges(this.currentMoodState);
@@ -1798,25 +1816,26 @@ class AdaptiveMusicPlayer extends MusicPlayer {
  * For browsers without Web Audio API support
  */
 class SimpleMusicPlayer {
-    constructor() {
+    constructor(ownerId) {
         this.isPlaying = false;
         this.volume = audioConfig.music.defaultVolume;
-        console.log('SimpleMusicPlayer: Using fallback music player');
+        this.ownerId = ownerId;
+        console.log(`MusicPlayer[${this.ownerId || 'no-id'}]: SimpleMusicPlayer: Using fallback music player`);
     }
 
     play() {
-        console.log('SimpleMusicPlayer: Music playback (fallback mode)');
+        console.log(`MusicPlayer[${this.ownerId || 'no-id'}]: SimpleMusicPlayer: Music playback (fallback mode)`);
         this.isPlaying = true;
     }
 
     pause() {
-        console.log('SimpleMusicPlayer: Music paused (fallback mode)');
+        console.log(`MusicPlayer[${this.ownerId || 'no-id'}]: SimpleMusicPlayer: Music paused (fallback mode)`);
         this.isPlaying = false;
     }
 
     setVolume(level) {
         this.volume = Math.max(0, Math.min(1, level));
-        console.log(`SimpleMusicPlayer: Volume set to ${this.volume} (fallback mode)`);
+        console.log(`MusicPlayer[${this.ownerId || 'no-id'}]: SimpleMusicPlayer: Volume set to ${this.volume} (fallback mode)`);
     }
 
     getIsPlaying() {
@@ -1863,11 +1882,11 @@ class SoundEffects {
 
         const soundConfig = audioConfig.effects.sounds[soundName];
         if (!soundConfig) {
-            console.warn(`SoundEffects: Unknown sound "${soundName}"`);
+            console.warn(`MusicPlayer[${this.audioManager && this.audioManager.musicPlayer && this.audioManager.musicPlayer.instanceId ? this.audioManager.musicPlayer.instanceId : 'no-id'}]: SoundEffects: Unknown sound "${soundName}"`);
             return;
         }
 
-        console.log(`SoundEffects: Playing ${soundName}`);
+        console.log(`MusicPlayer[${this.audioManager && this.audioManager.musicPlayer && this.audioManager.musicPlayer.instanceId ? this.audioManager.musicPlayer.instanceId : 'no-id'}]: SoundEffects: Playing ${soundName}`);
 
         switch (soundConfig.type) {
             case 'noise':
@@ -1883,7 +1902,7 @@ class SoundEffects {
                 this.playCelebrationSound(soundConfig);
                 break;
             default:
-                console.warn(`SoundEffects: Unknown sound type "${soundConfig.type}"`);
+                console.warn(`MusicPlayer[${this.audioManager && this.audioManager.musicPlayer && this.audioManager.musicPlayer.instanceId ? this.audioManager.musicPlayer.instanceId : 'no-id'}]: SoundEffects: Unknown sound type "${soundConfig.type}"`);
         }
     }
 
@@ -2078,7 +2097,7 @@ class SimpleSoundEffects {
     constructor(audioManager) {
         this.audioManager = audioManager;
         this.volume = audioConfig.effects.defaultVolume;
-        console.log('SimpleSoundEffects: Using fallback sound effects');
+        console.log(`MusicPlayer[${this.audioManager && this.audioManager.musicPlayer && this.audioManager.musicPlayer.instanceId ? this.audioManager.musicPlayer.instanceId : 'no-id'}]: SimpleSoundEffects: Using fallback sound effects`);
     }
 
     play(soundName) {
@@ -2086,12 +2105,12 @@ class SimpleSoundEffects {
         if (this.audioManager && !this.audioManager.preferences.audioEnabled) {
             return; // Don't play sound effects when audio is disabled
         }
-        console.log(`SimpleSoundEffects: Playing ${soundName} (fallback mode)`);
+        console.log(`MusicPlayer[${this.audioManager && this.audioManager.musicPlayer && this.audioManager.musicPlayer.instanceId ? this.audioManager.musicPlayer.instanceId : 'no-id'}]: SimpleSoundEffects: Playing ${soundName} (fallback mode)`);
     }
 
     setVolume(level) {
         this.volume = Math.max(0, Math.min(1, level));
-        console.log(`SimpleSoundEffects: Volume set to ${this.volume} (fallback mode)`);
+        console.log(`MusicPlayer[${this.audioManager && this.audioManager.musicPlayer && this.audioManager.musicPlayer.instanceId ? this.audioManager.musicPlayer.instanceId : 'no-id'}]: SimpleSoundEffects: Volume set to ${this.volume} (fallback mode)`);
     }
 }
 
