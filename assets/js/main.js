@@ -26,12 +26,17 @@ export async function initializeGame() {
 
     // Initialize audio system
     try {
-        audioManager = new AudioManager();
-        await audioManager.init();
-        console.log('Main: Audio system initialized');
+        // Only create AudioManager if it doesn't already exist (prevent multiple instances)
+        if (!audioManager) {
+            audioManager = new AudioManager();
+            await audioManager.init();
+            console.log('Main: Audio system initialized');
 
-        // Make audio manager globally accessible
-        window.audioManager = audioManager;
+            // Make audio manager globally accessible
+            window.audioManager = audioManager;
+        } else {
+            console.log('Main: Audio system already initialized, skipping');
+        }
     } catch (error) {
         console.error('Main: Failed to initialize audio system:', error);
     }
@@ -2406,31 +2411,31 @@ if (document.readyState === 'loading') {
 /*
 function completeFreePlayTask() {
     // ... existing task completion logic ...
-
+ 
     // Achievement tracking
     import { updateStatistic, checkMilestones, achievementState } from './achievement-manager.js';
-
+ 
     // Increment counters
     const newTotal = achievementState.statistics.freePlayTasksTotal + 1;
     const newRun = achievementState.statistics.currentFreePlayRun + 1;
-
+ 
     updateStatistic('freePlayTasksTotal', newTotal);
     updateStatistic('currentFreePlayRun', newRun);
-
+ 
     // Check for milestone achievements
     checkMilestones('free_play', newTotal);
-
+ 
     // Update max run if this is a new record
     if (newRun > achievementState.statistics.freePlayMaxRun) {
         updateStatistic('freePlayMaxRun', newRun);
     }
-
+ 
     console.log(`Free Play: Task completed. Total: ${newTotal}, Current run: ${newRun}`);
 }
-
+ 
 function endFreePlaySession() {
     // ... existing session end logic ...
-
+ 
     // Reset current run counter
     updateStatistic('currentFreePlayRun', 0);
     console.log('Free Play: Session ended, run counter reset');
