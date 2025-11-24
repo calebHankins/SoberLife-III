@@ -1114,8 +1114,8 @@ export function showGameOver() {
         let mainMsg = "You've reached maximum stress levels and had a complete meltdown!";
         let subMsg = "Don't worry, it happens to the best of us.";
 
-        // Try to get task-specific bust message
-        if (isCampaignMode() || campaignState.currentTask) {
+        // Try to get task-specific bust message (but not in Free Play mode)
+        if ((isCampaignMode() || campaignState.currentTask) && !gameState.freePlayMode) {
             const currentTask = getCurrentTask();
             if (currentTask && currentTask.bustMessages && currentTask.bustMessages.length > 0) {
                 const bustMsg = currentTask.bustMessages[Math.floor(Math.random() * currentTask.bustMessages.length)];

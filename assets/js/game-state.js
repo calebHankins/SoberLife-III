@@ -187,6 +187,46 @@ export const dmvOutcomeMessages = {
     ]
 };
 
+// Free Play mode outcome messages
+export const freePlayOutcomeMessages = {
+    win: [
+        "✅ Free Play Victory! You kept your cool.",
+        "🎯 Nice flow! You're mastering the mechanics.",
+        "💪 Great practice round! You're getting the hang of this.",
+        "🌟 Smooth sailing! Your stress management is improving.",
+        "👏 Well played! Free Play is helping you build skills."
+    ],
+    lose: [
+        "📋 Not this time. Keep practicing in Free Play!",
+        "⏰ Good effort. Free Play is the best place to learn.",
+        "🔄 That's what practice is for. Try again!",
+        "💭 No pressure - this is your training ground.",
+        "🎯 Learning opportunity! Each round makes you stronger."
+    ],
+    tie: [
+        "⚖️ Steady progress. You're holding your own.",
+        "🤝 Balanced. Keep finding your center.",
+        "⏳ Good pace. You're learning the rhythm.",
+        "🎭 Even match. Your skills are developing nicely.",
+        "🧘 Maintaining equilibrium - that's the goal!"
+    ],
+    bust: [
+        "😰 Free Play Overload! You pushed too hard without a specific goal. Take a break.",
+        "🌪️ Stress levels critical! In Free Play, it's all about finding your rhythm, not just pushing limits.",
+        "⚡ Overwhelmed! Remember, Free Play is for practice. Reset and try again.",
+        "🎢 Too much pressure! Use Free Play to experiment with different strategies.",
+        "🔥 Stress maxed out! This is a safe space to learn your limits."
+    ],
+    house_bust: [
+        "🎉 Lucky break! The cards fell in your favor this time.",
+        "✨ Nice! Sometimes patience pays off in Free Play too.",
+        "🍀 Fortune smiled on you! Good practice round.",
+        "🎊 Excellent! Even in practice, wins feel good.",
+        "🌈 What a pleasant surprise! Keep up the good work."
+    ]
+};
+
+
 // Progressive flavor text for multiple hits per hand
 export const progressiveFlavorText = {
     0: { // Check in at the front desk
@@ -691,6 +731,15 @@ export function getProgressiveFlavorText(action, step, hitCount) {
 // DMV outcome message system
 export function getDMVOutcomeMessage(outcome) {
     try {
+        // Check for Free Play mode first
+        if (gameState.freePlayMode) {
+            const messages = freePlayOutcomeMessages[outcome];
+            if (messages && messages.length > 0) {
+                const randomIndex = Math.floor(Math.random() * messages.length);
+                return messages[randomIndex];
+            }
+        }
+
         // Always use the active task's specific messages if available
         let currentTask = null;
         if (typeof window !== 'undefined' && window.getCurrentTask) {
@@ -734,6 +783,7 @@ export function getDMVOutcomeMessage(outcome) {
         return getFallbackDMVOutcomeMessage(outcome);
     }
 }
+
 // Educational stress management insights for outcomes
 export const stressManagementInsights = {
     win: [
