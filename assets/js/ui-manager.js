@@ -1936,7 +1936,7 @@ export function showStressManagementTip(outcome) {
                 top: 80px;
                 left: 10px;
                 right: 10px;
-                background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+                                background: linear-gradient(135deg, #e3f2fd, #bbdefb);
                 border: 1px solid #2196f3;
                 border-radius: 6px;
                 padding: 8px 12px;
@@ -1980,7 +1980,6 @@ export function showStressManagementTip(outcome) {
                 </div>
                 <div style="font-size: 14px; margin-left: 8px; opacity: 0.6;">×</div>
             </div>
-            ${isMobile ? '<div style="font-size: 9px; text-align: right; margin-top: 4px; opacity: 0.7; font-style: italic;">(Tap to dismiss)</div>' : ''}
         `;
 
         document.body.appendChild(tipDiv);
