@@ -1933,7 +1933,7 @@ export function showStressManagementTip(outcome) {
         if (isMobile) {
             tipDiv.style.cssText = `
                 position: fixed;
-                top: 10px;
+                top: 80px;
                 left: 10px;
                 right: 10px;
                 background: linear-gradient(135deg, #e3f2fd, #bbdefb);
@@ -1950,6 +1950,8 @@ export function showStressManagementTip(outcome) {
                 max-height: 80px;
                 overflow-y: auto;
                 line-height: 1.3;
+                cursor: pointer;
+                pointer-events: auto;
             `;
         } else {
             tipDiv.style.cssText = `
@@ -1966,18 +1968,25 @@ export function showStressManagementTip(outcome) {
                 box-shadow: 0 4px 8px rgba(0,0,0,0.15);
                 z-index: 1000;
                 animation: slideInRight 0.3s ease-out;
+                cursor: pointer;
             `;
         }
 
         tipDiv.innerHTML = `
-            <strong>💡 Stress Management Tip:</strong><br>
-            ${insight.replace(/[<>]/g, '')}
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <strong>💡 Stress Management Tip:</strong><br>
+                    ${insight.replace(/[<>]/g, '')}
+                </div>
+                <div style="font-size: 14px; margin-left: 8px; opacity: 0.6;">×</div>
+            </div>
+            ${isMobile ? '<div style="font-size: 9px; text-align: right; margin-top: 4px; opacity: 0.7; font-style: italic;">(Tap to dismiss)</div>' : ''}
         `;
 
         document.body.appendChild(tipDiv);
 
-        // Remove tip after 6 seconds
-        setTimeout(() => {
+        // Function to remove tip
+        const removeTip = () => {
             if (tipDiv.parentNode) {
                 tipDiv.style.opacity = '0';
                 tipDiv.style.transform = 'translateX(100%)';
@@ -1989,7 +1998,13 @@ export function showStressManagementTip(outcome) {
                     }
                 }, 300);
             }
-        }, 6000);
+        };
+
+        // Add click listener to dismiss
+        tipDiv.addEventListener('click', removeTip);
+
+        // Remove tip after 6 seconds automatically
+        setTimeout(removeTip, 6000);
 
     } catch (error) {
         console.error('Error showing stress management tip:', error);
