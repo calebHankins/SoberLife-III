@@ -4,8 +4,12 @@ const { test, expect } = require('@playwright/test');
 test.describe('Blackjack Gameplay', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
-        // Start free play mode for quick gameplay testing
+        // Start free play mode for quick gameplay testing - follow new flow: mode selection -> free play campaign screen -> Play
         await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+        // Play button may read 'Play' initially or 'Play Again' after a previous session
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
+        await expect(page.locator('#playerCards')).toBeVisible();
     });
 
     test('should display player and house cards', async ({ page }) => {
@@ -70,7 +74,12 @@ test.describe('Blackjack Gameplay', () => {
 test.describe('Stress Management', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
+        // Navigate to free play overview (do not immediately launch game)
         await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+        // Click Play to begin the session
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
+        await expect(page.locator('#gameArea')).toBeVisible();
     });
 
     test('should show stress meter with fill', async ({ page }) => {

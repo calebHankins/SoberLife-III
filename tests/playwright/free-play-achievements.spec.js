@@ -11,10 +11,12 @@ test.describe('Free Play Mode - Achievements Integration', () => {
     });
 
     test('should display achievements when accessing Mind Palace from Free Play success screen', async ({ page }) => {
-        // Start Free Play mode (goes directly to game)
+        // Start Free Play mode (now goes to campaign overview first)
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-
-        // Wait for game area to appear
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+        // Click Play from overview to begin session
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
+        // Wait for game area to appear and be interactive
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Complete 5 rounds to finish a task

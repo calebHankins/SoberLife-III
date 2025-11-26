@@ -22,8 +22,8 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
-        // Enter game
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        // Enter game by clicking the campaign's Play button
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Verify zen points are still displayed correctly in game
@@ -64,7 +64,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Enter game
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Get zen points before playing
@@ -140,7 +140,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Enter game
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Exit to Free Play overview
@@ -169,7 +169,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Enter game
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Get initial zen points
@@ -232,7 +232,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Enter game
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         const session1Text = await zenPointsElement.textContent();
@@ -261,7 +261,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Enter game
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Wait for the game to fully initialize (cards should be dealt)
@@ -320,7 +320,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Enter game
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Exit to Free Play overview

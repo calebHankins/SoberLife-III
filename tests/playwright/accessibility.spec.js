@@ -181,6 +181,8 @@ test.describe('Screen Reader Support', () => {
 
     test('should have status updates for dynamic content', async ({ page }) => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
 
         // Round result should be visible after actions
         const roundResult = page.locator('#roundResult');
