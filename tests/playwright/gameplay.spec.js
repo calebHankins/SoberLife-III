@@ -1,15 +1,12 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const helpers = require('./test-helpers.cjs');
 
 test.describe('Blackjack Gameplay', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
-        // Start free play mode for quick gameplay testing - follow new flow: mode selection -> free play campaign screen -> Play
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
-        // Play button may read 'Play' initially or 'Play Again' after a previous session
-        await page.locator('#freePlayOverview button:has-text("Play")').click();
-        await expect(page.locator('#playerCards')).toBeVisible();
+        // Start free play mode for quick gameplay testing via helper
+        await helpers.enterFreePlaySession(page);
     });
 
     test('should display player and house cards', async ({ page }) => {

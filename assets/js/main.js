@@ -1804,13 +1804,18 @@ function updateFreePlayOverviewUI() {
         const tasksCompleted = gameState.freePlayTasksCompleted || 0;
         const buttonText = tasksCompleted === 0 ? 'Play' : 'Play Again';
 
-        // Find the button within the Free Play overview
-        const freePlayOverview = document.getElementById('freePlayOverview');
-        if (freePlayOverview) {
-            const startGameButtons = freePlayOverview.querySelectorAll('button[onclick="launchFreePlayGame()"]');
-            startGameButtons.forEach(button => {
-                button.textContent = buttonText;
-            });
+        // Prefer the special freePlayStartBtn id, otherwise fall back to query selector
+        const startBtn = document.getElementById('freePlayStartBtn');
+        if (startBtn) {
+            startBtn.textContent = buttonText;
+        } else {
+            const freePlayOverview = document.getElementById('freePlayOverview');
+            if (freePlayOverview) {
+                const startGameButtons = freePlayOverview.querySelectorAll('button[onclick="launchFreePlayGame()"]');
+                startGameButtons.forEach(button => {
+                    button.textContent = buttonText;
+                });
+            }
         }
 
     } catch (error) {

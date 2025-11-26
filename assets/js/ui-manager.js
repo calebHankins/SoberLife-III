@@ -2738,14 +2738,19 @@ function updateFreePlayOverviewUI() {
         const tasksCompleted = gameState.freePlayTasksCompleted || 0;
         const buttonText = tasksCompleted === 0 ? 'Play' : 'Play Again';
 
-        // Find the button within the Free Play overview
-        const freePlayOverview = document.getElementById('freePlayOverview');
-        if (freePlayOverview) {
-            const startGameButtons = freePlayOverview.querySelectorAll('button[onclick="launchFreePlayGame()"]');
-            console.log(`updateFreePlayOverviewUI: Found ${startGameButtons.length} button(s), tasksCompleted=${tasksCompleted}, setting text to "${buttonText}"`);
-            startGameButtons.forEach(button => {
-                button.textContent = buttonText;
-            });
+        // Prefer the unique freePlayStartBtn if present, otherwise fall back to querySelectorAll
+        const startBtn = document.getElementById('freePlayStartBtn');
+        if (startBtn) {
+            startBtn.textContent = buttonText;
+        } else {
+            const freePlayOverview = document.getElementById('freePlayOverview');
+            if (freePlayOverview) {
+                const startGameButtons = freePlayOverview.querySelectorAll('button[onclick="launchFreePlayGame()"]');
+                console.log(`updateFreePlayOverviewUI: Found ${startGameButtons.length} button(s), tasksCompleted=${tasksCompleted}, setting text to "${buttonText}"`);
+                startGameButtons.forEach(button => {
+                    button.textContent = buttonText;
+                });
+            }
         }
 
     } catch (error) {

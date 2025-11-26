@@ -2,6 +2,7 @@
 // Tests to verify that shop-purchased jokers are applied to Free Play Mode deck
 
 import { test, expect } from '@playwright/test';
+import * as helpers from './test-helpers.mjs';
 
 test.describe('Free Play Mode - Joker Deck Integration', () => {
     test.beforeEach(async ({ page }) => {

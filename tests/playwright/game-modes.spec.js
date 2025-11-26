@@ -155,7 +155,9 @@ test.describe('Free Play Mode', () => {
         await expect(page.locator('#freePlayOverview h2')).toContainText('Free Play Mode');
 
         // Should have Play button to start game (not "Play Again" on first visit)
+        // Also assert the start button uses a testable id for robustness
         await expect(page.getByRole('button', { name: /^Play$/i })).toBeVisible();
+        await expect(page.locator('#freePlayStartBtn')).toBeVisible();
     });
 
     test('should start game from free play overview', async ({ page }) => {

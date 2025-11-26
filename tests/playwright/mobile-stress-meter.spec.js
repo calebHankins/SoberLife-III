@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const helpers = require('./test-helpers.cjs');
 
 test.describe('Mobile Stress Meter Visibility During Gameplay', () => {
     test.use({
@@ -58,11 +59,8 @@ test.describe('Mobile Stress Meter Visibility During Gameplay', () => {
     });
 
     test('stress meter should remain visible when interacting with game controls', async ({ page }) => {
-        // Start Free Play mode for simpler testing (now goes via overview)
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
-        await page.locator('#freePlayOverview button:has-text("Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
+        // Start Free Play mode for simpler testing (now via helper)
+        await helpers.enterFreePlaySession(page);
 
         const stressMeter = page.locator('.stress-meter');
         await expect(stressMeter).toBeVisible();
@@ -113,11 +111,8 @@ test.describe('Mobile Stress Meter Visibility During Gameplay', () => {
     });
 
     test('stress meter visibility during zen activity usage', async ({ page }) => {
-        // Start Free Play (go via overview)
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
-        await page.locator('#freePlayOverview button:has-text("Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
+        // Start Free Play (use helper)
+        await helpers.enterFreePlaySession(page);
 
         const stressMeter = page.locator('.stress-meter');
         const zenActivities = page.locator('#zenActivities');
@@ -139,11 +134,8 @@ test.describe('Mobile Stress Meter Visibility During Gameplay', () => {
     });
 
     test('measure total scrollable height during gameplay', async ({ page }) => {
-        // Start Free Play (go via overview)
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
-        await page.locator('#freePlayOverview button:has-text("Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
+        // Start Free Play (use helper)
+        await helpers.enterFreePlaySession(page);
 
         // Measure page dimensions
         const dimensions = await page.evaluate(() => {
@@ -171,11 +163,8 @@ test.describe('Mobile Stress Meter Visibility During Gameplay', () => {
     });
 
     test('stress meter should have fixed or sticky positioning on mobile', async ({ page }) => {
-        // Start Free Play (go via overview)
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
-        await page.locator('#freePlayOverview button:has-text("Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
+        // Start Free Play (use helper)
+        await helpers.enterFreePlaySession(page);
 
         // Check stress meter positioning
         const stressMeter = page.locator('.stress-meter');
@@ -215,11 +204,8 @@ test.describe('Mobile Stress Meter - Landscape Mode', () => {
     });
 
     test('stress meter should be visible in landscape mode during gameplay', async ({ page }) => {
-        // Start Free Play
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
-        await page.locator('#freePlayOverview button:has-text("Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
+        // Start Free Play with helper
+        await helpers.enterFreePlaySession(page);
 
         const stressMeter = page.locator('.stress-meter');
         const hitButton = page.locator('#hitBtn');
