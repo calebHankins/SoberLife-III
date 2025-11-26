@@ -19,7 +19,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         expect(initialMatch).not.toBeNull();
         const initialBalance = initialMatch ? parseInt(initialMatch[1]) : 0;
 
-            await helpers.enterFreePlaySession(page);
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Verify zen points are still displayed correctly in game
@@ -56,7 +56,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
     test('should maintain zen points display after playing Free Play rounds', async ({ page }) => {
         // Start Free Play Mode
-            await helpers.enterFreePlaySession(page);
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Get zen points before playing
@@ -128,7 +128,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         await expect(page.locator('#gameModeSelection')).toBeVisible();
 
         // Start Free Play Mode
-            await helpers.enterFreePlaySession(page);
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Exit to Free Play overview
@@ -153,7 +153,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
     test('should maintain zen points display when using zen activities in Free Play', async ({ page }) => {
         // Start Free Play Mode
-            await helpers.enterFreePlaySession(page);
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Get initial zen points
@@ -212,7 +212,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
         });
 
         // Session 1: Start and exit Free Play
-            await helpers.enterFreePlaySession(page);
+        await helpers.enterFreePlaySession(page);
 
         const session1Text = await zenPointsElement.textContent();
         expect(session1Text).not.toBeNull();
@@ -291,7 +291,7 @@ test.describe('Zen Points Display - Free Play Mode Bug', () => {
 
     test('should show correct zen points when returning from shop in Free Play', async ({ page }) => {
         // Start Free Play Mode
-            await helpers.enterFreePlaySession(page);
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Exit to Free Play overview
