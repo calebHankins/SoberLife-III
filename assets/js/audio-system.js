@@ -481,6 +481,27 @@ class AudioManager {
     }
 
     /**
+     * Toggle both music and effects mute state together
+     */
+    toggleAllMute() {
+        const bothMuted = this.preferences.musicMuted && this.preferences.effectsMuted;
+
+        // If both muted, unmute both; otherwise mute both
+        this.preferences.musicMuted = !bothMuted;
+        this.preferences.effectsMuted = !bothMuted;
+
+        const musicVolume = this.preferences.musicMuted ? 0 : this.preferences.musicVolume;
+        const effectsVolume = this.preferences.effectsMuted ? 0 : this.preferences.effectsVolume;
+
+        if (this.musicPlayer) this.musicPlayer.setVolume(musicVolume);
+        if (this.soundEffects) this.soundEffects.setVolume(effectsVolume);
+
+        this.savePreferences();
+        console.log(`AudioManager: All audio ${this.preferences.musicMuted && this.preferences.effectsMuted ? 'muted' : 'unmuted'}`);
+        return this.preferences.musicMuted && this.preferences.effectsMuted;
+    }
+
+    /**
      * Get current preferences
      */
     getPreferences() {
@@ -2148,9 +2169,9 @@ class AudioControls {
 
         // Create FAB and controls panel
         this.controlsContainer.innerHTML = `
-      <button id="audio-fab" class="audio-fab" title="Audio Controls">
-        🎵
-      </button>
+            <button id="audio-fab" class="audio-fab" title="Click to mute/unmute; Shift-click to open settings">
+                🎵
+            </button>
       
       <div id="audio-controls-panel" class="audio-controls-panel">
         <h3>Audio Settings</h3>
@@ -2235,8 +2256,21 @@ class AudioControls {
         });
 
         // FAB button click
-        this.fabButton.addEventListener('click', () => {
-            this.toggleControlsPanel();
+        // Single click toggles mute/unmute for both music and effects.
+        // Shift/Ctrl/Meta + Click will toggle the controls panel instead.
+        this.fabButton.addEventListener('click', (e) => {
+            if (e.shiftKey || e.ctrlKey || e.metaKey) {
+                this.toggleControlsPanel();
+                return;
+            }
+
+            // Toggle both music and effects mute
+            const isMuted = this.audioManager.toggleAllMute();
+            // Refresh UI for mute buttons and FAB icon
+            this.updateMuteButton(this.musicMuteButton, this.audioManager.preferences.musicMuted);
+            this.updateMuteButton(this.effectsMuteButton, this.audioManager.preferences.effectsMuted);
+            this.updateFabIcon();
+            return isMuted;
         });
 
         // Close panel when clicking outside

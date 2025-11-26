@@ -193,6 +193,13 @@ async function importAudioSystem() {
                 return this.preferences.musicMuted;
             }
 
+            toggleAllMute() {
+                const bothMuted = this.preferences.musicMuted && this.preferences.effectsMuted;
+                this.preferences.musicMuted = !bothMuted;
+                this.preferences.effectsMuted = !bothMuted;
+                return this.preferences.musicMuted && this.preferences.effectsMuted;
+            }
+
             savePreferences() {
                 mockLocalStorage.setItem('soberlife_music_volume', this.preferences.musicVolume.toString());
                 mockLocalStorage.setItem('soberlife_effects_volume', this.preferences.effectsVolume.toString());
@@ -266,6 +273,28 @@ async function defineTests() {
 
         tests.assertEqual(newMuteState, !initialMuteState, 'Music mute state should toggle');
         tests.assertEqual(audioManager.preferences.musicMuted, newMuteState, 'Preferences should reflect mute state');
+    });
+
+    // Test 3b: Toggle all mute functionality
+    tests.test('Toggle all mute functionality works correctly', async () => {
+        const audioManager = new AudioManager();
+        await audioManager.init();
+
+        // Ensure both are unmuted initially
+        audioManager.preferences.musicMuted = false;
+        audioManager.preferences.effectsMuted = false;
+
+        // Toggle all mute to mute both
+        const muted = audioManager.toggleAllMute();
+        tests.assertEqual(muted, true, 'toggleAllMute should mute both audio streams');
+        tests.assertEqual(audioManager.preferences.musicMuted, true, 'Music should be muted');
+        tests.assertEqual(audioManager.preferences.effectsMuted, true, 'Effects should be muted');
+
+        // Toggle again to unmute both
+        const unmuted = audioManager.toggleAllMute();
+        tests.assertEqual(unmuted, false, 'toggleAllMute should unmute both audio streams');
+        tests.assertEqual(audioManager.preferences.musicMuted, false, 'Music should be unmuted');
+        tests.assertEqual(audioManager.preferences.effectsMuted, false, 'Effects should be unmuted');
     });
 
     // Test 4: Preference persistence
