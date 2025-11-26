@@ -45,14 +45,11 @@ The game uses familiar blackjack rules as a metaphor for handling life's challen
 - **Mini Meditation**: 50 zen points → -35% stress
 - **Strategic Timing**: Can be used between rounds for stress management
 
-
 ### Task Messaging Requirements
 
 - **Every task must define its own bustMessages and hand loss messages.**
   - These are used for loss outcomes (bust, hand loss, etc.) and must be thematically appropriate for the scenario.
   - This ensures players receive contextually relevant feedback and stress management advice for each scenario.
-
-#### Multi-Step Scenarios
 
 #### Multi-Step Scenarios
 
@@ -88,12 +85,12 @@ The game uses familiar blackjack rules as a metaphor for handling life's challen
 - **Activity Access**: Zen activities available throughout gameplay
 
 ### 3. Win/Loss Conditions
+
 ### Free Play Mode Landing Behavior Change
 
 Note: Free Play Mode now follows the campaign-style navigation pattern. Selecting "Free Play Mode" from the mode selection screen opens a dedicated "Free Play Mode" campaign overview screen that displays deck composition, session stats, and shortcuts (shop/mind palace). Use the `Play` button on this overview to begin a Free Play session; on subsequent visits the button label updates to `Play Again`.
 
 This aligns Free Play with the existing Campaign Mode UX and simplifies navigation and activity access.
-
 
 - **Success**: Complete all 5 task steps
 - **Failure**: Stress meter reaches 100%
@@ -138,7 +135,7 @@ This aligns Free Play with the existing Campaign Mode UX and simplifies navigati
 
 ### File Organization
 
-```
+```md
 /
 ├── index.html              # Main HTML structure
 ├── assets/
