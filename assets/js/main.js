@@ -1800,6 +1800,19 @@ function updateFreePlayOverviewUI() {
             statsElement.textContent = `Tasks Completed: ${tasksCompleted} • Total Rounds: ${totalRounds}`;
         }
 
+        // Update start game button text based on whether player has played before
+        const tasksCompleted = gameState.freePlayTasksCompleted || 0;
+        const buttonText = tasksCompleted === 0 ? 'Play' : 'Play Again';
+
+        // Find the button within the Free Play overview
+        const freePlayOverview = document.getElementById('freePlayOverview');
+        if (freePlayOverview) {
+            const startGameButtons = freePlayOverview.querySelectorAll('button[onclick="launchFreePlayGame()"]');
+            startGameButtons.forEach(button => {
+                button.textContent = buttonText;
+            });
+        }
+
     } catch (error) {
         console.error('Error updating Free Play overview UI:', error);
     }

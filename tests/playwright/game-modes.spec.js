@@ -154,15 +154,16 @@ test.describe('Free Play Mode', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
         await expect(page.locator('#freePlayOverview h2')).toContainText('Free Play Mode');
 
-        // Should have Play Again button to start game
-        await expect(page.getByRole('button', { name: /Play Again/i })).toBeVisible();
+        // Should have Play button to start game (not "Play Again" on first visit)
+        await expect(page.getByRole('button', { name: /^Play$/i })).toBeVisible();
     });
 
     test('should start game from free play overview', async ({ page }) => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        // Click Play button (could be "Play" or "Play Again" depending on session)
+        await page.getByRole('button', { name: /^Play( Again)?$/i }).click();
 
         // Should now be in game
         await expect(page.locator('#gameArea')).toBeVisible();
@@ -172,7 +173,7 @@ test.describe('Free Play Mode', () => {
 
     test('should show generic action buttons in free play', async ({ page }) => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        await page.getByRole('button', { name: /^Play( Again)?$/i }).click();
 
         // Verify generic button text (not contextual)
         await expect(page.locator('#hitBtn')).toContainText('Hit');
@@ -211,7 +212,7 @@ test.describe('Free Play Mode', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Enter game
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        await page.getByRole('button', { name: /^Play( Again)?$/i }).click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Zen points should still be visible in game area
@@ -530,8 +531,8 @@ test.describe('Free Play Overview', () => {
         // Verify we're at Free Play overview
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
-        // Click "Play Again" button
-        await page.getByRole('button', { name: /Play Again/i }).click();
+        // Click "Play" button (could be "Play" or "Play Again" depending on session)
+        await page.getByRole('button', { name: /^Play( Again)?$/i }).click();
 
         // Campaign overview should NOT be visible
         const campaignOverview = page.locator('#campaignOverview');
@@ -582,7 +583,7 @@ test.describe('Free Play Overview', () => {
         await expect(page.locator('#mindPalaceModal')).toHaveClass(/hidden/);
 
         // Verify we can still interact with Free Play overview
-        await expect(page.getByRole('button', { name: /Play Again/i })).toBeVisible();
+        await expect(page.getByRole('button', { name: /^Play( Again)?$/i })).toBeVisible();
         await expect(page.getByRole('button', { name: /Visit Shop/i })).toBeVisible();
     });
 

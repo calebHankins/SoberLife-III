@@ -2670,6 +2670,9 @@ export function updateGenericActionButtons() {
 // Show Free Play overview screen
 export function showFreePlayOverview() {
     try {
+        console.log('[showFreePlayOverview] Starting...');
+        console.log('[showFreePlayOverview] gameState.freePlayTasksCompleted:', gameState.freePlayTasksCompleted);
+
         // Hide other screens
         hideElement('gameModeSelection');
         hideElement('surveySection');
@@ -2698,6 +2701,7 @@ export function showFreePlayOverview() {
         // Show Free Play overview
         showElement('freePlayOverview');
 
+        console.log('[showFreePlayOverview] About to call updateFreePlayOverviewUI()');
         // Update Free Play overview UI
         updateFreePlayOverviewUI();
 
@@ -2730,7 +2734,22 @@ function updateFreePlayOverviewUI() {
             statsElement.textContent = `Tasks Completed: ${tasksCompleted} • Total Rounds: ${totalRounds}`;
         }
 
+        // Update start game button text based on whether player has played before
+        const tasksCompleted = gameState.freePlayTasksCompleted || 0;
+        const buttonText = tasksCompleted === 0 ? 'Play' : 'Play Again';
+
+        // Find the button within the Free Play overview
+        const freePlayOverview = document.getElementById('freePlayOverview');
+        if (freePlayOverview) {
+            const startGameButtons = freePlayOverview.querySelectorAll('button[onclick="launchFreePlayGame()"]');
+            console.log(`updateFreePlayOverviewUI: Found ${startGameButtons.length} button(s), tasksCompleted=${tasksCompleted}, setting text to "${buttonText}"`);
+            startGameButtons.forEach(button => {
+                button.textContent = buttonText;
+            });
+        }
+
     } catch (error) {
         console.error('Error updating Free Play overview UI:', error);
     }
 }
+
