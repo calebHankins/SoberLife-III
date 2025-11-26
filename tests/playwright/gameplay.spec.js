@@ -41,7 +41,11 @@ test.describe('Blackjack Gameplay', () => {
 
         // Wait for score to update
         await page.waitForFunction(
-            (initial) => document.querySelector('#playerScore').textContent !== initial,
+            // Guard against potential null element
+            (initial) => {
+                const el = document.querySelector('#playerScore');
+                return el !== null && el.textContent !== initial;
+            },
             initialScore,
             { timeout: 2000 }
         );
