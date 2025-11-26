@@ -1,11 +1,12 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const helpers = require('./test-helpers.cjs');
 
 test.describe('Blackjack Gameplay', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
-        // Start free play mode for quick gameplay testing
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        // Start free play mode for quick gameplay testing via helper
+        await helpers.enterFreePlaySession(page);
     });
 
     test('should display player and house cards', async ({ page }) => {
@@ -40,7 +41,11 @@ test.describe('Blackjack Gameplay', () => {
 
         // Wait for score to update
         await page.waitForFunction(
-            (initial) => document.querySelector('#playerScore').textContent !== initial,
+            // Guard against potential null element
+            (initial) => {
+                const el = document.querySelector('#playerScore');
+                return el !== null && el.textContent !== initial;
+            },
             initialScore,
             { timeout: 2000 }
         );
@@ -70,7 +75,12 @@ test.describe('Blackjack Gameplay', () => {
 test.describe('Stress Management', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
+        // Navigate to free play overview (do not immediately launch game)
         await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+        // Click Play to begin the session
+        await page.locator('#freePlayOverview button:has-text("Play")').click();
+        await expect(page.locator('#gameArea')).toBeVisible();
     });
 
     test('should show stress meter with fill', async ({ page }) => {

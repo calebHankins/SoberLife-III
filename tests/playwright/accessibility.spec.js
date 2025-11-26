@@ -180,7 +180,8 @@ test.describe('Screen Reader Support', () => {
     });
 
     test('should have status updates for dynamic content', async ({ page }) => {
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        const helpers = require('./test-helpers.cjs');
+        await helpers.enterFreePlaySession(page);
 
         // Round result should be visible after actions
         const roundResult = page.locator('#roundResult');

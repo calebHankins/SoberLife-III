@@ -682,8 +682,8 @@ export function startCampaignMode() {
     hideVersionFooter();
 }
 
-// Start Free Play Mode
-export function startFreePlayMode() {
+// Launch Free Play Game (actual gameplay start)
+export function launchFreePlayGame() {
     try {
         // Initialize campaign to load deck composition and activities
         initializeCampaign();
@@ -762,6 +762,18 @@ export function startFreePlayMode() {
         // Show user-friendly error
         alert('Unable to start Free Play Mode. Please try again.');
     }
+}
+
+// Start Free Play Mode (Entry Point - shows overview)
+export function startFreePlayMode() {
+    // Initialize campaign to get current progress
+    initializeCampaign();
+
+    // Show Free Play Overview instead of starting game directly
+    showFreePlayOverview();
+
+    // Hide version footer when leaving landing page
+    hideVersionFooter();
 }
 
 // Validate survey completion
@@ -1786,6 +1798,24 @@ function updateFreePlayOverviewUI() {
             const tasksCompleted = gameState.freePlayTasksCompleted;
             const totalRounds = gameState.freePlayRounds;
             statsElement.textContent = `Tasks Completed: ${tasksCompleted} • Total Rounds: ${totalRounds}`;
+        }
+
+        // Update start game button text based on whether player has played before
+        const tasksCompleted = gameState.freePlayTasksCompleted || 0;
+        const buttonText = tasksCompleted === 0 ? 'Play' : 'Play Again';
+
+        // Prefer the special freePlayStartBtn id, otherwise fall back to query selector
+        const startBtn = document.getElementById('freePlayStartBtn');
+        if (startBtn) {
+            startBtn.textContent = buttonText;
+        } else {
+            const freePlayOverview = document.getElementById('freePlayOverview');
+            if (freePlayOverview) {
+                const startGameButtons = freePlayOverview.querySelectorAll('button[onclick="launchFreePlayGame()"]');
+                startGameButtons.forEach(button => {
+                    button.textContent = buttonText;
+                });
+            }
         }
 
     } catch (error) {

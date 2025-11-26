@@ -11,10 +11,10 @@ test.describe('Free Play Mode - Achievements Integration', () => {
     });
 
     test('should display achievements when accessing Mind Palace from Free Play success screen', async ({ page }) => {
-        // Start Free Play mode (goes directly to game)
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-
-        // Wait for game area to appear
+        // Start Free Play mode via helper
+        const helpers = require('./test-helpers.cjs');
+        await helpers.enterFreePlaySession(page);
+        // Wait for game area to appear and be interactive
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Complete 5 rounds to finish a task
@@ -74,13 +74,9 @@ test.describe('Free Play Mode - Achievements Integration', () => {
     });
 
     test('should show locked achievements in Free Play Mind Palace', async ({ page }) => {
-        // Navigate directly to Free Play overview via console
-        await page.evaluate(() => {
-            window.startFreePlayMode();
-            window.showFreePlayOverview();
-        });
-
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
+        // Navigate directly to Free Play overview via helper
+        const helpers = require('./test-helpers.cjs');
+        await helpers.openFreePlayOverview(page);
 
         // Open Mind Palace
         await page.getByRole('button', { name: /Visit Mind Palace/i }).click();

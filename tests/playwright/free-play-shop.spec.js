@@ -11,11 +11,6 @@ test.describe('Free Play Shop - Joker Purchase', () => {
     test('should allow joker purchases in Free Play mode (not block with campaign-only message)', async ({ page }) => {
         // Start Free Play Mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit to Free Play overview (handle confirmation dialog)
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Open shop from Free Play overview
@@ -75,11 +70,6 @@ test.describe('Free Play Shop - Joker Purchase', () => {
     test('should navigate back to Free Play overview from shop', async ({ page }) => {
         // Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit to Free Play overview
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Open shop

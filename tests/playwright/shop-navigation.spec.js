@@ -28,13 +28,8 @@ test.describe('Shop Navigation Issues', () => {
     });
 
     test('Shop X button should return to Free Play overview when opened from Free Play', async ({ page }) => {
-        // Start Free Play Mode (goes directly to gameplay)
+        // Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit the game to show Free Play overview (handle confirmation dialog)
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Open shop from Free Play overview using specific selector
@@ -69,13 +64,8 @@ test.describe('Shop Navigation Issues', () => {
     });
 
     test('Shop "Continue Free Play" button should return to Free Play overview when opened from Free Play', async ({ page }) => {
-        // Start Free Play Mode (goes directly to gameplay)
+        // Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit the game to show Free Play overview (handle confirmation dialog)
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Open shop from Free Play overview using specific selector
@@ -113,13 +103,8 @@ test.describe('Shop Navigation Issues', () => {
     });
 
     test('Shop "Close Shop" button should return to Free Play overview when opened from Free Play', async ({ page }) => {
-        // Start Free Play Mode (goes directly to gameplay)
+        // Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit the game to show Free Play overview (handle confirmation dialog)
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Open shop from Free Play overview using specific selector
@@ -136,13 +121,8 @@ test.describe('Shop Navigation Issues', () => {
     });
 
     test('Free Play shop should allow purchases without Campaign Mode restriction', async ({ page }) => {
-        // Start Free Play Mode (goes directly to gameplay)
+        // Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit the game to show Free Play overview (handle confirmation dialog)
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Open shop from Free Play overview using specific selector
@@ -185,11 +165,6 @@ test.describe('Shop Navigation Issues', () => {
 
         // Test 2: Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit the game to show Free Play overview (handle confirmation dialog)
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         await page.locator('#freePlayOverview button:has-text("Visit Shop")').click();
@@ -208,11 +183,6 @@ test.describe('Shop Navigation Issues', () => {
 
         // Step 1: Start Free Play to set the freePlayMode flag
         await page.locator('button:has-text("Start Free Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit Free Play (this sets gameState.freePlayMode = true)
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Return to mode selection
@@ -248,11 +218,6 @@ test.describe('Shop Navigation Issues', () => {
 
         // Step 1: Start Free Play to set the freePlayMode flag
         await page.locator('button:has-text("Start Free Play")').click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit Free Play (this sets gameState.freePlayMode = true)
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Return to mode selection

@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const helpers = require('./test-helpers.cjs');
 
 test.describe('Mobile Viewport Tests', () => {
     test.use({
@@ -76,16 +77,13 @@ test.describe('Mobile Viewport Tests', () => {
     });
 
     test('should display game area on mobile', async ({ page }) => {
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-
-        await expect(page.locator('#gameArea')).toBeVisible();
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('#playerCards')).toBeVisible();
         await expect(page.locator('#houseCards')).toBeVisible();
     });
 
     test('should show zen activities on mobile', async ({ page }) => {
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('#zenActivities')).toBeVisible();
 
         const activityButtons = page.locator('.activity-btn');
@@ -180,9 +178,7 @@ test.describe('Tablet Viewport Tests', () => {
     });
 
     test('should display game area properly on tablet', async ({ page }) => {
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-
-        await expect(page.locator('#gameArea')).toBeVisible();
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('.cards-container')).toBeVisible();
     });
 
@@ -214,9 +210,7 @@ test.describe('Landscape Mobile Tests', () => {
     });
 
     test('should show game area in landscape', async ({ page }) => {
-        await page.getByRole('button', { name: /Start Free Play/i }).click();
-
-        await expect(page.locator('#gameArea')).toBeVisible();
+        await helpers.enterFreePlaySession(page);
         await expect(page.locator('#playerCards')).toBeVisible();
         await expect(page.locator('#houseCards')).toBeVisible();
     });

@@ -118,7 +118,7 @@
             <div class="campaign-actions">
                 <button onclick="openFreePlayShop()" class="primary-btn">🛒 Visit Shop</button>
                 <button onclick="visitFreePlayMindPalace()" class="secondary-btn">🧠 Visit Mind Palace</button>
-                <button onclick="startFreePlayMode()" class="secondary-btn">Play Again</button>
+                <button id="freePlayStartBtn" onclick="launchFreePlayGame()" class="secondary-btn">Play</button>
             </div>
         </div>
 
@@ -666,7 +666,9 @@
                 window.useZenActivity = stressModule.useZenActivity;
                 window.startSingleTaskMode = mainModule.startSingleTaskMode;
                 window.startCampaignMode = mainModule.startCampaignMode;
+                window.startCampaignMode = mainModule.startCampaignMode;
                 window.startFreePlayMode = mainModule.startFreePlayMode;
+                window.launchFreePlayGame = mainModule.launchFreePlayGame;
                 window.continueFreePlayTask = mainModule.continueFreePlayTask;
                 window.endFreePlaySession = mainModule.endFreePlaySession;
                 window.restartFreePlay = mainModule.restartFreePlay;

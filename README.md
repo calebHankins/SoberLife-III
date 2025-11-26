@@ -25,6 +25,7 @@ Quick access to your next uncompleted challenge:
 5. **Stay Calm**: Keep your stress level below 100% to successfully complete your task
 
 **After Task Completion:**
+
 - **Visit Shop**: Access the full upgrade shop with your earned zen points
 - **Campaign Overview**: Return to the campaign to see your progress
 - **Next Task**: Jump directly into the next available challenge
@@ -42,33 +43,38 @@ A rogue-like progression system with multiple scenarios:
 
 ### 🎮 Free Play Mode
 
-Pure gameplay without roleplay elements with progressive difficulty:
+Pure gameplay without roleplay elements with progressive difficulty. Note: Free Play now lands on a dedicated "Free Play Mode" overview screen (matching the campaign flow) instead of launching the game directly from the mode selection.
 
-1. **Instant Start**: Begin at 0% stress without survey
+1. **Overview First**: Enter a Free Play Campaign Screen that shows your deck, session stats, shop access, and a `Play` (or `Play Again`) button to start the session
 2. **Generic Actions**: Simple "Hit" and "Stand" buttons
 3. **Task-Based Structure**: Complete 5 rounds per task
 4. **Progressive Difficulty**: Stress increases more as you continue
 5. **Risk/Reward System**: Choose to continue for better bonuses or cash out safely
 
 **Gameplay Loop:**
+
 - Complete 5 rounds to finish a task
 - Choose to continue (higher difficulty, better rewards) or end session
 - Each task increases stress multiplier by 15%
 - Earn bonus zen points based on performance and difficulty
 
 **Metrics Tracked:**
+
 - Tasks completed in session
 - Total rounds played
 - Current difficulty level
 - Performance bonuses
 
 **Perfect For:**
+
 - Quick gameplay sessions
 - Practicing stress management mechanics
 - Testing deck upgrades
 - Pushing your limits for maximum rewards
 
 This mode uses your campaign progress and upgraded deck, making it ideal for players who want to focus on gameplay mechanics without narrative immersion while still experiencing meaningful progression and challenge.
+
+Note: The campaign overview's start button text will be `Play` on the first visit and switch to `Play Again` after you've completed a session, matching the behavior of other campaign mode screens.
 
 ## 🧘 Features
 
@@ -143,16 +149,19 @@ The game is organized into separate modules for maintainability:
 The project supports multiple release methods:
 
 **GitHub Actions (Recommended):**
+
 - **Manual Trigger:** Actions tab → Release → Run workflow → Select version
 - **PR Labels:** Add `release:patch/minor/major` label → Merge PR → Auto-release
 
 **Local Release:**
+
 ```bash
 npm run release              # Interactive
 npm run release -- --dry-run # Preview changes
 ```
 
 **Version guidelines:**
+
 - **Patch** (0.21.0 → 0.21.1): Bug fixes, documentation updates
 - **Minor** (0.21.0 → 0.22.0): New features, new tasks, UI improvements
 - **Major** (0.21.0 → 1.0.0): Breaking changes, major redesigns
@@ -185,12 +194,14 @@ npm run test:ui
 ```
 
 **When to run tests:**
+
 - Before committing changes
 - After adding new features
 - When modifying game mechanics
 - When updating UI components
 
 **Test coverage includes:**
+
 - All three game modes (Jump Into Task, Campaign, Free Play)
 - Mobile viewports (iPhone, iPad, landscape)
 - Accessibility compliance
