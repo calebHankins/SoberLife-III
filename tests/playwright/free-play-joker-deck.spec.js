@@ -12,6 +12,10 @@ test.describe('Free Play Mode - Joker Deck Integration', () => {
     test('should apply purchased jokers to Free Play deck', async ({ page }) => {
         // Step 1: Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Enter game
+        await page.locator('button:has-text("Play Again")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Step 2: Add zen points and many jokers using debug helper (more jokers = higher chance of dealing)
@@ -97,6 +101,10 @@ test.describe('Free Play Mode - Joker Deck Integration', () => {
     test('should purchase joker in shop and apply to Free Play deck', async ({ page }) => {
         // Step 1: Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Enter game
+        await page.locator('button:has-text("Play Again")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Step 2: Add zen points for purchase
@@ -169,6 +177,10 @@ test.describe('Free Play Mode - Joker Deck Integration', () => {
     test('should maintain joker count across Free Play sessions', async ({ page }) => {
         // Step 1: Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Enter game
+        await page.locator('button:has-text("Play Again")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Step 2: Add jokers using debug helper
@@ -213,6 +225,10 @@ test.describe('Free Play Mode - Joker Deck Integration', () => {
     test('should display joker cards correctly when dealt in Free Play', async ({ page }) => {
         // Step 1: Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Enter game
+        await page.locator('button:has-text("Play Again")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Step 2: Add many jokers to increase chance of dealing one
@@ -274,6 +290,10 @@ test.describe('Free Play Mode - Joker Deck Integration', () => {
     test('should calculate joker values optimally in Free Play', async ({ page }) => {
         // Step 1: Start Free Play Mode
         await page.locator('button:has-text("Start Free Play")').click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Enter game
+        await page.locator('button:has-text("Play Again")').click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Step 2: Add jokers

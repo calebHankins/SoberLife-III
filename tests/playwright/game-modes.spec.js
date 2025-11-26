@@ -147,10 +147,24 @@ test.describe('Free Play Mode', () => {
         await page.goto('/');
     });
 
-    test('should start free play mode directly', async ({ page }) => {
+    test('should go to free play overview', async ({ page }) => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
 
-        // Free play should skip survey and go straight to game
+        // Free play should show overview first
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+        await expect(page.locator('#freePlayOverview h2')).toContainText('Free Play Mode');
+
+        // Should have Play Again button to start game
+        await expect(page.getByRole('button', { name: /Play Again/i })).toBeVisible();
+    });
+
+    test('should start game from free play overview', async ({ page }) => {
+        await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        await page.getByRole('button', { name: /Play Again/i }).click();
+
+        // Should now be in game
         await expect(page.locator('#gameArea')).toBeVisible();
         await expect(page.locator('#hitBtn')).toBeVisible();
         await expect(page.locator('#standBtn')).toBeVisible();
@@ -158,6 +172,7 @@ test.describe('Free Play Mode', () => {
 
     test('should show generic action buttons in free play', async ({ page }) => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await page.getByRole('button', { name: /Play Again/i }).click();
 
         // Verify generic button text (not contextual)
         await expect(page.locator('#hitBtn')).toContainText('Hit');
@@ -175,18 +190,10 @@ test.describe('Free Play Mode', () => {
     test('should show version footer when closing free play', async ({ page }) => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
 
-        // Wait for game area to be visible (ensures Free Play mode has started)
-        await expect(page.locator('#gameArea')).toBeVisible();
+        // Wait for overview to be visible
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         const versionFooter = page.locator('#versionFooter');
-        await expect(versionFooter).toBeHidden();
-
-        // Handle confirmation dialog if game is in progress
-        page.on('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
-
-        // Should show Free Play overview first
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
         await expect(versionFooter).toBeHidden();
 
         // Close Free Play overview to return to mode selection
@@ -201,6 +208,10 @@ test.describe('Free Play Mode', () => {
 
         // Start Free Play Mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+
+        // Enter game
+        await page.getByRole('button', { name: /Play Again/i }).click();
         await expect(page.locator('#gameArea')).toBeVisible();
 
         // Zen points should still be visible in game area
@@ -248,16 +259,11 @@ test.describe('Screen Navigation - Bug Fix', () => {
         await expect(page.locator('#upgradeShop')).toHaveClass(/hidden/);
     });
 
-    test('should show free play overview when exiting free play mode early', async ({ page }) => {
+    test('should show free play overview when entering free play mode', async ({ page }) => {
         // Start free play mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
 
-        // Exit free play mode early using close button
-        page.on('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
-
-        // Verify Free Play overview is shown
+        // Verify Free Play overview is shown immediately
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Verify other screens are hidden
@@ -269,25 +275,20 @@ test.describe('Screen Navigation - Bug Fix', () => {
         await expect(page.locator('#upgradeShop')).toHaveClass(/hidden/);
     });
 
-    test('should not show campaign overview when exiting free play', async ({ page }) => {
-        // Start free play mode (goes directly to game, no overview)
+    test('should not show campaign overview when entering free play', async ({ page }) => {
+        // Start free play mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
 
-        // Exit free play mode
-        page.on('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
+        // Verify Free Play overview is shown
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
 
-        // Specifically verify campaign overview is hidden (the bug was showing it)
+        // Specifically verify campaign overview is hidden
         const campaignOverview = page.locator('#campaignOverview');
         await expect(campaignOverview).toHaveClass(/hidden/);
 
         // Verify it's not visible in the DOM
         const isVisible = await campaignOverview.isVisible();
         expect(isVisible).toBe(false);
-
-        // Verify Free Play overview is shown instead
-        await expect(page.locator('#freePlayOverview')).toBeVisible();
     });
 
     test('should show only mode selection after campaign then free play exit', async ({ page }) => {
@@ -299,13 +300,8 @@ test.describe('Screen Navigation - Bug Fix', () => {
         await page.locator('#campaignCloseBtn').click();
         await expect(page.locator('#gameModeSelection')).toBeVisible();
 
-        // Start free play mode (goes directly to game, no overview)
+        // Start free play mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit free play mode - should show Free Play overview
-        page.on('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Close Free Play overview to return to mode selection
@@ -320,11 +316,6 @@ test.describe('Screen Navigation - Bug Fix', () => {
     test('should show only mode selection after free play then campaign exit', async ({ page }) => {
         // Start free play mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit free play mode - should show Free Play overview
-        page.on('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
         await expect(page.locator('#freePlayOverview')).toBeVisible();
 
         // Close Free Play overview to return to mode selection
@@ -373,8 +364,7 @@ test.describe('Screen Navigation - Bug Fix', () => {
         await page.getByRole('button', { name: /Start Free Play/i }).click();
 
         // Exit free play mode
-        page.on('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
+        await page.locator('#freePlayCloseBtn').click();
 
         // Verify all game screens are hidden
         const hiddenScreens = [
@@ -524,21 +514,9 @@ test.describe('Free Play Overview', () => {
         await page.goto('/');
     });
 
-    test('should show free play overview when exiting game early', async ({ page }) => {
+    test('should show free play overview when entering free play mode', async ({ page }) => {
         // Start free play mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Set up dialog handler BEFORE clicking close button
-        page.once('dialog', dialog => {
-            dialog.accept();
-        });
-
-        // Exit game early using close button
-        await page.locator('#taskCloseBtn').click();
-
-        // Wait a bit for the UI to update
-        await page.waitForTimeout(500);
 
         // Verify Free Play overview is displayed
         await expect(page.locator('#freePlayOverview')).toBeVisible();
@@ -548,11 +526,6 @@ test.describe('Free Play Overview', () => {
     test('should not show campaign screen when clicking Play Again from Free Play overview', async ({ page }) => {
         // Start free play mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit game early using close button
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
 
         // Verify we're at Free Play overview
         await expect(page.locator('#freePlayOverview')).toBeVisible();
@@ -583,11 +556,6 @@ test.describe('Free Play Overview', () => {
     test('should handle Mind Palace navigation from Free Play overview', async ({ page }) => {
         // Start free play mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit game early
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
 
         // Verify we're at Free Play overview
         await expect(page.locator('#freePlayOverview')).toBeVisible();
@@ -621,11 +589,6 @@ test.describe('Free Play Overview', () => {
     test('should handle Shop navigation from Free Play overview', async ({ page }) => {
         // Start free play mode
         await page.getByRole('button', { name: /Start Free Play/i }).click();
-        await expect(page.locator('#gameArea')).toBeVisible();
-
-        // Exit game early
-        page.once('dialog', dialog => dialog.accept());
-        await page.locator('#taskCloseBtn').click();
 
         // Verify we're at Free Play overview
         await expect(page.locator('#freePlayOverview')).toBeVisible();

@@ -682,8 +682,8 @@ export function startCampaignMode() {
     hideVersionFooter();
 }
 
-// Start Free Play Mode
-export function startFreePlayMode() {
+// Launch Free Play Game (actual gameplay start)
+export function launchFreePlayGame() {
     try {
         // Initialize campaign to load deck composition and activities
         initializeCampaign();
@@ -762,6 +762,18 @@ export function startFreePlayMode() {
         // Show user-friendly error
         alert('Unable to start Free Play Mode. Please try again.');
     }
+}
+
+// Start Free Play Mode (Entry Point - shows overview)
+export function startFreePlayMode() {
+    // Initialize campaign to get current progress
+    initializeCampaign();
+
+    // Show Free Play Overview instead of starting game directly
+    showFreePlayOverview();
+
+    // Hide version footer when leaving landing page
+    hideVersionFooter();
 }
 
 // Validate survey completion

@@ -2666,3 +2666,71 @@ export function updateGenericActionButtons() {
         console.error('Error updating generic action buttons:', error);
     }
 }
+
+// Show Free Play overview screen
+export function showFreePlayOverview() {
+    try {
+        // Hide other screens
+        hideElement('gameModeSelection');
+        hideElement('surveySection');
+        hideElement('taskInfo');
+        hideElement('zenActivities');
+        hideElement('gameArea');
+        hideElement('gameOverScreen');
+        hideElement('gameSuccessScreen');
+        hideElement('upgradeShop');
+        hideElement('campaignOverview');
+
+        // Sync zen points from campaign state to game state for UI display
+        const currentBalance = ZenPointsManager.getCurrentBalance();
+        console.log(`showFreePlayOverview: Current balance from ZenPointsManager: ${currentBalance}`);
+
+        // Update the header display with current zen points
+        updateDisplay();
+
+        // Update adaptive music to match current stress level in lobby
+        if (window.audioManager && window.audioManager.musicPlayer && window.audioManager.musicPlayer.updateStressLevel) {
+            const currentStressLevel = window.gameState ? window.gameState.stressLevel : 0;
+            window.audioManager.musicPlayer.updateStressLevel(currentStressLevel);
+            console.log(`Free Play Overview: Updated adaptive music for lobby stress level: ${currentStressLevel}%`);
+        }
+
+        // Show Free Play overview
+        showElement('freePlayOverview');
+
+        // Update Free Play overview UI
+        updateFreePlayOverviewUI();
+
+        console.log('Free Play overview displayed');
+
+    } catch (error) {
+        console.error('Error showing Free Play overview:', error);
+    }
+}
+
+// Update Free Play overview UI
+function updateFreePlayOverviewUI() {
+    try {
+        // Update deck composition display
+        const deckCompositionElement = document.getElementById('freePlayDeckComposition');
+        if (deckCompositionElement) {
+            const { aces, jokers, totalCards } = campaignState.deckComposition;
+            if (jokers > 0) {
+                deckCompositionElement.textContent = `Aces: ${aces}, Jokers: ${jokers} / ${totalCards} Cards`;
+            } else {
+                deckCompositionElement.textContent = `Aces: ${aces} / ${totalCards} Cards`;
+            }
+        }
+
+        // Update session stats
+        const statsElement = document.getElementById('freePlayStats');
+        if (statsElement) {
+            const tasksCompleted = gameState.freePlayTasksCompleted || 0;
+            const totalRounds = gameState.freePlayRounds || 0;
+            statsElement.textContent = `Tasks Completed: ${tasksCompleted} • Total Rounds: ${totalRounds}`;
+        }
+
+    } catch (error) {
+        console.error('Error updating Free Play overview UI:', error);
+    }
+}
