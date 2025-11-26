@@ -2982,7 +2982,6 @@ me animations for tablet and all viewports */
     /* Ensure it doesn't interfere with game controls */
     pointer-events: auto;
 }
-}
 
 /* Tablet and larger screens */
 @media (min-width: 768px) {
