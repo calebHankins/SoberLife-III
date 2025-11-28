@@ -2,6 +2,8 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Achievements System', () => {
+    const { ensureGameReady } = require('./test-utils');
+
     test.beforeEach(async ({ page }) => {
         // Navigate to the game
         await page.goto('/');
@@ -11,9 +13,8 @@ test.describe('Achievements System', () => {
             localStorage.clear();
         });
 
-        // Reload to apply cleared state and wait for main module to assign global functions
-        await page.reload();
-        await page.waitForFunction(() => window.gameFunctionsReady === true, null, { timeout: 5000 });
+        // Reload state and wait for the inline module to wire exports to window
+        await ensureGameReady(page);
     });
 
     test('should display achievements in Mind Palace', async ({ page }) => {
@@ -188,8 +189,8 @@ test.describe('Achievements System', () => {
         // Wait for notification
         await expect(page.locator('.achievement-notification')).toBeVisible({ timeout: 2000 });
 
-        // Reload the page (simulating browser session restart)
-        await page.reload();
+        // Reload the page (simulating browser session restart) and ensure the app is ready
+        await ensureGameReady(page);
 
         // Start campaign mode again
         await page.getByRole('button', { name: /Start Campaign/i }).click();

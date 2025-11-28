@@ -1,13 +1,15 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Free Play Mode - Achievements Integration', () => {
+    const { ensureGameReady } = require('./test-utils');
+
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
         // Clear localStorage to start fresh
         await page.evaluate(() => {
             localStorage.clear();
         });
-        await page.reload();
+        await ensureGameReady(page);
     });
 
     test('should display achievements when accessing Mind Palace from Free Play success screen', async ({ page }) => {
@@ -184,8 +186,8 @@ test.describe('Free Play Mode - Achievements Integration', () => {
             localStorage.setItem('soberlife-achievements', JSON.stringify(achievementState));
         });
 
-        // Reload page to load saved state
-        await page.reload();
+        // Reload page to load saved state and ensure app is ready
+        await ensureGameReady(page);
 
         // Navigate directly to Free Play overview via console
         await page.evaluate(() => {
@@ -283,7 +285,7 @@ test.describe('Free Play Mode - Achievements Integration', () => {
             localStorage.setItem('soberlife-achievements', JSON.stringify(achievementState));
         });
 
-        await page.reload();
+        await ensureGameReady(page);
 
         // Navigate directly to Free Play overview
         await page.evaluate(() => {
