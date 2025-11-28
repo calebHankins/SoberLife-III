@@ -649,104 +649,89 @@
     </div>
 
     <!-- External JavaScript Files -->
+    <script type="module">
+        // Import modules immediately (runs before DOMContentLoaded)
+        import * as mainModule from './assets/js/main.js?v=0.28.1';
+        import { useZenActivity } from './assets/js/stress-system.js';
+        import { startCampaignTask, resetCampaign, returnToCampaign } from './assets/js/campaign-manager.js';
+        import { purchasePremiumActivityWrapper } from './assets/js/shop-system.js';
+
+        // Assign to window immediately so onclick handlers work
+        window.useZenActivity = useZenActivity;
+        window.startSingleTaskMode = mainModule.startSingleTaskMode;
+        window.startCampaignMode = mainModule.startCampaignMode;
+        window.startFreePlayMode = mainModule.startFreePlayMode;
+        window.launchFreePlayGame = mainModule.launchFreePlayGame;
+        window.continueFreePlayTask = mainModule.continueFreePlayTask;
+        window.endFreePlaySession = mainModule.endFreePlaySession;
+        window.restartFreePlay = mainModule.restartFreePlay;
+        window.returnToModeSelection = mainModule.returnToModeSelection;
+        window.showFreePlayOverview = mainModule.showFreePlayOverview;
+        window.closeFreePlayOverview = mainModule.closeFreePlayOverview;
+        window.openFreePlayShop = mainModule.openFreePlayShop;
+        window.visitFreePlayMindPalace = mainModule.visitFreePlayMindPalace;
+        window.startTask = mainModule.startTask;
+        window.startGame = mainModule.startTask;
+        window.hit = mainModule.hit;
+        window.stand = mainModule.stand;
+        window.nextStep = mainModule.nextStep;
+        window.restartGame = mainModule.restartGame;
+        window.showHelp = mainModule.showHelp;
+        window.enableGameControls = mainModule.enableGameControls;
+        window.openCampaignShop = mainModule.openCampaignShop;
+        window.openShop = mainModule.openShopWithZen;
+        window.purchaseJokerUpgrade = mainModule.purchaseJoker;
+        window.continueCampaign = mainModule.continueCampaign;
+        window.closeShopToCampaign = mainModule.closeShopToCampaign;
+        window.visitMindPalace = mainModule.closeMindPalaceWrapper;
+        window.closeMindPalace = mainModule.closeMindPalaceWrapper;
+        window.startCampaignTask = startCampaignTask;
+        window.resetCampaign = resetCampaign;
+        window.returnToCampaign = returnToCampaign;
+        window.switchSplitHandWrapper = mainModule.switchSplitHandWrapper;
+        window.completeBothHandsWrapper = mainModule.completeBothHandsWrapper;
+        window.useCompartmentalizeWrapper = mainModule.useCompartmentalizeWrapper;
+        window.declineCompartmentalize = mainModule.declineCompartmentalize;
+        window.purchasePremiumActivityWrapper = purchasePremiumActivityWrapper;
+        window.closeSurvey = mainModule.closeSurvey;
+        window.closeTask = mainModule.closeTask;
+        window.closeShopWrapper = mainModule.closeShopWrapper;
+
+        // Signal that functions are ready
+        window.gameFunctionsReady = true;
+
+        console.log('✅ All functions loaded!');
+
+        // Initialize the game (this was previously done via DOMContentLoaded in main.js)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', mainModule.initializeGame);
+        } else {
+            // DOM already loaded, initialize immediately
+            mainModule.initializeGame();
+        }
+    </script>
+
     <script>
-        // Wait for modules to load, then assign functions to global scope
-        document.addEventListener('DOMContentLoaded', async function () {
-            console.log('DOM loaded, importing functions...');
+        // Additional DOM setup
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOM ready, setting up additional features...');
 
-            try {
-                // Dynamic imports to ensure modules are loaded
-                const stressModule = await import('./assets/js/stress-system.js');
-                const mainModule = await import('./assets/js/main.js');
-                const campaignModule = await import('./assets/js/campaign-manager.js');
-                const shopModule = await import('./assets/js/shop-system.js');
+            // Add event listener for Show Nirvana Mode button
+            const showNirvanaBtn = document.getElementById('showNirvanaBtn');
+            if (showNirvanaBtn) {
+                showNirvanaBtn.addEventListener('click', function () {
+                    const nirvanaZone = document.querySelector('.nirvana-zone');
+                    if (nirvanaZone) {
+                        nirvanaZone.style.display = 'block';
+                        showNirvanaBtn.style.display = 'none';
 
-                // Assign functions to global scope
-                window.useZenActivity = stressModule.useZenActivity;
-                window.startSingleTaskMode = mainModule.startSingleTaskMode;
-                window.startCampaignMode = mainModule.startCampaignMode;
-                window.startCampaignMode = mainModule.startCampaignMode;
-                window.startFreePlayMode = mainModule.startFreePlayMode;
-                window.launchFreePlayGame = mainModule.launchFreePlayGame;
-                window.continueFreePlayTask = mainModule.continueFreePlayTask;
-                window.endFreePlaySession = mainModule.endFreePlaySession;
-                window.restartFreePlay = mainModule.restartFreePlay;
-                window.returnToModeSelection = mainModule.returnToModeSelection;
-                window.showFreePlayOverview = mainModule.showFreePlayOverview;
-                window.closeFreePlayOverview = mainModule.closeFreePlayOverview;
-                window.openFreePlayShop = mainModule.openFreePlayShop;
-                window.visitFreePlayMindPalace = mainModule.visitFreePlayMindPalace;
-                window.startTask = mainModule.startTask;
-                window.startGame = mainModule.startTask;
-                window.hit = mainModule.hit;
-                window.stand = mainModule.stand;
-                window.nextStep = mainModule.nextStep;
-                window.restartGame = mainModule.restartGame;
-                window.showHelp = mainModule.showHelp;
-                window.enableGameControls = mainModule.enableGameControls;
-                window.openCampaignShop = mainModule.openCampaignShop;
-                window.openShop = mainModule.openShopWithZen;
-                window.purchaseJokerUpgrade = mainModule.purchaseJoker;
-                window.continueCampaign = mainModule.continueCampaign;
-                window.closeShopToCampaign = mainModule.closeShopToCampaign;
-                window.visitMindPalace = mainModule.visitMindPalace;
-                window.closeMindPalace = mainModule.closeMindPalaceWrapper;
-                window.startCampaignTask = campaignModule.startCampaignTask;
-                window.resetCampaign = campaignModule.resetCampaign;
-                window.returnToCampaign = campaignModule.returnToCampaign;
-                window.switchSplitHandWrapper = mainModule.switchSplitHandWrapper;
-                window.completeBothHandsWrapper = mainModule.completeBothHandsWrapper;
-                window.useCompartmentalizeWrapper = mainModule.useCompartmentalizeWrapper;
-                window.declineCompartmentalize = mainModule.declineCompartmentalize;
-                window.purchasePremiumActivityWrapper = shopModule.purchasePremiumActivityWrapper;
-                window.closeSurvey = mainModule.closeSurvey;
-                window.closeTask = mainModule.closeTask;
-                window.closeShopWrapper = mainModule.closeShopWrapper;
-
-                console.log('✅ All functions loaded successfully!');
-                console.log('startCampaignMode:', typeof window.startCampaignMode);
-                console.log('startSingleTaskMode:', typeof window.startSingleTaskMode);
-
-                // Add event listener for Show Nirvana Mode button
-                const showNirvanaBtn = document.getElementById('showNirvanaBtn');
-                if (showNirvanaBtn) {
-                    showNirvanaBtn.addEventListener('click', function () {
-                        const nirvanaZone = document.querySelector('.nirvana-zone');
-                        if (nirvanaZone) {
-                            nirvanaZone.style.display = 'block';
-                            showNirvanaBtn.style.display = 'none';
-
-                            // Set up the nirvana zen button click handler
-                            const nirvanaZenBtn = document.getElementById('nirvanaZenBtn');
-                            if (nirvanaZenBtn && window.addZenPointsDebug) {
-                                nirvanaZenBtn.onclick = window.addZenPointsDebug;
-                            }
+                        // Set up the nirvana zen button click handler
+                        const nirvanaZenBtn = document.getElementById('nirvanaZenBtn');
+                        if (nirvanaZenBtn && window.addZenPointsDebug) {
+                            nirvanaZenBtn.onclick = window.addZenPointsDebug;
                         }
-                    });
-                }
-            } catch (error) {
-                console.error('❌ Error loading functions:', error);
-
-                // Fallback: show error message to user
-                const errorDiv = document.createElement('div');
-                errorDiv.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    left: 20px;
-                    right: 20px;
-                    background: #ff4444;
-                    color: white;
-                    padding: 15px;
-                    border-radius: 8px;
-                    z-index: 9999;
-                    font-family: Arial, sans-serif;
-                `;
-                errorDiv.innerHTML = `
-                    <strong>⚠️ Game Loading Error</strong><br>
-                    The game failed to load properly. Please refresh the page.<br>
-                    <small>Error: ${error.message}</small>
-                `;
-                document.body.appendChild(errorDiv);
+                    }
+                });
             }
         });
     </script>

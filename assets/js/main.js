@@ -2413,11 +2413,8 @@ if (typeof window !== 'undefined') {
 }
 
 // Initialize when DOM is loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeGame);
-} else {
-    initializeGame();
-}
+// Note: initializeGame is now called from index.html to prevent duplicate initialization
+// when loading as a module. The initialization happens after all exports are assigned to window.
 
 // ===================================
 // FREE PLAY ACHIEVEMENT INTEGRATION
@@ -2575,3 +2572,6 @@ document.addEventListener('DOMContentLoaded', () => {
         mindPalaceBackdrop.addEventListener('click', window.closeMindPalace);
     }
 });
+
+// Note: All functions are exported inline with 'export function' declarations above
+// No need for a separate export block
