@@ -1,8 +1,7 @@
-// @ts-check
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./fixtures');
 
 test.describe('Achievements System', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, ensureGameReady }) => {
         // Navigate to the game
         await page.goto('/');
 
@@ -11,8 +10,8 @@ test.describe('Achievements System', () => {
             localStorage.clear();
         });
 
-        // Reload to apply cleared state
-        await page.reload();
+        // Reload state and wait for the inline module to wire exports to window
+        await ensureGameReady();
     });
 
     test('should display achievements in Mind Palace', async ({ page }) => {
@@ -24,6 +23,7 @@ test.describe('Achievements System', () => {
 
         // Click Visit Mind Palace button
         await page.getByRole('button', { name: /Visit Mind Palace/i }).click();
+
 
         // Wait for Mind Palace modal
         await expect(page.locator('#mindPalaceModal')).toBeVisible();
@@ -170,7 +170,7 @@ test.describe('Achievements System', () => {
         await expect(wealthAchievement).toHaveClass(/unlocked/);
     });
 
-    test('should persist achievements across browser sessions', async ({ page }) => {
+    test('should persist achievements across browser sessions', async ({ page, ensureGameReady }) => {
         // Start campaign mode
         await page.getByRole('button', { name: /Start Campaign/i }).click();
         await expect(page.locator('#campaignOverview')).toBeVisible();
@@ -186,8 +186,8 @@ test.describe('Achievements System', () => {
         // Wait for notification
         await expect(page.locator('.achievement-notification')).toBeVisible({ timeout: 2000 });
 
-        // Reload the page (simulating browser session restart)
-        await page.reload();
+        // Reload the page (simulating browser session restart) and ensure the app is ready
+        await ensureGameReady();
 
         // Start campaign mode again
         await page.getByRole('button', { name: /Start Campaign/i }).click();

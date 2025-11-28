@@ -32,6 +32,7 @@ npm run test:mobile
 SoberLife III includes a built-in debug helper that makes manual and automated testing easier. See `.kiro/steering/debug-helper.md` for full documentation.
 
 **Quick Examples:**
+
 ```javascript
 // In browser console or Playwright tests
 DebugHelper.addZenPoints(5000);  // Add zen points
@@ -42,6 +43,7 @@ DebugHelper.help();              // Show all commands
 ```
 
 **In Playwright Tests:**
+
 ```javascript
 await page.evaluate(() => {
     window.DebugHelper.addZenPoints(5000);
@@ -75,20 +77,50 @@ await page.evaluate(() => {
 
 ## Test Structure
 
-### Test Files Location
-```
+### Test Files Inventory
+
+We maintain **14 test spec files** focused on unique functionality to minimize redundancy and CI time:
+
+```md
 tests/playwright/
-├── game-modes.spec.js      # Game mode selection and navigation
-├── gameplay.spec.js        # Blackjack mechanics and stress management
-├── shop-system.spec.js     # Shop and Mind Palace features
-├── mobile.spec.js          # Mobile viewport testing
-├── accessibility.spec.js   # Accessibility compliance
-└── README.md              # Detailed testing documentation
+├── accessibility.spec.js                # WCAG compliance, semantic HTML, ARIA labels
+├── achievements.spec.js                 # Achievement system, notifications, persistence
+├── audio-controls.spec.js               # Audio FAB, mute toggle, settings panel
+├── free-play-achievements.spec.js       # Free Play + achievements integration
+├── free-play-joker-deck.spec.js         # Joker mechanics in Free Play mode
+├── free-play-shop.spec.js               # Shop functionality in Free Play
+├── game-modes.spec.js                   # Mode selection, navigation, screen management
+├── gameplay.spec.js                     # Blackjack mechanics, zen activities, stress
+├── mobile.spec.js                       # Mobile viewport (iPhone SE 375x667 portrait)
+├── shop-access.spec.js                  # Shop accessibility from all modes
+├── shop-navigation.spec.js              # Shop exit navigation across modes
+├── shop-scroll-position.spec.js         # Shop/Mind Palace scroll reset
+├── shop-system.spec.js                  # Shop upgrades, Mind Palace features
+└── zen-points-display.spec.js           # Zen points state management across modes
 ```
+
+### Anti-Duplication Guidelines
+
+**❌ DO NOT:**
+
+- Create debug-specific test files (use console.log in existing tests if needed)
+- Create issue-specific test files (add tests to appropriate spec file instead)
+- Create separate "simple" or "debug" variants of existing tests
+- Test the same functionality across multiple viewport sizes (desktop + tablet are equivalent)
+- Create landscape orientation tests unless specifically needed
+
+**✅ DO:**
+
+- Add new tests to the most appropriate existing spec file
+- Use mobile viewport (375x667) for mobile-specific responsive testing
+- Use desktop viewport (default) for general functionality
+- Consolidate related tests in the same describe block
+- Remove tests when issues are fixed and covered by general tests
 
 ### Test Organization
 
 Each test file follows this pattern:
+
 ```javascript
 test.describe('Feature Name', () => {
   test.beforeEach(async ({ page }) => {
@@ -108,6 +140,7 @@ test.describe('Feature Name', () => {
 ### Best Practices
 
 1. **Use Semantic Locators**
+
    ```javascript
    // Good - semantic and stable
    await page.getByRole('button', { name: /Start Campaign/i })
@@ -117,6 +150,7 @@ test.describe('Feature Name', () => {
    ```
 
 2. **Test User Behavior, Not Implementation**
+
    ```javascript
    // Good - tests what user sees
    await expect(page.locator('#zenPoints')).toContainText('Zen Points:')
@@ -126,11 +160,13 @@ test.describe('Feature Name', () => {
    ```
 
 3. **Include Mobile Testing**
+
    ```javascript
    test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE
    ```
 
 4. **Add Accessibility Checks**
+
    ```javascript
    await expect(button).toHaveAttribute('aria-label');
    await expect(modal).toHaveAttribute('role', 'dialog');
@@ -147,6 +183,7 @@ When adding a new feature:
    - Mobile-specific → `mobile.spec.js`
 
 2. **Test the happy path first**
+
    ```javascript
    test('should complete new feature flow', async ({ page }) => {
      // Navigate to feature
@@ -156,6 +193,7 @@ When adding a new feature:
    ```
 
 3. **Add edge cases**
+
    ```javascript
    test('should handle error when feature fails', async ({ page }) => {
      // Trigger error condition
@@ -164,6 +202,7 @@ When adding a new feature:
    ```
 
 4. **Test mobile viewport**
+
    ```javascript
    test('should work on mobile', async ({ page }) => {
      await page.setViewportSize({ width: 375, height: 667 });
@@ -193,6 +232,7 @@ When adding a new feature:
 ### Updating Tests After Changes
 
 **UI Changes:**
+
 ```javascript
 // Old selector no longer works
 await page.locator('.old-class-name')
@@ -204,6 +244,7 @@ await page.getByRole('button', { name: /Button Text/i })
 ```
 
 **Behavior Changes:**
+
 ```javascript
 // Old expectation
 await expect(page.locator('#result')).toContainText('Old Message')
@@ -213,6 +254,7 @@ await expect(page.locator('#result')).toContainText('New Message')
 ```
 
 **New Features:**
+
 ```javascript
 // Add new test for new feature
 test('should use new feature', async ({ page }) => {
@@ -225,12 +267,13 @@ test('should use new feature', async ({ page }) => {
 
 Mobile is the most played display mode, so mobile testing is critical:
 
-### Mobile Viewports Tested
-- **iPhone SE**: 375x667 (portrait)
-- **iPhone SE Landscape**: 667x375
-- **iPad Pro**: 768x1024 (portrait)
+### Mobile Viewport Tested
+
+- **iPhone SE Portrait**: 375x667 - All mobile-specific tests use this viewport
+- **Desktop/Tablet**: Covered by default chromium project (no separate testing needed)
 
 ### Mobile-Specific Checks
+
 - Touch-friendly button sizes (minimum 32x32px)
 - No horizontal scroll
 - Readable text (minimum 14px)
@@ -238,6 +281,7 @@ Mobile is the most played display mode, so mobile testing is critical:
 - Modal and overlay behavior
 
 ### Running Mobile Tests
+
 ```bash
 # Run all mobile tests
 npm run test:mobile
@@ -251,6 +295,7 @@ npx playwright test tests/playwright/mobile.spec.js --project=mobile
 ### Automatic Testing
 
 Tests run automatically in GitHub Actions:
+
 - On every push to main/master
 - On every pull request
 - Before deployment to GitHub Pages
@@ -292,12 +337,14 @@ npm run test:report
 ### Common Issues
 
 **Test Timeout:**
+
 ```javascript
 // Increase timeout for slow operations
 test.setTimeout(60000); // 60 seconds
 ```
 
 **Element Not Found:**
+
 ```javascript
 // Wait for element explicitly
 await page.waitForSelector('#element');
@@ -305,6 +352,7 @@ await expect(page.locator('#element')).toBeVisible();
 ```
 
 **Flaky Tests:**
+
 ```javascript
 // Add explicit waits
 await page.waitForLoadState('networkidle');
@@ -314,6 +362,7 @@ await page.waitForTimeout(500); // Use sparingly
 ## Test Coverage Goals
 
 ### Current Coverage (93% pass rate)
+
 - ✅ All three game modes
 - ✅ Campaign progression
 - ✅ Shop and upgrades
@@ -322,6 +371,7 @@ await page.waitForTimeout(500); // Use sparingly
 - ✅ Core gameplay mechanics
 
 ### Areas for Expansion
+
 - End-to-end task completion flows
 - Error recovery scenarios
 - Cross-browser testing
@@ -330,14 +380,15 @@ await page.waitForTimeout(500); // Use sparingly
 
 ## Resources
 
-- **Playwright Documentation**: https://playwright.dev
+- **Playwright Documentation**: <https://playwright.dev>
 - **Test README**: `tests/playwright/README.md`
-- **Best Practices**: https://playwright.dev/docs/best-practices
-- **Debugging Guide**: https://playwright.dev/docs/debug
+- **Best Practices**: <https://playwright.dev/docs/best-practices>
+- **Debugging Guide**: <https://playwright.dev/docs/debug>
 
 ## Summary
 
 **Remember:**
+
 1. Always run tests before committing
 2. Write tests for new features
 3. Update tests when behavior changes
@@ -347,6 +398,7 @@ await page.waitForTimeout(500); // Use sparingly
 7. Test user behavior, not implementation
 
 **Quick Commands:**
+
 ```bash
 npm test              # Run all tests (non-interactive)
 npm run test:report   # View HTML report
@@ -355,7 +407,22 @@ npm run test:mobile   # Mobile tests
 npm run test:ui       # Interactive debug mode
 ```
 
+## Waiting for Inline Module Readiness
+
+When the app loads `assets/js/main.js` via an inline ES module import and maps exported functions to `window`, tests may begin interacting with the page before that mapping completes which can cause race conditions and flaky tests. Use the shared helper `tests/playwright/test-utils.js::ensureGameReady(page)` to reload and wait for `window.gameFunctionsReady === true` before interacting with the page. This ensures tests are stable and deterministic.
+
+Example usage:
+
+```javascript
+const { ensureGameReady } = require('./test-utils');
+test.beforeEach(async ({ page }) => {
+   await page.goto('/');
+   await ensureGameReady(page);
+});
+```
+
 **For Automation:**
+
 - Tests run in non-interactive mode by default
 - Results output to console with list reporter
 - HTML report generated but not auto-opened

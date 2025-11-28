@@ -65,7 +65,8 @@
         "unlockable",
         "unmute",
         "valuenow",
-        "viewports"
+        "viewports",
+        "WCAG"
     ],
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {

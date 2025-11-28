@@ -114,7 +114,7 @@ const audioConfig = {
     music: {
         baseFrequency: 220,      // A3 note as foundation
         harmonics: [1, 1.5, 2, 3], // Harmonic ratios for layering
-        defaultVolume: 0.45,     // Increased from 0.15 for better audibility
+        defaultVolume: 0.95,     // Increased from 0.15 for better audibility
         fadeInDuration: 3000,    // Gentle fade in
         fadeOutDuration: 2000,   // Gentle fade out
         modulationRate: 0.1      // Slow LFO for organic feel
@@ -141,7 +141,7 @@ const audioConfig = {
                 arpeggiationDelay: 0.05 // Delay between notes in chord (seconds)
             }
         },
-        defaultVolume: 0.55      // Increased from 0.3 for better audibility
+        defaultVolume: 0.95      // Increased from 0.3 for better audibility
     },
     storage: {
         musicVolumeKey: 'soberlife_music_volume',
@@ -156,6 +156,13 @@ const audioConfig = {
  */
 class AudioManager {
     constructor() {
+        if (AudioManager.instance) {
+            return AudioManager.instance;
+        }
+        AudioManager.instance = this;
+
+        console.log('AudioManager: Instantiating new AudioManager instance');
+
         this.audioContext = null;
         this.musicPlayer = null;
         this.soundEffects = null;
@@ -244,11 +251,11 @@ class AudioManager {
 
         // Initialize components with error handling
         try {
-            this.musicPlayer = new AdaptiveMusicPlayer(this.audioContext);
+            this.musicPlayer = new AdaptiveMusicPlayer(this.audioContext, this);
             console.log('AudioManager: AdaptiveMusicPlayer initialized successfully' + (this.musicPlayer && this.musicPlayer.instanceId ? ` (MusicPlayer[${this.musicPlayer.instanceId}])` : ''));
         } catch (error) {
             console.warn('AudioManager: Failed to initialize AdaptiveMusicPlayer, falling back to MusicPlayer:', error);
-            this.musicPlayer = new MusicPlayer(this.audioContext);
+            this.musicPlayer = new MusicPlayer(this.audioContext, this);
         }
 
         this.soundEffects = new SoundEffects(this.audioContext, this);
@@ -1021,8 +1028,9 @@ class ExtendedMusicLoop {
  * Generates ambient lofi background music using Web Audio API oscillators
  */
 class MusicPlayer {
-    constructor(audioContext) {
+    constructor(audioContext, audioManager) {
         this.audioContext = audioContext;
+        this.audioManager = audioManager;
         // Generate unique instance ID for debugging
         this.instanceId = `MP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         this.oscillators = [];
@@ -1141,51 +1149,107 @@ class MusicPlayer {
 
     /**
      * Create chord oscillators for harmonic foundation
+     * Now with secondary layer for richness
      */
     createChordOscillators() {
         console.log(`MusicPlayer[${this.instanceId}]: Creating chord oscillators for chord index ${this.currentChord}`);
         const currentChordNotes = this.chordProgression[this.currentChord];
 
         currentChordNotes.forEach((frequency, index) => {
-            // Create oscillator with different waveforms for texture
+            // PRIMARY LAYER
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
             const filter = this.audioContext.createBiquadFilter();
+            const panner = this.audioContext.createStereoPanner ? this.audioContext.createStereoPanner() : null;
 
             // Use only pleasant waveforms for better sound quality
-            const waveforms = ['sine', 'triangle', 'sine']; // Removed harsh sawtooth
+            const waveforms = ['sine', 'triangle', 'sine'];
             oscillator.type = waveforms[index % waveforms.length];
             oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
 
             // Create gentle filter sweep with less resonance
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(frequency * 3, this.audioContext.currentTime); // Less harsh
-            filter.Q.setValueAtTime(0.5, this.audioContext.currentTime); // Much gentler resonance
+            filter.frequency.setValueAtTime(frequency * 3, this.audioContext.currentTime);
+            filter.Q.setValueAtTime(0.5, this.audioContext.currentTime);
 
-            // Set volume with better balance and less randomization
-            const baseVolume = 0.06 / (index + 1); // Slightly quieter overall
-            const randomVariation = (Math.random() - 0.5) * 0.01; // Less random variation
+            // Set volume with better balance
+            const baseVolume = 0.06 / (index + 1);
+            const randomVariation = (Math.random() - 0.5) * 0.01;
             gainNode.gain.setValueAtTime(baseVolume + randomVariation, this.audioContext.currentTime);
 
             // Connect LFO modulation
-            this.lfoGains[0].connect(oscillator.frequency); // Pitch modulation
-            this.lfoGains[1].connect(gainNode.gain); // Amplitude modulation
-            this.lfoGains[2].connect(filter.frequency); // Filter modulation
+            this.lfoGains[0].connect(oscillator.frequency);
+            this.lfoGains[1].connect(gainNode.gain);
+            this.lfoGains[2].connect(filter.frequency);
 
-            // Connect audio chain
+            // Connect audio chain with optional panning
             oscillator.connect(filter);
             filter.connect(gainNode);
-            gainNode.connect(this.reverbGain);
-            gainNode.connect(this.delayNode);
+            if (panner) {
+                panner.pan.setValueAtTime(-0.15, this.audioContext.currentTime); // Slight left
+                gainNode.connect(panner);
+                panner.connect(this.reverbGain);
+                panner.connect(this.delayNode);
+            } else {
+                gainNode.connect(this.reverbGain);
+                gainNode.connect(this.delayNode);
+            }
 
             // Store references
             this.oscillators.push(oscillator);
             this.gainNodes.push(gainNode);
             this.filters.push(filter);
 
-            // Start with slight timing offset for organic feel
+            // Start with slight timing offset
             const startTime = this.audioContext.currentTime + (index * 0.01);
             oscillator.start(startTime);
+
+            // SECONDARY LAYER (for richness)
+            const oscillator2 = this.audioContext.createOscillator();
+            const gainNode2 = this.audioContext.createGain();
+            const filter2 = this.audioContext.createBiquadFilter();
+            const panner2 = this.audioContext.createStereoPanner ? this.audioContext.createStereoPanner() : null;
+
+            // Same waveform but slightly detuned
+            oscillator2.type = waveforms[index % waveforms.length];
+            const detuneAmount = 3 + (Math.random() * 2); // 3-5 cents detune
+            oscillator2.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+            oscillator2.detune.setValueAtTime(detuneAmount, this.audioContext.currentTime);
+
+            // Matching filter
+            filter2.type = 'lowpass';
+            filter2.frequency.setValueAtTime(frequency * 3, this.audioContext.currentTime);
+            filter2.Q.setValueAtTime(0.5, this.audioContext.currentTime);
+
+            // Slightly quieter than primary layer
+            gainNode2.gain.setValueAtTime((baseVolume + randomVariation) * 0.7, this.audioContext.currentTime);
+
+            // Connect LFO modulation
+            this.lfoGains[0].connect(oscillator2.frequency);
+            this.lfoGains[1].connect(gainNode2.gain);
+            this.lfoGains[2].connect(filter2.frequency);
+
+            // Connect audio chain with opposite panning
+            oscillator2.connect(filter2);
+            filter2.connect(gainNode2);
+            if (panner2) {
+                panner2.pan.setValueAtTime(0.15, this.audioContext.currentTime); // Slight right
+                gainNode2.connect(panner2);
+                panner2.connect(this.reverbGain);
+                panner2.connect(this.delayNode);
+            } else {
+                gainNode2.connect(this.reverbGain);
+                gainNode2.connect(this.delayNode);
+            }
+
+            // Store references
+            this.oscillators.push(oscillator2);
+            this.gainNodes.push(gainNode2);
+            this.filters.push(filter2);
+
+            // Start with slight timing offset (slightly different from primary)
+            const startTime2 = this.audioContext.currentTime + (index * 0.01) + 0.005;
+            oscillator2.start(startTime2);
         });
     }
 
@@ -1300,6 +1364,12 @@ class MusicPlayer {
     play() {
         if (!this.audioContext || this.isPlaying) return;
 
+        // Check if music is muted
+        if (this.audioManager && this.audioManager.preferences && this.audioManager.preferences.musicMuted) {
+            console.log(`MusicPlayer[${this.instanceId}]: Music is muted, not starting playback`);
+            return;
+        }
+
         console.log(`MusicPlayer[${this.instanceId}]: Starting rich ambient music`);
         this.isPlaying = true;
 
@@ -1381,8 +1451,8 @@ class MusicPlayer {
  * Extends MusicPlayer with adaptive capabilities
  */
 class AdaptiveMusicPlayer extends MusicPlayer {
-    constructor(audioContext) {
-        super(audioContext);
+    constructor(audioContext, audioManager) {
+        super(audioContext, audioManager);
 
         try {
             // Initialize adaptive components with error handling
@@ -1598,6 +1668,13 @@ class AdaptiveMusicPlayer extends MusicPlayer {
      */
     adjustVolumeForMood(volumeMultiplier) {
         if (!this.masterGain) return;
+
+        // If muted, ensure volume stays at 0
+        if (this.audioManager && this.audioManager.preferences && this.audioManager.preferences.musicMuted) {
+            this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+            this.masterGain.gain.setValueAtTime(0, this.audioContext.currentTime);
+            return;
+        }
 
         const targetVolume = this.volume * volumeMultiplier;
         const currentTime = this.audioContext.currentTime;
@@ -1899,6 +1976,11 @@ class SoundEffects {
         // Check if audio is enabled
         if (this.audioManager && !this.audioManager.preferences.audioEnabled) {
             return; // Don't play sound effects when audio is disabled
+        }
+
+        // Check if effects are muted or volume is 0
+        if (this.audioManager && (this.audioManager.preferences.effectsMuted || this.volume <= 0)) {
+            return;
         }
 
         const soundConfig = audioConfig.effects.sounds[soundName];
@@ -2257,13 +2339,7 @@ class AudioControls {
 
         // FAB button click
         // Single click toggles mute/unmute for both music and effects.
-        // Shift/Ctrl/Meta + Click will toggle the controls panel instead.
         this.fabButton.addEventListener('click', (e) => {
-            if (e.shiftKey || e.ctrlKey || e.metaKey) {
-                this.toggleControlsPanel();
-                return;
-            }
-
             // Toggle both music and effects mute
             const isMuted = this.audioManager.toggleAllMute();
             // Refresh UI for mute buttons and FAB icon
@@ -2273,7 +2349,32 @@ class AudioControls {
             return isMuted;
         });
 
-        // Close panel when clicking outside
+        // Show panel on hover (mouseenter)
+        this.fabButton.addEventListener('mouseenter', () => {
+            this.showControlsPanel();
+        });
+
+        // Keep panel open when hovering over it
+        this.controlsPanel.addEventListener('mouseenter', () => {
+            this.showControlsPanel();
+        });
+
+        // Hide panel when leaving FAB (unless entering panel)
+        this.fabButton.addEventListener('mouseleave', (e) => {
+            // Small delay to allow moving to the panel
+            setTimeout(() => {
+                if (!this.controlsPanel.matches(':hover')) {
+                    this.hideControlsPanel();
+                }
+            }, 100);
+        });
+
+        // Hide panel when leaving panel
+        this.controlsPanel.addEventListener('mouseleave', () => {
+            this.hideControlsPanel();
+        });
+
+        // Close panel when clicking outside (fallback)
         document.addEventListener('click', (e) => {
             if (!this.controlsContainer.contains(e.target)) {
                 this.hideControlsPanel();
