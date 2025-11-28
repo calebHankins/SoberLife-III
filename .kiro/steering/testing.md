@@ -75,16 +75,43 @@ await page.evaluate(() => {
 
 ## Test Structure
 
-### Test Files Location
+### Test Files Inventory
+
+We maintain **14 test spec files** focused on unique functionality to minimize redundancy and CI time:
+
 ```
 tests/playwright/
-├── game-modes.spec.js      # Game mode selection and navigation
-├── gameplay.spec.js        # Blackjack mechanics and stress management
-├── shop-system.spec.js     # Shop and Mind Palace features
-├── mobile.spec.js          # Mobile viewport testing
-├── accessibility.spec.js   # Accessibility compliance
-└── README.md              # Detailed testing documentation
+├── accessibility.spec.js                # WCAG compliance, semantic HTML, ARIA labels
+├── achievements.spec.js                 # Achievement system, notifications, persistence
+├── audio-controls.spec.js               # Audio FAB, mute toggle, settings panel
+├── free-play-achievements.spec.js       # Free Play + achievements integration
+├── free-play-joker-deck.spec.js         # Joker mechanics in Free Play mode
+├── free-play-shop.spec.js               # Shop functionality in Free Play
+├── game-modes.spec.js                   # Mode selection, navigation, screen management
+├── gameplay.spec.js                     # Blackjack mechanics, zen activities, stress
+├── mobile.spec.js                       # Mobile viewport (iPhone SE 375x667 portrait)
+├── shop-access.spec.js                  # Shop accessibility from all modes
+├── shop-navigation.spec.js              # Shop exit navigation across modes
+├── shop-scroll-position.spec.js         # Shop/Mind Palace scroll reset
+├── shop-system.spec.js                  # Shop upgrades, Mind Palace features
+└── zen-points-display.spec.js           # Zen points state management across modes
 ```
+
+### Anti-Duplication Guidelines
+
+**❌ DO NOT:**
+- Create debug-specific test files (use console.log in existing tests if needed)
+- Create issue-specific test files (add tests to appropriate spec file instead)
+- Create separate "simple" or "debug" variants of existing tests
+- Test the same functionality across multiple viewport sizes (desktop + tablet are equivalent)
+- Create landscape orientation tests unless specifically needed
+
+**✅ DO:**
+- Add new tests to the most appropriate existing spec file
+- Use mobile viewport (375x667) for mobile-specific responsive testing
+- Use desktop viewport (default) for general functionality
+- Consolidate related tests in the same describe block
+- Remove tests when issues are fixed and covered by general tests
 
 ### Test Organization
 
@@ -225,10 +252,9 @@ test('should use new feature', async ({ page }) => {
 
 Mobile is the most played display mode, so mobile testing is critical:
 
-### Mobile Viewports Tested
-- **iPhone SE**: 375x667 (portrait)
-- **iPhone SE Landscape**: 667x375
-- **iPad Pro**: 768x1024 (portrait)
+### Mobile Viewport Tested
+- **iPhone SE Portrait**: 375x667 - All mobile-specific tests use this viewport
+- **Desktop/Tablet**: Covered by default chromium project (no separate testing needed)
 
 ### Mobile-Specific Checks
 - Touch-friendly button sizes (minimum 32x32px)

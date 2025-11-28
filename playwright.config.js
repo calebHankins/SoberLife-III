@@ -32,15 +32,6 @@ module.exports = defineConfig({
                 browserName: 'chromium',
             },
         },
-
-        {
-            name: 'tablet',
-            use: {
-                ...devices['iPad Pro'],
-                // Use chromium for tablet tests instead of webkit for better CI compatibility
-                browserName: 'chromium',
-            },
-        },
     ],
 
     webServer: {
