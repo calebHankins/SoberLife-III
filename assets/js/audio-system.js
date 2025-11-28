@@ -114,7 +114,7 @@ const audioConfig = {
     music: {
         baseFrequency: 220,      // A3 note as foundation
         harmonics: [1, 1.5, 2, 3], // Harmonic ratios for layering
-        defaultVolume: 0.45,     // Increased from 0.15 for better audibility
+        defaultVolume: 0.95,     // Increased from 0.15 for better audibility
         fadeInDuration: 3000,    // Gentle fade in
         fadeOutDuration: 2000,   // Gentle fade out
         modulationRate: 0.1      // Slow LFO for organic feel
@@ -141,7 +141,7 @@ const audioConfig = {
                 arpeggiationDelay: 0.05 // Delay between notes in chord (seconds)
             }
         },
-        defaultVolume: 0.55      // Increased from 0.3 for better audibility
+        defaultVolume: 0.95      // Increased from 0.3 for better audibility
     },
     storage: {
         musicVolumeKey: 'soberlife_music_volume',
@@ -156,6 +156,13 @@ const audioConfig = {
  */
 class AudioManager {
     constructor() {
+        if (AudioManager.instance) {
+            return AudioManager.instance;
+        }
+        AudioManager.instance = this;
+
+        console.log('AudioManager: Instantiating new AudioManager instance');
+
         this.audioContext = null;
         this.musicPlayer = null;
         this.soundEffects = null;
@@ -244,11 +251,11 @@ class AudioManager {
 
         // Initialize components with error handling
         try {
-            this.musicPlayer = new AdaptiveMusicPlayer(this.audioContext);
+            this.musicPlayer = new AdaptiveMusicPlayer(this.audioContext, this);
             console.log('AudioManager: AdaptiveMusicPlayer initialized successfully' + (this.musicPlayer && this.musicPlayer.instanceId ? ` (MusicPlayer[${this.musicPlayer.instanceId}])` : ''));
         } catch (error) {
             console.warn('AudioManager: Failed to initialize AdaptiveMusicPlayer, falling back to MusicPlayer:', error);
-            this.musicPlayer = new MusicPlayer(this.audioContext);
+            this.musicPlayer = new MusicPlayer(this.audioContext, this);
         }
 
         this.soundEffects = new SoundEffects(this.audioContext, this);
@@ -1021,8 +1028,9 @@ class ExtendedMusicLoop {
  * Generates ambient lofi background music using Web Audio API oscillators
  */
 class MusicPlayer {
-    constructor(audioContext) {
+    constructor(audioContext, audioManager) {
         this.audioContext = audioContext;
+        this.audioManager = audioManager;
         // Generate unique instance ID for debugging
         this.instanceId = `MP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         this.oscillators = [];
@@ -1300,6 +1308,12 @@ class MusicPlayer {
     play() {
         if (!this.audioContext || this.isPlaying) return;
 
+        // Check if music is muted
+        if (this.audioManager && this.audioManager.preferences && this.audioManager.preferences.musicMuted) {
+            console.log(`MusicPlayer[${this.instanceId}]: Music is muted, not starting playback`);
+            return;
+        }
+
         console.log(`MusicPlayer[${this.instanceId}]: Starting rich ambient music`);
         this.isPlaying = true;
 
@@ -1381,8 +1395,8 @@ class MusicPlayer {
  * Extends MusicPlayer with adaptive capabilities
  */
 class AdaptiveMusicPlayer extends MusicPlayer {
-    constructor(audioContext) {
-        super(audioContext);
+    constructor(audioContext, audioManager) {
+        super(audioContext, audioManager);
 
         try {
             // Initialize adaptive components with error handling
@@ -1598,6 +1612,13 @@ class AdaptiveMusicPlayer extends MusicPlayer {
      */
     adjustVolumeForMood(volumeMultiplier) {
         if (!this.masterGain) return;
+
+        // If muted, ensure volume stays at 0
+        if (this.audioManager && this.audioManager.preferences && this.audioManager.preferences.musicMuted) {
+            this.masterGain.gain.cancelScheduledValues(this.audioContext.currentTime);
+            this.masterGain.gain.setValueAtTime(0, this.audioContext.currentTime);
+            return;
+        }
 
         const targetVolume = this.volume * volumeMultiplier;
         const currentTime = this.audioContext.currentTime;
@@ -1899,6 +1920,11 @@ class SoundEffects {
         // Check if audio is enabled
         if (this.audioManager && !this.audioManager.preferences.audioEnabled) {
             return; // Don't play sound effects when audio is disabled
+        }
+
+        // Check if effects are muted or volume is 0
+        if (this.audioManager && (this.audioManager.preferences.effectsMuted || this.volume <= 0)) {
+            return;
         }
 
         const soundConfig = audioConfig.effects.sounds[soundName];
@@ -2257,13 +2283,7 @@ class AudioControls {
 
         // FAB button click
         // Single click toggles mute/unmute for both music and effects.
-        // Shift/Ctrl/Meta + Click will toggle the controls panel instead.
         this.fabButton.addEventListener('click', (e) => {
-            if (e.shiftKey || e.ctrlKey || e.metaKey) {
-                this.toggleControlsPanel();
-                return;
-            }
-
             // Toggle both music and effects mute
             const isMuted = this.audioManager.toggleAllMute();
             // Refresh UI for mute buttons and FAB icon
@@ -2273,7 +2293,32 @@ class AudioControls {
             return isMuted;
         });
 
-        // Close panel when clicking outside
+        // Show panel on hover (mouseenter)
+        this.fabButton.addEventListener('mouseenter', () => {
+            this.showControlsPanel();
+        });
+
+        // Keep panel open when hovering over it
+        this.controlsPanel.addEventListener('mouseenter', () => {
+            this.showControlsPanel();
+        });
+
+        // Hide panel when leaving FAB (unless entering panel)
+        this.fabButton.addEventListener('mouseleave', (e) => {
+            // Small delay to allow moving to the panel
+            setTimeout(() => {
+                if (!this.controlsPanel.matches(':hover')) {
+                    this.hideControlsPanel();
+                }
+            }, 100);
+        });
+
+        // Hide panel when leaving panel
+        this.controlsPanel.addEventListener('mouseleave', () => {
+            this.hideControlsPanel();
+        });
+
+        // Close panel when clicking outside (fallback)
         document.addEventListener('click', (e) => {
             if (!this.controlsContainer.contains(e.target)) {
                 this.hideControlsPanel();
