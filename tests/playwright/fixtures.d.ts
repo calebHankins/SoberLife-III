@@ -10,4 +10,4 @@ declare module '@playwright/test' {
     }
 }
 
-export {};
+export { };

@@ -1,15 +1,13 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./fixtures');
 
 test.describe('Free Play Mode - Achievements Integration', () => {
-    const { ensureGameReady } = require('./test-utils');
-
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, ensureGameReady }) => {
         await page.goto('/');
         // Clear localStorage to start fresh
         await page.evaluate(() => {
             localStorage.clear();
         });
-        await ensureGameReady(page);
+        await ensureGameReady();
     });
 
     test('should display achievements when accessing Mind Palace from Free Play success screen', async ({ page }) => {
@@ -166,7 +164,7 @@ test.describe('Free Play Mode - Achievements Integration', () => {
         await expect(page.locator('#freePlayOverview')).toBeVisible();
     });
 
-    test('should persist achievements across Free Play sessions', async ({ page }) => {
+    test('should persist achievements across Free Play sessions', async ({ page, ensureGameReady }) => {
         // Manually unlock an achievement via console
         await page.evaluate(() => {
             // Set up achievement state with an unlocked achievement
@@ -187,7 +185,7 @@ test.describe('Free Play Mode - Achievements Integration', () => {
         });
 
         // Reload page to load saved state and ensure app is ready
-        await ensureGameReady(page);
+        await ensureGameReady();
 
         // Navigate directly to Free Play overview via console
         await page.evaluate(() => {
@@ -268,7 +266,7 @@ test.describe('Free Play Mode - Achievements Integration', () => {
         await expect(activitiesSection).toContainText(/Compartmentalize/i);
     });
 
-    test('should show achievement notification when unlocking in Free Play', async ({ page }) => {
+    test('should show achievement notification when unlocking in Free Play', async ({ page, ensureGameReady }) => {
         // Set up initial state - no achievements unlocked yet
         await page.evaluate(() => {
             const achievementState = {
@@ -285,7 +283,7 @@ test.describe('Free Play Mode - Achievements Integration', () => {
             localStorage.setItem('soberlife-achievements', JSON.stringify(achievementState));
         });
 
-        await ensureGameReady(page);
+        await ensureGameReady();
 
         // Navigate directly to Free Play overview
         await page.evaluate(() => {
