@@ -11,8 +11,9 @@ test.describe('Achievements System', () => {
             localStorage.clear();
         });
 
-        // Reload to apply cleared state
+        // Reload to apply cleared state and wait for main module to assign global functions
         await page.reload();
+        await page.waitForFunction(() => window.gameFunctionsReady === true, null, { timeout: 5000 });
     });
 
     test('should display achievements in Mind Palace', async ({ page }) => {
@@ -24,6 +25,7 @@ test.describe('Achievements System', () => {
 
         // Click Visit Mind Palace button
         await page.getByRole('button', { name: /Visit Mind Palace/i }).click();
+        
 
         // Wait for Mind Palace modal
         await expect(page.locator('#mindPalaceModal')).toBeVisible();
