@@ -1954,7 +1954,7 @@ function checkCompartmentalizeAvailable() {
 }
 
 // Offer compartmentalize option to player
-function offerCompartmentalize() {
+export function offerCompartmentalize() {
     // Show compartmentalize option UI
     const gameArea = document.getElementById('gameArea');
     if (gameArea) {
@@ -1971,6 +1971,12 @@ function offerCompartmentalize() {
             </div>
         `;
         gameArea.appendChild(compartmentalizeOffer);
+
+        // Disable game buttons while offer is active
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        if (hitBtn) hitBtn.disabled = true;
+        if (standBtn) standBtn.disabled = true;
     }
 }
 
@@ -1983,6 +1989,12 @@ export function useCompartmentalizeWrapper() {
         // Remove compartmentalize offer
         const offer = document.querySelector('.compartmentalize-offer');
         if (offer) offer.remove();
+
+        // Re-enable game buttons for split hand play
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        if (hitBtn) hitBtn.disabled = false;
+        if (standBtn) standBtn.disabled = false;
 
         // Show split hands UI
         showSplitHandsUI(result.splitHands);
@@ -2004,6 +2016,12 @@ export function declineCompartmentalize() {
     // Remove compartmentalize offer
     const offer = document.querySelector('.compartmentalize-offer');
     if (offer) offer.remove();
+
+    // Re-enable game buttons (endRound will handle final state)
+    const hitBtn = document.getElementById('hitBtn');
+    const standBtn = document.getElementById('standBtn');
+    if (hitBtn) hitBtn.disabled = false;
+    if (standBtn) standBtn.disabled = false;
 
     // Proceed with normal bust
     endRound('bust');
