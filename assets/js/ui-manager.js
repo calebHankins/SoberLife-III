@@ -1525,8 +1525,7 @@ export function showZenPointAnimation(amount, type, direction) {
             font-weight: bold;
             z-index: 2000;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 20px ${glowColor}44;
-            animation: zenPointSlideIn 0.5s ease-out, zenPointFadeOut 0.5s ease-out 2.5s;
-            transform: translateX(100%);
+            animation: zenPointSlideIn 0.5s ease-out forwards, zenPointFadeOut 0.5s ease-out 2.5s forwards;
             border: 2px solid ${glowColor};
         `;
 
