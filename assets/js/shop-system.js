@@ -530,7 +530,7 @@ function showPopupNotification(message, type = 'default') {
         // Style the popup
         popup.style.cssText = `
             position: fixed;
-            top: 20px;
+            top: 60px;
             right: 20px;
             background: ${type === 'success' ? '#2ECC71' : type === 'error' ? '#E74C3C' : '#3498DB'};
             color: white;
