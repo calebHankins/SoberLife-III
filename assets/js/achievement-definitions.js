@@ -34,13 +34,13 @@ export const achievementDefinitions = {
 
     free_play_10: {
         id: 'free_play_10',
-        name: '🔥 On Fire',
+        name: '🌱 Finding Flow',
         description: 'Complete 10 Free Play tasks',
         category: 'free_play',
-        emoji: '🔥',
+        emoji: '🌱',
         milestone: 10,
         checkCondition: (stats) => stats.freePlayTasksTotal >= 10,
-        flavorText: 'You\'re building momentum!'
+        flavorText: 'Your practice is taking root.'
     },
 
     free_play_25: {
@@ -56,80 +56,80 @@ export const achievementDefinitions = {
 
     free_play_50: {
         id: 'free_play_50',
-        name: '💎 Veteran Player',
+        name: '🌿 Seasoned Practitioner',
         description: 'Complete 50 Free Play tasks',
         category: 'free_play',
-        emoji: '💎',
+        emoji: '🌿',
         milestone: 50,
         checkCondition: (stats) => stats.freePlayTasksTotal >= 50,
-        flavorText: 'You\'re a Free Play veteran!'
+        flavorText: 'Your dedication runs deep.'
     },
 
     free_play_100: {
         id: 'free_play_100',
-        name: '👑 Free Play Legend',
+        name: '🧘 Free Play Sage',
         description: 'Complete 100 Free Play tasks',
         category: 'free_play',
-        emoji: '👑',
+        emoji: '🧘',
         milestone: 100,
         checkCondition: (stats) => stats.freePlayTasksTotal >= 100,
-        flavorText: 'Legendary status achieved!'
+        flavorText: 'Wisdom earned through patient practice.'
     },
 
-    // Wealth Milestone Achievements
+    // Abundance Milestone Achievements
     wealth_1000: {
         id: 'wealth_1000',
-        name: '💰 First Fortune',
+        name: '🌱 Seeds of Calm',
         description: 'Accumulate 1,000 zen points at one time',
         category: 'wealth',
-        emoji: '💰',
+        emoji: '🌱',
         milestone: 1000,
         checkCondition: (stats) => stats.zenPointsPeak >= 1000,
-        flavorText: 'Your first taste of wealth!'
+        flavorText: 'Your practice is taking root.'
     },
 
     wealth_5000: {
         id: 'wealth_5000',
-        name: '💎 Prosperity',
+        name: '🌊 Abundant Flow',
         description: 'Accumulate 5,000 zen points at one time',
         category: 'wealth',
-        emoji: '💎',
+        emoji: '🌊',
         milestone: 5000,
         checkCondition: (stats) => stats.zenPointsPeak >= 5000,
-        flavorText: 'Prosperity flows through you!'
+        flavorText: 'Peace flows freely through you.'
     },
 
     wealth_10000: {
         id: 'wealth_10000',
-        name: '🏆 Zen Tycoon',
+        name: '🧘 Inner Wealth',
         description: 'Accumulate 10,000 zen points at one time',
         category: 'wealth',
-        emoji: '🏆',
+        emoji: '🧘',
         milestone: 10000,
         checkCondition: (stats) => stats.zenPointsPeak >= 10000,
-        flavorText: 'You\'re a zen point tycoon!'
+        flavorText: 'True richness comes from within.'
     },
 
     wealth_25000: {
         id: 'wealth_25000',
-        name: '🌟 Zen Magnate',
+        name: '🏔️ Mountain Mind',
         description: 'Accumulate 25,000 zen points at one time',
         category: 'wealth',
-        emoji: '🌟',
+        emoji: '🏔️',
         milestone: 25000,
         checkCondition: (stats) => stats.zenPointsPeak >= 25000,
-        flavorText: 'Your wealth knows no bounds!'
+        flavorText: 'Steady as stone, calm as clouds.'
     },
 
     wealth_50000: {
         id: 'wealth_50000',
-        name: '👑 Zen Emperor',
+        name: '☯️ Harmony Keeper',
         description: 'Accumulate 50,000 zen points at one time',
         category: 'wealth',
-        emoji: '👑',
+        emoji: '☯️',
         milestone: 50000,
         checkCondition: (stats) => stats.zenPointsPeak >= 50000,
-        flavorText: 'You rule the zen point empire!'
+        flavorText: 'Balance in all things.'
     }
 };
 

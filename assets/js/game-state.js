@@ -151,8 +151,8 @@ export const contextualActions = {
 // DMV-themed outcome messages replacing blackjack terminology
 export const dmvOutcomeMessages = {
     win: [
-        "✅ You handled that step perfectly! Your preparation and patience paid off.",
-        "🎯 Excellent work! You navigated the bureaucracy like a pro.",
+        "✅ You handled that perfectly. Good prep and patience paid off.",
+        "🎯 Excellent work! You handled the bureaucracy well.",
         "💪 Great job staying calm under pressure. The DMV staff appreciated your approach.",
         "🌟 Outstanding! You turned a potentially stressful situation into a success.",
         "👏 Well done! Your mindful approach made all the difference."
@@ -161,15 +161,15 @@ export const dmvOutcomeMessages = {
         "📋 The process got a bit overwhelming this time. Take a breath and regroup.",
         "⏰ The timing wasn't quite right. Sometimes these things take patience.",
         "🔄 That step didn't go as planned. Let's try a different approach.",
-        "💭 No worries - even experienced DMV visitors have challenging moments.",
+        "💭 No worries, even experienced DMV visitors have challenging moments.",
         "🎯 Close, but not quite there. You're learning valuable lessons about persistence."
     ],
     tie: [
         "⚖️ You held your ground well. Sometimes persistence is the key.",
-        "🤝 A balanced approach - you're learning to work with the system.",
+        "🤝 A balanced approach! You're learning to work with the system.",
         "⏳ Patience is paying off. You're getting the hang of this process.",
         "🎭 You matched the pace perfectly. That's good situational awareness.",
-        "🧘 Steady progress - you're maintaining your composure beautifully."
+        "🧘 Steady progress. You're maintaining your composure beautifully."
     ],
     bust: [
         "😰 The stress got to you this time. Remember to use your zen techniques!",
@@ -200,7 +200,7 @@ export const freePlayOutcomeMessages = {
         "📋 Not this time. Keep practicing in Free Play!",
         "⏰ Good effort. Free Play is the best place to learn.",
         "🔄 That's what practice is for. Try again!",
-        "💭 No pressure - this is your training ground.",
+        "💭 No pressure, this is your training ground.", ,
         "🎯 Learning opportunity! Each round makes you stronger."
     ],
     tie: [
@@ -208,7 +208,7 @@ export const freePlayOutcomeMessages = {
         "🤝 Balanced. Keep finding your center.",
         "⏳ Good pace. You're learning the rhythm.",
         "🎭 Even match. Your skills are developing nicely.",
-        "🧘 Maintaining equilibrium - that's the goal!"
+        "🧘 Maintaining equilibrium. That's the goal!"
     ],
     bust: [
         "😰 Free Play Overload! You pushed too hard without a specific goal. Take a break.",
@@ -307,7 +307,7 @@ export const initialFlavorText = {
         title: "Entering the DMV",
         text: "You walk through the heavy glass doors into the familiar fluorescent-lit world of the Department of Motor Vehicles. The air conditioning hums overhead as you take in the scene: numbered tickets, waiting areas filled with plastic chairs, and that distinctive government building atmosphere. Your heart rate picks up slightly as you approach the front desk, knowing this is just the beginning of your Real ID renewal journey.",
         stressTriggers: ["bureaucracy", "waiting", "paperwork"],
-        tips: "Take a deep breath and remember - you've prepared for this. Everyone here is just trying to help you get what you need."
+        tips: "Take a deep breath and remember, you've prepared for this. Everyone here is just trying to help you get what you need."
     },
     1: {
         title: "The Waiting Game",
@@ -344,7 +344,7 @@ export const successMessages = [
     },
     {
         main: "DMV CHAMPION! 🏆",
-        sub: "You navigated the labyrinth of government bureaucracy with grace and wisdom. Truly impressive!",
+        sub: "You navigated the labyrinth of government bureaucracy with grace and wisdom.",
         stats: "You maintained your cool through every step and emerged victorious!"
     },
     {

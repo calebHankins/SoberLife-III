@@ -247,6 +247,10 @@ class AudioManager {
         if (this.audioContext.state === 'suspended') {
             console.log('AudioManager: Audio context suspended, waiting for user interaction' + (this.musicPlayer && this.musicPlayer.instanceId ? ` (MusicPlayer[${this.musicPlayer.instanceId}])` : ''));
             this.setupUserInteractionHandler();
+        } else if (this.audioContext.state === 'running') {
+            // Audio context already running - user interaction is not required
+            console.log('AudioManager: Audio context already running, enabling audio');
+            this.userInteracted = true;
         }
 
         // Initialize components with error handling
@@ -291,11 +295,14 @@ class AudioManager {
      */
     setupUserInteractionHandler() {
         const resumeAudio = async () => {
+            // Mark that user has interacted - this is required for startMusic() to work
+            // This must happen regardless of the audio context state
+            this.userInteracted = true;
+
             if (this.audioContext && this.audioContext.state === 'suspended') {
                 try {
                     await this.audioContext.resume();
                     console.log('AudioManager: Audio context resumed after user interaction');
-                    this.userInteracted = true;
 
                     // Start background music if enabled
                     if (this.preferences.audioEnabled && !this.preferences.musicMuted) {
@@ -304,6 +311,8 @@ class AudioManager {
                 } catch (error) {
                     console.error('AudioManager: Failed to resume audio context:', error);
                 }
+            } else {
+                console.log('AudioManager: User interaction registered (audio context already running)');
             }
 
             // Remove listeners after first interaction
@@ -519,6 +528,8 @@ class AudioManager {
      * Start background music if conditions are met
      */
     startMusic() {
+        console.log(`AudioManager: startMusic() called - audioEnabled: ${this.preferences.audioEnabled}, musicMuted: ${this.preferences.musicMuted}, userInteracted: ${this.userInteracted}, hasMusicPlayer: ${!!this.musicPlayer}, isPlaying: ${this.musicPlayer?.isPlaying}`);
+
         if (this.preferences.audioEnabled && !this.preferences.musicMuted && this.userInteracted && this.musicPlayer) {
             // Stop existing music if already playing to ensure clean state
             // This prevents overlapping audio when switching between game modes
@@ -528,6 +539,8 @@ class AudioManager {
             }
             // Start music with clean state
             this.musicPlayer.play();
+        } else {
+            console.log('AudioManager: startMusic() conditions not met, music not started');
         }
     }
 
@@ -1042,6 +1055,8 @@ class MusicPlayer {
         this.lfoOscillators = [];
         this.lfoGains = [];
         this.isPlaying = false;
+        this.needsReinit = false; // Track if oscillators have been stopped and need recreation
+        this.pauseTimeoutId = null; // Track pending pause timeout to allow cancellation
         this.volume = audioConfig.music.defaultVolume;
 
         // Musical progression state
@@ -1088,6 +1103,9 @@ class MusicPlayer {
 
         // Create low-pass filter for warmth
         const warmthFilter = this.audioContext.createBiquadFilter();
+        // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+        warmthFilter.channelCount = 1;
+        warmthFilter.channelCountMode = 'explicit';
         warmthFilter.type = 'lowpass';
         warmthFilter.frequency.setValueAtTime(2000, this.audioContext.currentTime);
         warmthFilter.Q.setValueAtTime(0.5, this.audioContext.currentTime);
@@ -1160,6 +1178,9 @@ class MusicPlayer {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
             const filter = this.audioContext.createBiquadFilter();
+            // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+            filter.channelCount = 1;
+            filter.channelCountMode = 'explicit';
             const panner = this.audioContext.createStereoPanner ? this.audioContext.createStereoPanner() : null;
 
             // Use only pleasant waveforms for better sound quality
@@ -1208,6 +1229,9 @@ class MusicPlayer {
             const oscillator2 = this.audioContext.createOscillator();
             const gainNode2 = this.audioContext.createGain();
             const filter2 = this.audioContext.createBiquadFilter();
+            // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+            filter2.channelCount = 1;
+            filter2.channelCountMode = 'explicit';
             const panner2 = this.audioContext.createStereoPanner ? this.audioContext.createStereoPanner() : null;
 
             // Same waveform but slightly detuned
@@ -1319,6 +1343,9 @@ class MusicPlayer {
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
         const filter = this.audioContext.createBiquadFilter();
+        // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+        filter.channelCount = 1;
+        filter.channelCountMode = 'explicit';
 
         oscillator.type = 'sine'; // Use sine for cleaner melody
         oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
@@ -1362,12 +1389,36 @@ class MusicPlayer {
      * Start playing rich background music with fade in
      */
     play() {
-        if (!this.audioContext || this.isPlaying) return;
+        console.log(`MusicPlayer[${this.instanceId}]: play() called - audioContext: ${!!this.audioContext}, isPlaying: ${this.isPlaying}, needsReinit: ${this.needsReinit}, pauseTimeoutId: ${!!this.pauseTimeoutId}`);
+
+        if (!this.audioContext || this.isPlaying) {
+            console.log(`MusicPlayer[${this.instanceId}]: play() early return - no audioContext or already playing`);
+            return;
+        }
 
         // Check if music is muted
         if (this.audioManager && this.audioManager.preferences && this.audioManager.preferences.musicMuted) {
             console.log(`MusicPlayer[${this.instanceId}]: Music is muted, not starting playback`);
             return;
+        }
+
+        // If there's a pending pause timeout, cancel it - we're resuming before oscillators were stopped
+        if (this.pauseTimeoutId) {
+            clearTimeout(this.pauseTimeoutId);
+            this.pauseTimeoutId = null;
+            // Oscillators are still running, but intervals were cleared - restart them
+            console.log(`MusicPlayer[${this.instanceId}]: Cancelled pending pause, resuming music`);
+            this.needsReinit = false;
+            // Restart the musical progression intervals that were cleared by pause()
+            this.setupMusicalProgression();
+        }
+
+        // If oscillators have been stopped, we need to reinitialize them
+        // In Web Audio API, stopped oscillators cannot be restarted - they must be recreated
+        if (this.needsReinit) {
+            console.log(`MusicPlayer[${this.instanceId}]: Reinitializing audio graph (oscillators were stopped)`);
+            this.reinitializeOscillators();
+            this.needsReinit = false;
         }
 
         console.log(`MusicPlayer[${this.instanceId}]: Starting rich ambient music`);
@@ -1380,6 +1431,26 @@ class MusicPlayer {
         this.masterGain.gain.cancelScheduledValues(currentTime);
         this.masterGain.gain.setValueAtTime(0, currentTime);
         this.masterGain.gain.linearRampToValueAtTime(this.volume, currentTime + fadeInDuration);
+    }
+
+    /**
+     * Reinitialize oscillators and LFOs after they've been stopped
+     * This is needed because Web Audio API oscillators cannot be restarted once stopped
+     */
+    reinitializeOscillators() {
+        // Clear old references
+        this.oscillators = [];
+        this.gainNodes = [];
+        this.filters = [];
+        this.lfoOscillators = [];
+        this.lfoGains = [];
+
+        // Recreate LFOs and oscillators
+        this.createLFOs();
+        this.createChordOscillators();
+
+        // Restart musical progression
+        this.setupMusicalProgression();
     }
 
     /**
@@ -1413,14 +1484,19 @@ class MusicPlayer {
         this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, currentTime);
         this.masterGain.gain.linearRampToValueAtTime(0, currentTime + fadeOutDuration);
 
+        // Mark for reinitialization immediately - if play() is called before timeout,
+        // it will cancel the timeout and clear this flag
+        this.needsReinit = true;
+
         // Stop all oscillators after fade
-        setTimeout(() => {
+        this.pauseTimeoutId = setTimeout(() => {
             this.oscillators.forEach(osc => {
                 try { osc.stop(); } catch (e) { }
             });
             this.lfoOscillators.forEach(lfo => {
                 try { lfo.stop(); } catch (e) { }
             });
+            this.pauseTimeoutId = null;
         }, fadeOutDuration * 1000);
     }
 
@@ -1730,6 +1806,9 @@ class AdaptiveMusicPlayer extends MusicPlayer {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
             const filter = this.audioContext.createBiquadFilter();
+            // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+            filter.channelCount = 1;
+            filter.channelCountMode = 'explicit';
 
             oscillator.type = 'sawtooth';
             oscillator.frequency.setValueAtTime(frequency, currentTime);
@@ -2032,6 +2111,9 @@ class SoundEffects {
 
         // Create filter for shaping the noise
         const filter = this.audioContext.createBiquadFilter();
+        // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+        filter.channelCount = 1;
+        filter.channelCountMode = 'explicit';
         filter.type = 'bandpass';
         filter.frequency.setValueAtTime(config.frequency, currentTime);
         filter.Q.setValueAtTime(5, currentTime);
@@ -2124,6 +2206,9 @@ class SoundEffects {
 
         // Create low-pass filter for warmth
         const filter = this.audioContext.createBiquadFilter();
+        // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+        filter.channelCount = 1;
+        filter.channelCountMode = 'explicit';
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(3000, currentTime);
         filter.Q.setValueAtTime(0.5, currentTime);

@@ -1525,8 +1525,7 @@ export function showZenPointAnimation(amount, type, direction) {
             font-weight: bold;
             z-index: 2000;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 20px ${glowColor}44;
-            animation: zenPointSlideIn 0.5s ease-out, zenPointFadeOut 0.5s ease-out 2.5s;
-            transform: translateX(100%);
+            animation: zenPointSlideIn 0.5s ease-out forwards, zenPointFadeOut 0.5s ease-out 2.5s forwards;
             border: 2px solid ${glowColor};
         `;
 
@@ -1587,7 +1586,7 @@ export function showCompletionBonusCelebration(bonusBreakdown) {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5f9ea0 0%, #2e8b57 100%);
             color: white;
             padding: 30px;
             border-radius: 20px;

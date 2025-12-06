@@ -200,7 +200,7 @@ test.describe('Free Play Mode - Achievements Integration', () => {
         await expect(page.locator('#mindPalaceModal')).toBeVisible();
 
         // Verify the unlocked achievement is displayed
-        const unlockedCard = page.locator('.achievement-card.unlocked').filter({ hasText: /First Fortune/i });
+        const unlockedCard = page.locator('.achievement-card.unlocked').filter({ hasText: /Seeds of Calm/i });
         await expect(unlockedCard).toBeVisible();
 
         // Verify unlocked badge
