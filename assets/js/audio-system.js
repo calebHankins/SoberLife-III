@@ -1097,6 +1097,9 @@ class MusicPlayer {
 
         // Create low-pass filter for warmth
         const warmthFilter = this.audioContext.createBiquadFilter();
+        // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+        warmthFilter.channelCount = 1;
+        warmthFilter.channelCountMode = 'explicit';
         warmthFilter.type = 'lowpass';
         warmthFilter.frequency.setValueAtTime(2000, this.audioContext.currentTime);
         warmthFilter.Q.setValueAtTime(0.5, this.audioContext.currentTime);
@@ -1169,6 +1172,9 @@ class MusicPlayer {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
             const filter = this.audioContext.createBiquadFilter();
+            // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+            filter.channelCount = 1;
+            filter.channelCountMode = 'explicit';
             const panner = this.audioContext.createStereoPanner ? this.audioContext.createStereoPanner() : null;
 
             // Use only pleasant waveforms for better sound quality
@@ -1217,6 +1223,9 @@ class MusicPlayer {
             const oscillator2 = this.audioContext.createOscillator();
             const gainNode2 = this.audioContext.createGain();
             const filter2 = this.audioContext.createBiquadFilter();
+            // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+            filter2.channelCount = 1;
+            filter2.channelCountMode = 'explicit';
             const panner2 = this.audioContext.createStereoPanner ? this.audioContext.createStereoPanner() : null;
 
             // Same waveform but slightly detuned
@@ -1328,6 +1337,9 @@ class MusicPlayer {
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
         const filter = this.audioContext.createBiquadFilter();
+        // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+        filter.channelCount = 1;
+        filter.channelCountMode = 'explicit';
 
         oscillator.type = 'sine'; // Use sine for cleaner melody
         oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
@@ -1739,6 +1751,9 @@ class AdaptiveMusicPlayer extends MusicPlayer {
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
             const filter = this.audioContext.createBiquadFilter();
+            // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+            filter.channelCount = 1;
+            filter.channelCountMode = 'explicit';
 
             oscillator.type = 'sawtooth';
             oscillator.frequency.setValueAtTime(frequency, currentTime);
@@ -2041,6 +2056,9 @@ class SoundEffects {
 
         // Create filter for shaping the noise
         const filter = this.audioContext.createBiquadFilter();
+        // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+        filter.channelCount = 1;
+        filter.channelCountMode = 'explicit';
         filter.type = 'bandpass';
         filter.frequency.setValueAtTime(config.frequency, currentTime);
         filter.Q.setValueAtTime(5, currentTime);
@@ -2133,6 +2151,9 @@ class SoundEffects {
 
         // Create low-pass filter for warmth
         const filter = this.audioContext.createBiquadFilter();
+        // Set explicit channel count to prevent "channel count changes may produce audio glitches" warning
+        filter.channelCount = 1;
+        filter.channelCountMode = 'explicit';
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(3000, currentTime);
         filter.Q.setValueAtTime(0.5, currentTime);
