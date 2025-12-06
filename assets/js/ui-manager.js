@@ -1587,7 +1587,7 @@ export function showCompletionBonusCelebration(bonusBreakdown) {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5f9ea0 0%, #2e8b57 100%);
             color: white;
             padding: 30px;
             border-radius: 20px;
