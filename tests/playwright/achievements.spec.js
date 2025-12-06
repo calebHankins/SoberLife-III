@@ -153,7 +153,7 @@ test.describe('Achievements System', () => {
         await expect(page.locator('.achievement-notification')).toBeVisible({ timeout: 2000 });
 
         // Verify it's the wealth achievement
-        await expect(page.locator('.achievement-notification-body h4')).toContainText('First Fortune');
+        await expect(page.locator('.achievement-notification-body h4')).toContainText('Seeds of Calm');
 
         // Open Mind Palace
         await page.getByRole('button', { name: /Visit Mind Palace/i }).click();
