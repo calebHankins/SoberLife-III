@@ -247,6 +247,10 @@ class AudioManager {
         if (this.audioContext.state === 'suspended') {
             console.log('AudioManager: Audio context suspended, waiting for user interaction' + (this.musicPlayer && this.musicPlayer.instanceId ? ` (MusicPlayer[${this.musicPlayer.instanceId}])` : ''));
             this.setupUserInteractionHandler();
+        } else if (this.audioContext.state === 'running') {
+            // Audio context already running - user interaction is not required
+            console.log('AudioManager: Audio context already running, enabling audio');
+            this.userInteracted = true;
         }
 
         // Initialize components with error handling
@@ -291,11 +295,14 @@ class AudioManager {
      */
     setupUserInteractionHandler() {
         const resumeAudio = async () => {
+            // Mark that user has interacted - this is required for startMusic() to work
+            // This must happen regardless of the audio context state
+            this.userInteracted = true;
+
             if (this.audioContext && this.audioContext.state === 'suspended') {
                 try {
                     await this.audioContext.resume();
                     console.log('AudioManager: Audio context resumed after user interaction');
-                    this.userInteracted = true;
 
                     // Start background music if enabled
                     if (this.preferences.audioEnabled && !this.preferences.musicMuted) {
@@ -304,6 +311,8 @@ class AudioManager {
                 } catch (error) {
                     console.error('AudioManager: Failed to resume audio context:', error);
                 }
+            } else {
+                console.log('AudioManager: User interaction registered (audio context already running)');
             }
 
             // Remove listeners after first interaction
