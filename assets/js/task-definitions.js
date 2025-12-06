@@ -15,19 +15,19 @@ export class TaskModule {
         this.difficulty = taskDefinition.difficulty;
         this.unlockRequirement = taskDefinition.unlockRequirement;
     }
-    
+
     initialize() {
         // Setup task-specific UI and state
         console.log(`Initializing task: ${this.name}`);
     }
-    
+
     getStepDescription(stepIndex) {
         if (stepIndex >= 0 && stepIndex < this.steps.length) {
             return this.steps[stepIndex];
         }
         return "Unknown step";
     }
-    
+
     getContextualActions(stepIndex) {
         return this.contextualActions[stepIndex] || {
             hit: {
@@ -36,13 +36,13 @@ export class TaskModule {
                 flavorText: "You decide to take more risk"
             },
             stand: {
-                text: "Stand", 
+                text: "Stand",
                 description: "Keep your current total",
                 flavorText: "You choose to play it safe"
             }
         };
     }
-    
+
     getInitialFlavorText(stepIndex) {
         return this.initialFlavorText[stepIndex] || {
             title: "Task Step",
@@ -51,7 +51,7 @@ export class TaskModule {
             tips: "Stay calm and use your stress management techniques."
         };
     }
-    
+
     cleanup() {
         // Reset task-specific state
         console.log(`Cleaning up task: ${this.name}`);
@@ -67,7 +67,7 @@ export const dmvTaskDefinition = {
     unlockRequirement: null,
     steps: [
         "Check in at the front desk",
-        "Wait in line for your number to be called", 
+        "Wait in line for your number to be called",
         "Present documents to clerk",
         "Take photo for Real ID",
         "Pay renewal fee and receive temporary license"
@@ -139,7 +139,7 @@ export const dmvTaskDefinition = {
             title: "Entering the DMV",
             text: "You walk through the heavy glass doors into the familiar fluorescent-lit world of the Department of Motor Vehicles. The air conditioning hums overhead as you take in the scene: numbered tickets, waiting areas filled with plastic chairs, and that distinctive government building atmosphere. Your heart rate picks up slightly as you approach the front desk, knowing this is just the beginning of your Real ID renewal journey.",
             stressTriggers: ["bureaucracy", "waiting", "paperwork"],
-            tips: "Take a deep breath and remember - you've prepared for this. Everyone here is just trying to help you get what you need."
+            tips: "Take a deep breath and remember, you've prepared for this. Everyone here is just trying to help you get what you need."
         },
         1: {
             title: "The Waiting Game",
@@ -149,7 +149,7 @@ export const dmvTaskDefinition = {
         },
         2: {
             title: "Document Showdown",
-            text: "Your number is finally called! You approach the clerk's window with your carefully organized folder of documents. The clerk looks up with the practiced efficiency of someone who's seen thousands of Real ID applications. They gesture to the document slot and wait expectantly. This is the moment of truth - do you have everything they need? Your preparation is about to be put to the test.",
+            text: "Your number is finally called! You approach the clerk's window with your carefully organized folder of documents. The clerk looks up with the practiced efficiency of someone who's seen thousands of Real ID applications. They gesture to the document slot and wait expectantly. This is the moment of truth: do you have everything they need? Your preparation is about to be put to the test.",
             stressTriggers: ["scrutiny", "preparation anxiety", "authority figures"],
             tips: "Trust your preparation. You've double-checked everything. Stay calm and present your documents confidently."
         },
@@ -161,7 +161,7 @@ export const dmvTaskDefinition = {
         },
         4: {
             title: "The Final Stretch",
-            text: "Photo taken, documents approved - you're in the home stretch! The clerk hands you a receipt and explains the next steps. Your temporary license is printing, and your Real ID will arrive by mail in 7-10 business days. There's a sense of accomplishment building as you realize you've successfully navigated the entire process. The end is in sight, but there are still a few final details to confirm before you can walk out those doors as a DMV victor.",
+            text: "Photo taken, documents approved, you're in the home stretch! The clerk hands you a receipt and explains the next steps. Your temporary license is printing, and your Real ID will arrive by mail in 7-10 business days. There's a sense of accomplishment building as you realize you've successfully navigated the entire process. The end is in sight, but there are still a few final details to confirm before you can walk out those doors as a DMV victor.",
             stressTriggers: ["final details", "completion anxiety", "information overload"],
             tips: "You've made it this far! Take a moment to appreciate your persistence and patience throughout this process."
         }
@@ -269,7 +269,7 @@ export const jobInterviewTaskDefinition = {
     initialFlavorText: {
         0: {
             title: "Arriving at the Interview",
-            text: "You walk into the modern office building, your resume folder in hand and your best professional outfit carefully chosen. The lobby is sleek and impressive, with company awards displayed prominently on the walls. You approach the reception desk, trying to project confidence while your heart beats a little faster. This is it - the opportunity you've been preparing for. The receptionist looks up with a welcoming smile as you announce your arrival.",
+            text: "You walk into the modern office building, your resume folder in hand and your best professional outfit carefully chosen. The lobby is sleek and impressive, with company awards displayed prominently on the walls. You approach the reception desk, trying to project confidence while your heart beats a little faster. This is it, the opportunity you've been preparing for. The receptionist looks up with a welcoming smile as you announce your arrival.",
             stressTriggers: ["performance anxiety", "first impressions", "professional pressure"],
             tips: "Remember, they already liked your resume enough to interview you. You belong here."
         },
@@ -281,13 +281,13 @@ export const jobInterviewTaskDefinition = {
         },
         2: {
             title: "First Impressions Matter",
-            text: "A professional-looking person approaches with an extended hand and a warm smile. 'You must be here for the interview,' they say. This is it - the crucial first few seconds that can set the tone for everything that follows. Your handshake, your eye contact, your initial greeting - it all matters. As you walk toward the interview room, you remind yourself that this is a conversation, not an interrogation.",
+            text: "A professional-looking person approaches with an extended hand and a warm smile. 'You must be here for the interview,' they say. This is it, the crucial first few seconds that can set the tone for everything that follows. Your handshake, your eye contact, your initial greeting; it all matters. As you walk toward the interview room, you remind yourself that this is a conversation, not an interrogation.",
             stressTriggers: ["first impressions", "social evaluation", "performance pressure"],
             tips: "Be yourself, but be your best professional self. Authenticity combined with preparation is powerful."
         },
         3: {
             title: "The Question Gauntlet",
-            text: "You're seated across from the interviewer, and the real conversation begins. 'Tell me about yourself,' they start, and you're grateful you practiced this one. But you know the behavioral questions are coming - those 'Tell me about a time when...' scenarios that require you to think on your feet while showcasing your problem-solving skills. Your examples are ready, but translating them smoothly under pressure is the real challenge.",
+            text: "You're seated across from the interviewer, and the real conversation begins. 'Tell me about yourself,' they start, and you're grateful you practiced this one. But you know the behavioral questions are coming, like those 'Tell me about a time when...' scenarios that require you to think on your feet while showcasing your problem-solving skills. Your examples are ready, but translating them smoothly under pressure is the real challenge.",
             stressTriggers: ["performance evaluation", "memory pressure", "articulation anxiety"],
             tips: "Use the STAR method: Situation, Task, Action, Result. Take a moment to think before answering."
         },
@@ -394,12 +394,12 @@ export const jobInterviewTaskDefinition = {
     ],
     bustMessages: [
         {
-            main: "Interview nerves got the best of you this time. Take a breath and regroup—next time you'll be even stronger!",
+            main: "Interview nerves got the best of you this time. Take a breath and regroup. Next time you'll be even stronger!",
             sub: "Everyone has tough interviews. Use this as a learning experience for your next opportunity.",
             stats: "Stress level: HIGH • Confidence: SHAKEN • Growth: IN PROGRESS"
         },
         {
-            main: "You blanked on a key question, but that's okay—interviews are tough!",
+            main: "You blanked on a key question, but that's okay. Interviews are tough!",
             sub: "Remember, even the best candidates have off days. Reflect and prepare for the next one.",
             stats: "Stress level: ELEVATED • Interview skills: IMPROVING"
         },
@@ -415,7 +415,7 @@ export const jobInterviewTaskDefinition = {
         },
         {
             main: "The interview didn't go as planned, but you kept your composure.",
-            sub: "Stay positive—every setback is a setup for a comeback.",
+            sub: "Stay positive. Every setback is a setup for a comeback.",
             stats: "Stress level: MODERATE • Mindset: OPTIMISTIC"
         }
     ],
@@ -502,15 +502,15 @@ export const voterRegistrationTaskDefinition = {
     initialFlavorText: {
         0: {
             title: "Welcome to the County Clerk’s Office",
-            text: "You step into a room that smells faintly of old paper and mystery. The waiting area is filled with characters: a wizard hat guy, a lady with a dozen cats, and a clerk who seems to be running a stamp museum from behind the counter.",
+            text: "You step into a room that smells like old paper. The waiting area is filled with characters: a guy in a wizard hat, a lady with a dozen cats, and a clerk who seems to be running an unsanctioned stamp museum from behind the counter.",
             stressTriggers: ["confusion", "quirky people", "bureaucracy"],
             tips: "Remember, everyone here is just trying to get through the day. Embrace the weirdness and keep your zen."
         },
         1: {
             title: "Form Follies",
-            text: "The registration form is a maze of boxes, arrows, and cryptic instructions. Section 42B asks for your 'favorite snack' and 'spirit animal.' You’re not sure if this is a joke or a test.",
+            text: "The registration form is a mess of boxes, arrows, and cryptic instructions. Section 42B asks for your 'favorite snack' and 'spirit animal.' You’re not sure if this is a joke or a test.",
             stressTriggers: ["confusing paperwork", "uncertainty"],
-            tips: "Take your time. If in doubt, ask for help—or just make something up."
+            tips: "Take your time. If in doubt, ask for help!"
         },
         2: {
             title: "Clerk Quirks",
@@ -721,7 +721,7 @@ export const workShopperTaskDefinition = {
             title: "The List of Doom",
             text: "Your manager hands you a list with more dietary restrictions than a medical textbook. The fate of the office party rests on your shoulders.",
             stressTriggers: ["confusing requests", "manager pressure", "responsibility"],
-            tips: "Take a deep breath. Remember, you can’t please everyone—but you can try!"
+            tips: "Take a deep breath. Remember, you can’t please everyone, but you can try!"
         },
         1: {
             title: "Cart Catastrophe",
@@ -823,7 +823,7 @@ export const workShopperTaskDefinition = {
         },
         {
             main: "Coupon Catastrophe! 💸",
-            sub: "Expired coupons, missing blue hummus, and a fire drill—sometimes you just need to regroup.",
+            sub: "Expired coupons, missing blue hummus, and a fire drill... sometimes you just need to regroup.",
             stats: "Zen points: SPENT • Stress: MAXED"
         },
         {
@@ -877,10 +877,10 @@ export function getAllTaskDefinitions() {
 export function isTaskUnlocked(taskId, completedTasks) {
     const task = getTaskDefinition(taskId);
     if (!task) return false;
-    
+
     // First task is always unlocked
     if (!task.unlockRequirement) return true;
-    
+
     // Check if requirement is met
     return completedTasks.includes(task.unlockRequirement);
 }
@@ -888,12 +888,12 @@ export function isTaskUnlocked(taskId, completedTasks) {
 // Get next available task
 export function getNextAvailableTask(completedTasks) {
     const allTasks = getAllTaskDefinitions();
-    
+
     for (const task of allTasks) {
         if (!completedTasks.includes(task.id) && isTaskUnlocked(task.id, completedTasks)) {
             return task;
         }
     }
-    
+
     return null; // All tasks completed
 }
