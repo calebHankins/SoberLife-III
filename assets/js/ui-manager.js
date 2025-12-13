@@ -5,6 +5,7 @@ import { gameState, campaignState, steps, generateSuccessMessage, getContextualA
 import { calculateScore } from './card-system.js';
 import { isCampaignMode, getCurrentTask } from './campaign-manager.js';
 import { ZenPointsManager, ZEN_TRANSACTION_TYPES } from './zen-points-manager.js';
+import { achievementState } from './achievement-manager.js';
 import { zenActivities } from './stress-system.js';
 
 // Utility functions for showing/hiding elements
@@ -1148,10 +1149,18 @@ export function showGameOver() {
         const stepsCompletedEl = document.getElementById('stepsCompleted');
         if (stepsCompletedEl) {
             if (gameState.freePlayMode) {
-                // Show tasks completed in Free Play Mode
-                stepsCompletedEl.textContent = gameState.freePlayTasksCompleted;
+                // Show tasks completed in Free Play Mode with correct label
+                if (stepsCompletedEl.parentElement) {
+                    const bestRun = achievementState.statistics.freePlayMaxRun || 0;
+                    stepsCompletedEl.parentElement.innerHTML = `Tasks Completed: <span id="stepsCompleted">${gameState.freePlayTasksCompleted}</span> (Best: ${bestRun})`;
+                }
             } else {
-                stepsCompletedEl.textContent = gameState.currentStep;
+                // Restore default label for Campaign/Task mode
+                if (stepsCompletedEl.parentElement && stepsCompletedEl.parentElement.textContent.includes('Tasks Completed')) {
+                    stepsCompletedEl.parentElement.innerHTML = `Steps Completed: <span id="stepsCompleted">${gameState.currentStep}</span>/5`;
+                } else {
+                    stepsCompletedEl.textContent = gameState.currentStep;
+                }
             }
         }
 

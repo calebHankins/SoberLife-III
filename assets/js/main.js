@@ -1797,7 +1797,8 @@ function updateFreePlayOverviewUI() {
         if (statsElement) {
             const tasksCompleted = gameState.freePlayTasksCompleted;
             const totalRounds = gameState.freePlayRounds;
-            statsElement.textContent = `Tasks Completed: ${tasksCompleted} • Total Rounds: ${totalRounds}`;
+            const bestRun = achievementState.statistics.freePlayMaxRun || 0;
+            statsElement.innerHTML = `Tasks Completed: ${tasksCompleted} (Best: ${bestRun})<br>Total Rounds: ${totalRounds}`;
         }
 
         // Update start game button text based on whether player has played before
