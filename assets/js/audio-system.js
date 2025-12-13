@@ -565,9 +565,9 @@ class AudioManager {
      * Apply mobile-specific optimizations
      */
     applyMobileOptimizations() {
-        // Slightly reduce default volumes for better battery life, but keep audible
-        this.preferences.musicVolume = Math.min(this.preferences.musicVolume, 0.55);
-        this.preferences.effectsVolume = Math.min(this.preferences.effectsVolume, 0.65);
+        // // Slightly reduce default volumes for better battery life, but keep audible
+        // this.preferences.musicVolume = Math.min(this.preferences.musicVolume, 0.55);
+        // this.preferences.effectsVolume = Math.min(this.preferences.effectsVolume, 0.65);
 
         console.log('AudioManager: Applied mobile optimizations');
     }
