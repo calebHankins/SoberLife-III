@@ -1181,15 +1181,18 @@ function updateGameOverButtons() {
                 tryAgainBtn.onclick = () => window.restartFreePlay();
             }
 
-            // Add return to menu button if it doesn't exist
-            if (gameOverContent && !document.getElementById('returnToMenuBtnGameOver')) {
-                const returnBtn = document.createElement('button');
+            // Add or update return to menu button
+            let returnBtn = document.getElementById('returnToMenuBtnGameOver');
+            if (!returnBtn) {
+                returnBtn = document.createElement('button');
                 returnBtn.id = 'returnToMenuBtnGameOver';
-                returnBtn.textContent = 'Return to Menu';
                 returnBtn.className = 'secondary-btn';
-                returnBtn.onclick = () => window.returnToModeSelection();
                 gameOverContent.appendChild(returnBtn);
             }
+
+            // Set text and behavior (Return to Free Play Overview)
+            returnBtn.textContent = 'Return to Menu';
+            returnBtn.onclick = () => window.startFreePlayMode();
         } else {
             // Remove return to menu button if it exists
             const returnBtn = document.getElementById('returnToMenuBtnGameOver');

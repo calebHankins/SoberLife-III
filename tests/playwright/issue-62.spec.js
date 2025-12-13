@@ -177,5 +177,16 @@ test.describe('Issue #62: Free Play Bust Stats', () => {
         expect(parentText).toContain('Tasks Completed');
         expect(parentText).toContain('Best: 5');
         expect(parentText).not.toContain('/5');
+
+        // Click "Return to Menu" and verify we go to Free Play Overview
+        await page.click('#returnToMenuBtnGameOver');
+        await expect(page.locator('#freePlayOverview')).toBeVisible();
+        await expect(page.locator('#gameModeSelection')).not.toBeVisible();
+
+        // Verify stats on landing page reflect the just-finished run (0 tasks)
+        // Wait, startFreePlayMode calls showFreePlayOverview which updates UI.
+        // GameState still holds the values from the run.
+        const overviewStats = await page.locator('#freePlayStats').textContent();
+        expect(overviewStats).toContain('Tasks Completed: 0');
     });
 });
