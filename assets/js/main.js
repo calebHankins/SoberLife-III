@@ -1345,6 +1345,11 @@ export function nextStep() {
             freePlayCurrentTaskRounds: gameState.freePlayCurrentTaskRounds + 1
         });
 
+        // Update max rounds statistic if current session rounds is higher
+        if (gameState.freePlayRounds > achievementState.statistics.freePlayMaxRounds) {
+            updateStatistic('freePlayMaxRounds', gameState.freePlayRounds);
+        }
+
         // Update UI to show progress
         updateFreePlayUI();
 
@@ -1797,7 +1802,9 @@ function updateFreePlayOverviewUI() {
         if (statsElement) {
             const tasksCompleted = gameState.freePlayTasksCompleted;
             const totalRounds = gameState.freePlayRounds;
-            statsElement.textContent = `Tasks Completed: ${tasksCompleted} • Total Rounds: ${totalRounds}`;
+            const bestRun = achievementState.statistics.freePlayMaxRun || 0;
+            const bestRounds = achievementState.statistics.freePlayMaxRounds || 0;
+            statsElement.innerHTML = `Tasks Completed: ${tasksCompleted} (Best: ${bestRun})<br>Total Rounds: ${totalRounds} (Best: ${bestRounds})`;
         }
 
         // Update start game button text based on whether player has played before

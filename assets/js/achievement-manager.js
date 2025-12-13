@@ -10,6 +10,7 @@ export let achievementState = {
         campaignCompleted: false,
         freePlayTasksTotal: 0,      // Total Free Play tasks completed
         freePlayMaxRun: 0,          // Max tasks in one Free Play run
+        freePlayMaxRounds: 0,       // Max rounds in one Free Play run
         zenPointsPeak: 0,           // Maximum zen points at one time
         currentFreePlayRun: 0       // Current run task count
     },
@@ -234,6 +235,7 @@ export function validateAchievementState() {
                 campaignCompleted: false,
                 freePlayTasksTotal: 0,
                 freePlayMaxRun: 0,
+                freePlayMaxRounds: 0,
                 zenPointsPeak: 0,
                 currentFreePlayRun: 0
             };
@@ -253,7 +255,7 @@ export function validateAchievementState() {
             achievementState.statistics.campaignCompleted = false;
         }
 
-        const numericStats = ['freePlayTasksTotal', 'freePlayMaxRun', 'zenPointsPeak', 'currentFreePlayRun'];
+        const numericStats = ['freePlayTasksTotal', 'freePlayMaxRun', 'freePlayMaxRounds', 'zenPointsPeak', 'currentFreePlayRun'];
         numericStats.forEach(stat => {
             if (typeof achievementState.statistics[stat] !== 'number' || achievementState.statistics[stat] < 0) {
                 achievementState.statistics[stat] = 0;
@@ -283,6 +285,7 @@ export function resetAchievementState() {
         campaignCompleted: false,
         freePlayTasksTotal: 0,
         freePlayMaxRun: 0,
+        freePlayMaxRounds: 0,
         zenPointsPeak: 0,
         currentFreePlayRun: 0
     };
