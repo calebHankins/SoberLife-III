@@ -20,6 +20,7 @@ test.describe('Issue #62: Free Play Bust Stats', () => {
                     campaignCompleted: false,
                     freePlayTasksTotal: 10,
                     freePlayMaxRun: 5, // Set a known best run
+                    freePlayMaxRounds: 25, // Set known best rounds
                     zenPointsPeak: 500,
                     currentFreePlayRun: 0
                 },
@@ -44,6 +45,7 @@ test.describe('Issue #62: Free Play Bust Stats', () => {
         const landingStatsText = await page.locator('#freePlayStats').textContent();
         console.log('Landing Stats Text:', landingStatsText);
         expect(landingStatsText).toContain('Best: 5');
+        expect(landingStatsText).toContain('Best: 25'); // Verify Best Rounds
 
         await page.click('#freePlayStartBtn');
         await expect(page.locator('#gameArea')).toBeVisible();
