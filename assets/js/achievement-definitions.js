@@ -23,57 +23,57 @@ export const achievementDefinitions = {
     // Free Play Milestone Achievements
     free_play_5: {
         id: 'free_play_5',
-        name: '🎯 Getting Started',
-        description: 'Complete 5 Free Play tasks',
+        name: '🎯 Consistency Kickoff',
+        description: 'Complete 5 tasks in a single Free Play run',
         category: 'free_play',
         emoji: '🎯',
         milestone: 5,
-        checkCondition: (stats) => stats.freePlayTasksTotal >= 5,
-        flavorText: 'Your Free Play journey begins!'
+        checkCondition: (stats) => stats.freePlayMaxRun >= 5,
+        flavorText: 'You\'ve found your stride in a single session!'
     },
 
     free_play_10: {
         id: 'free_play_10',
-        name: '🌱 Finding Flow',
-        description: 'Complete 10 Free Play tasks',
+        name: '🌱 True Flow State',
+        description: 'Complete 10 tasks in a single Free Play run',
         category: 'free_play',
         emoji: '🌱',
         milestone: 10,
-        checkCondition: (stats) => stats.freePlayTasksTotal >= 10,
-        flavorText: 'Your practice is taking root.'
+        checkCondition: (stats) => stats.freePlayMaxRun >= 10,
+        flavorText: 'A deep session of mastery.'
     },
 
     free_play_25: {
         id: 'free_play_25',
-        name: '⭐ Rising Star',
-        description: 'Complete 25 Free Play tasks',
+        name: '⭐ Marathon Mind',
+        description: 'Complete 25 tasks in a single Free Play run',
         category: 'free_play',
         emoji: '⭐',
         milestone: 25,
-        checkCondition: (stats) => stats.freePlayTasksTotal >= 25,
-        flavorText: 'Your dedication is impressive!'
+        checkCondition: (stats) => stats.freePlayMaxRun >= 25,
+        flavorText: 'Exceptional focus sustained over time.'
     },
 
     free_play_50: {
         id: 'free_play_50',
-        name: '🌿 Seasoned Practitioner',
-        description: 'Complete 50 Free Play tasks',
+        name: '🌿 Zen Marathoner',
+        description: 'Complete 50 tasks in a single Free Play run',
         category: 'free_play',
         emoji: '🌿',
         milestone: 50,
-        checkCondition: (stats) => stats.freePlayTasksTotal >= 50,
-        flavorText: 'Your dedication runs deep.'
+        checkCondition: (stats) => stats.freePlayMaxRun >= 50,
+        flavorText: 'Your endurance and peace are unshakable.'
     },
 
     free_play_100: {
         id: 'free_play_100',
-        name: '🧘 Free Play Sage',
-        description: 'Complete 100 Free Play tasks',
+        name: '🧘 Ultimate Endurance',
+        description: 'Complete 100 tasks in a single Free Play run',
         category: 'free_play',
         emoji: '🧘',
         milestone: 100,
-        checkCondition: (stats) => stats.freePlayTasksTotal >= 100,
-        flavorText: 'Wisdom earned through patient practice.'
+        checkCondition: (stats) => stats.freePlayMaxRun >= 100,
+        flavorText: 'A legendary run of pure presence.'
     },
 
     // Abundance Milestone Achievements

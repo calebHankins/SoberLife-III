@@ -105,11 +105,12 @@ test.describe('Achievements System', () => {
         await page.getByRole('button', { name: /Start Campaign/i }).click();
         await expect(page.locator('#campaignOverview')).toBeVisible();
 
-        // Simulate completing 5 Free Play tasks
+        // Simulate completing 5 Free Play tasks in a single run
         await page.evaluate(() => {
             // @ts-ignore - Dynamic import in browser context
             import('./assets/js/achievement-manager.js').then(module => {
                 module.updateStatistic('freePlayTasksTotal', 5);
+                module.updateStatistic('freePlayMaxRun', 5);
                 module.checkMilestones('free_play', 5);
             });
         });
@@ -117,8 +118,8 @@ test.describe('Achievements System', () => {
         // Wait for achievement notification
         await expect(page.locator('.achievement-notification')).toBeVisible({ timeout: 2000 });
 
-        // Verify it's the 5 tasks achievement
-        await expect(page.locator('.achievement-notification-body h4')).toContainText('Getting Started');
+        // Verify it's the 5 tasks achievement (renamed from Getting Started)
+        await expect(page.locator('.achievement-notification-body h4')).toContainText('Consistency Kickoff');
 
         // Open Mind Palace
         await page.getByRole('button', { name: /Visit Mind Palace/i }).click();
@@ -127,6 +128,8 @@ test.describe('Achievements System', () => {
         // Check statistics display
         const statsSection = page.locator('.achievement-statistics');
         await expect(statsSection).toBeVisible();
+        await expect(statsSection).toContainText('Max Free Play Run');
+        await expect(statsSection).toContainText('5 tasks');
         await expect(statsSection).toContainText('Total Free Play Tasks');
         await expect(statsSection).toContainText('5 tasks');
 
