@@ -629,6 +629,15 @@ function showGenericOutcomeMessage(result) {
 
 // Start single task mode (jump into next uncompleted task)
 export function startSingleTaskMode() {
+    // Preserve zen points before resetting game state
+    const currentZenBalance = ZenPointsManager.getCurrentBalance();
+
+    // Start fresh by resetting game state (clears previous mode flags like freePlayMode)
+    resetGameState();
+
+    // Restore zen points after reset
+    updateGameState({ zenPoints: currentZenBalance });
+
     // Initialize campaign to get current progress
     initializeCampaign();
 
@@ -643,7 +652,11 @@ export function startSingleTaskMode() {
     }
 
     // Set up single task mode with the next available task
-    updateGameState({ campaignMode: false });
+    updateGameState({
+        campaignMode: false,
+        freePlayMode: false,
+        surveyCompleted: false
+    });
     updateCampaignState({ currentTask: nextTask.id, campaignMode: false });
 
     // Hide mode selection and show survey
@@ -674,6 +687,15 @@ export function startSingleTaskMode() {
 
 // Start campaign mode
 export function startCampaignMode() {
+    // Preserve zen points before resetting game state
+    const currentZenBalance = ZenPointsManager.getCurrentBalance();
+
+    // Start fresh by resetting game state (clears previous mode flags like freePlayMode)
+    resetGameState();
+
+    // Restore zen points after reset
+    updateGameState({ zenPoints: currentZenBalance });
+
     // Initialize and show campaign
     initializeCampaign();
     showCampaignOverview();
@@ -1835,6 +1857,15 @@ export function closeFreePlayOverview() {
     hideElement('freePlayOverview');
     showElement('gameModeSelection');
     showVersionFooter();
+
+    // Preserve zen points before resetting game state
+    const currentZenBalance = ZenPointsManager.getCurrentBalance();
+
+    // Reset game state to clear Free Play flags when exiting to main menu
+    resetGameState();
+
+    // Restore zen points after reset
+    updateGameState({ zenPoints: currentZenBalance });
 
     // Reset current Free Play run counter when exiting
     updateStatistic('currentFreePlayRun', 0);
