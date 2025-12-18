@@ -1518,13 +1518,13 @@ export function continueFreePlayTask(taskBonus) {
         updateStatistic('freePlayTasksTotal', achievementState.statistics.freePlayTasksTotal + 1);
         updateStatistic('currentFreePlayRun', achievementState.statistics.currentFreePlayRun + 1);
 
-        // Check for Free Play milestone achievements
-        checkMilestones('free_play', achievementState.statistics.freePlayTasksTotal);
-
         // Update max run if current run is higher
         if (achievementState.statistics.currentFreePlayRun > achievementState.statistics.freePlayMaxRun) {
             updateStatistic('freePlayMaxRun', achievementState.statistics.currentFreePlayRun);
         }
+
+        // Check for Free Play milestone achievements (based on single run max)
+        checkMilestones('free_play', achievementState.statistics.freePlayMaxRun);
 
         // Remove modal
         const modal = document.getElementById('freePlayCompletionModal');
@@ -1558,13 +1558,13 @@ export function endFreePlaySession(taskBonus) {
         updateStatistic('freePlayTasksTotal', achievementState.statistics.freePlayTasksTotal + 1);
         updateStatistic('currentFreePlayRun', achievementState.statistics.currentFreePlayRun + 1);
 
-        // Check for Free Play milestone achievements
-        checkMilestones('free_play', achievementState.statistics.freePlayTasksTotal);
-
         // Update max run if current run is higher
         if (achievementState.statistics.currentFreePlayRun > achievementState.statistics.freePlayMaxRun) {
             updateStatistic('freePlayMaxRun', achievementState.statistics.currentFreePlayRun);
         }
+
+        // Check for Free Play milestone achievements (based on single run max)
+        checkMilestones('free_play', achievementState.statistics.freePlayMaxRun);
 
         // Reset current run counter (session ended)
         updateStatistic('currentFreePlayRun', 0);
