@@ -391,25 +391,39 @@ function setupCloseButtons() {
     });
 }
 
+// Show game mode selection (landing page)
+export function showGameModeSelection() {
+    // Hide all main screens
+    hideElement('campaignOverview');
+    hideElement('freePlayOverview');
+    hideElement('surveySection');
+    hideElement('taskInfo');
+    hideElement('zenActivities');
+    hideElement('gameArea');
+    hideElement('gameOverScreen');
+    hideElement('gameSuccessScreen');
+    hideElement('upgradeShop');
+
+    // Show mode selection
+    showElement('gameModeSelection');
+
+    // Show version footer when on landing page
+    showVersionFooter();
+}
+
 // Close survey and return to mode selection or campaign
 export function closeSurvey() {
     hideElement('surveySection');
 
     // Check if we're in true campaign mode or "Jump Into Task" mode
     if (isCampaignMode()) {
-        showElement('campaignOverview');
-    } else if (campaignState.currentTask) {
-        // We're in "Jump Into Task" mode - return to main menu
-        // Clear the current task since user cancelled
-        updateCampaignState({ currentTask: null });
-        showElement('gameModeSelection');
-        // Show version footer when returning to landing page
-        showVersionFooter();
+        showCampaignOverview();
+    } else if (campaignState.currentTask !== null && campaignState.currentTask !== undefined) {
+        // Return to mode selection if we was in jump-into-task mode
+        showGameModeSelection();
     } else {
         // Regular single task mode
-        showElement('gameModeSelection');
-        // Show version footer when returning to landing page
-        showVersionFooter();
+        showGameModeSelection();
     }
 }
 
@@ -429,10 +443,7 @@ export function closeCampaign() {
     updateCampaignState({ campaignMode: false });
 
     // Show mode selection
-    showElement('gameModeSelection');
-
-    // Show version footer when returning to landing page
-    showVersionFooter();
+    showGameModeSelection();
 }
 
 // Close task and return to campaign or mode selection
@@ -465,34 +476,17 @@ export function closeTask() {
             hideElement('freePlayOverview');
             hideElement('upgradeShop');
             hideElement('surveySection');
-            showElement('campaignOverview');
+            showCampaignOverview();
         } else if (wasFreePlayMode) {
             // Free Play Mode returns to Free Play overview
             updateCampaignState({ campaignMode: false });
             showFreePlayOverview();
         } else {
-            // Jump Into Task mode returns to mode selection
-            hideElement('taskInfo');
-            hideElement('zenActivities');
-            hideElement('gameArea');
-            hideElement('gameOverScreen');
-            hideElement('gameSuccessScreen');
-            hideElement('campaignOverview');
-            hideElement('freePlayOverview');
-            hideElement('upgradeShop');
-            hideElement('surveySection');
-            showElement('gameModeSelection');
-            // Show version footer when returning to landing page
-            showVersionFooter();
+            // Jump Into Task mode or standalone returns to mode selection
+            showGameModeSelection();
         }
     } catch (error) {
         console.error('[closeTask] Error during close:', error);
-        // Emergency fallback - ensure we show something
-        hideElement('taskInfo');
-        hideElement('zenActivities');
-        hideElement('gameArea');
-        showElement('gameModeSelection');
-        showVersionFooter();
     }
 }
 
@@ -832,14 +826,15 @@ export function startTask() {
     // Calculate initial stress from survey
     const surveyResults = calculateSurveyStress();
 
-    // In campaign mode, preserve existing zen points and add start bonus
-    // In single task mode, use survey-based zen points plus start bonus
-    if (isCampaignMode()) {
+    // In campaign mode or jump into task mode, preserve existing zen points and add start bonus
+    // In truly standalone task mode, use survey-based zen points plus start bonus
+    const isTaskActive = campaignState.currentTask !== null && campaignState.currentTask !== undefined;
+    if (isCampaignMode() || isTaskActive) {
         // Award start bonus to existing balance (this updates the balance internally)
-        const taskId = campaignState.currentTask || 'unknown';
+        const taskId = campaignState.currentTask !== null ? campaignState.currentTask : 'unknown';
         ZenPointsManager.awardTaskStartBonus(taskId, 1.0);
     } else {
-        // Single task mode: set survey result as base, then add start bonus
+        // Standalone task mode: set survey result as base, then add start bonus
         ZenPointsManager.setBalance(surveyResults.zenPoints);
         ZenPointsManager.awardTaskStartBonus('single-task', 1.0);
     }
@@ -1854,9 +1849,7 @@ function updateFreePlayOverviewUI() {
 
 // Close Free Play overview and return to mode selection
 export function closeFreePlayOverview() {
-    hideElement('freePlayOverview');
-    showElement('gameModeSelection');
-    showVersionFooter();
+    showGameModeSelection();
 
     // Preserve zen points before resetting game state
     const currentZenBalance = ZenPointsManager.getCurrentBalance();
