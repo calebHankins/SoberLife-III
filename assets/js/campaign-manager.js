@@ -366,7 +366,7 @@ function showPostTaskOptions(zenPointsRemaining) {
                 playAgainBtn.textContent = 'Replay Task';
                 playAgainBtn.onclick = () => replayCurrentTask();
             }
-        } else if (campaignState.currentTask) {
+        } else if (campaignState.currentTask !== null && campaignState.currentTask !== undefined) { // Updated check
             // Jump Into Task mode - show different options
             if (continueToShopBtn) {
                 continueToShopBtn.classList.remove('hidden');
@@ -639,7 +639,7 @@ export function isCampaignMode() {
 
 // Get current task definition
 export function getCurrentTask() {
-    if (campaignState.currentTask) {
+    if (campaignState.currentTask !== null && campaignState.currentTask !== undefined) {
         return getTaskDefinition(campaignState.currentTask);
     }
     return null;

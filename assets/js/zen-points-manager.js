@@ -44,10 +44,14 @@ export class ZenPointsManager {
         try {
             // Use persistent campaign balance for campaign mode AND Free Play mode
             // Free Play mode shares the same persistent balance as campaign
-            if (isCampaignMode() || gameState.freePlayMode) {
+            // Persistent balance should be used if in campaign mode, free play mode, 
+            // or if a task is active/available (including the first task, index 0)
+            const isTaskActive = campaignState.currentTask !== null && campaignState.currentTask !== undefined;
+
+            if (isCampaignMode() || gameState.freePlayMode || isTaskActive) {
                 return campaignState.zenPointBalance || gameState.zenPoints || 0;
             } else {
-                // In single task mode, use session balance
+                // Fallback for unexpected states
                 return gameState.zenPoints || 0;
             }
         } catch (error) {
@@ -158,7 +162,9 @@ export class ZenPointsManager {
 
             // Use persistent campaign balance for campaign mode AND Free Play mode
             // Free Play mode shares the same persistent balance as campaign
-            if (isCampaignMode() || gameState.freePlayMode) {
+            const isTaskActive = campaignState.currentTask !== null && campaignState.currentTask !== undefined;
+
+            if (isCampaignMode() || gameState.freePlayMode || isTaskActive) {
                 // Update campaign state with persistent balance
                 updateCampaignState({
                     zenPointBalance: validAmount,
@@ -167,7 +173,7 @@ export class ZenPointsManager {
                 // Also update game state for immediate UI updates
                 updateGameState({ zenPoints: validAmount });
             } else {
-                // Update only game state for single task mode
+                // Update only game state 
                 updateGameState({ zenPoints: validAmount });
             }
 
