@@ -1,24 +1,39 @@
-# 🧘 SoberLife - III 🧘
+# SoberLife - III
 
-A fun, interactive stress management game that combines blackjack mechanics with real-world scenarios. Practice stress management techniques through engaging gameplay in both single-task and campaign modes.
+A stress management game that combines blackjack mechanics with real-world scenarios. Practice stress management techniques through gameplay.
 
-## 🎮 Part of the SoberLife Series
-
-This is the third installment in the SoberLife series! If you enjoy stress management gameplay, check out the prequel:
-
-**[SoberLife-II](https://github.com/calebHankins/SoberLife-II)** - A Pygame-based board game where you navigate through a full day, managing stress as you move between activities. Written by Bruce Baskir, this turn-based strategy game challenges you to complete your daily tasks without letting stress levels get too high. [Play it here!](https://calebhankins.github.io/SoberLife-II/)
+- [SoberLife - III](#soberlife---iii)
+  - [🎮 Play the Game](#-play-the-game)
+  - [Inspirations](#inspirations)
+    - [Part of the SoberLife Series](#part-of-the-soberlife-series)
+  - [General Gameplay Loop](#general-gameplay-loop)
+  - [Game Modes](#game-modes)
+    - [Jump Into Task Mode](#jump-into-task-mode)
+    - [Campaign Mode](#campaign-mode)
+    - [Free Play Mode](#free-play-mode)
+  - [Features](#features)
+    - [Deck Upgrades](#deck-upgrades)
+    - [Progression System](#progression-system)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## 🎮 Play the Game
 
 Visit the [live game on github pages](https://calebhankins.github.io/SoberLife-III/)!
 
-## 🎯 Game Modes
+## Inspirations
 
-### 🎯 Jump Into Task Mode
+This game takes inspiration from Douglas Adams' [_Bureaucracy_](https://en.wikipedia.org/wiki/Bureaucracy_(video_game)), LocalThunk's [_Balatro_](https://en.wikipedia.org/wiki/Balatro), and Bruce Baskir's [_SoberLife-II_](https://github.com/calebHankins/SoberLife-II).
 
-Quick access to your next uncompleted challenge:
+### Part of the SoberLife Series
 
-1. **Pre-Assessment**: Answer questions about your current state
+This is the third installment in the _SoberLife_ series! If you enjoy stress management gameplay, check out the prequel:
+
+**[SoberLife-II](https://github.com/calebHankins/SoberLife-II)** - A Pygame-based board game where you navigate through a full day, managing stress as you move between activities. Written by Bruce Baskir, this turn-based strategy game challenges you to complete your daily tasks without letting stress levels get too high. [Play it here!](https://calebhankins.github.io/SoberLife-II/)
+
+## General Gameplay Loop
+
+1. **Pre-Assessment**: Answer questions about your current state (unless Free Play mode)
 2. **Complete Task Steps**: Navigate through 5 task steps using blackjack-style gameplay
 3. **Manage Stress**: Use zen points for breathing exercises, stretches, and meditation
 4. **Upgrade Your Deck**: Access the full shop to purchase jokers and premium activities
@@ -27,12 +42,17 @@ Quick access to your next uncompleted challenge:
 **After Task Completion:**
 
 - **Visit Shop**: Access the full upgrade shop with your earned zen points
-- **Campaign Overview**: Return to the campaign to see your progress
+- **Overview**: Return to the Campaign/Free Play landing page to see your progress
+  - Visit the `Mind Palace` to see the state of your upgrades and achievements
 - **Next Task**: Jump directly into the next available challenge
 
-This mode uses your campaign progress and upgraded deck, making it a perfect shortcut for quick play sessions without campaign navigation.
+## Game Modes
 
-### 🎯 Campaign Mode
+### Jump Into Task Mode
+
+Quick access to your next uncompleted challenge!
+
+### Campaign Mode
 
 A rogue-like progression system with multiple scenarios:
 
@@ -41,7 +61,7 @@ A rogue-like progression system with multiple scenarios:
 3. **Progressive Difficulty**: Unlock new challenges as you complete tasks
 4. **Persistent Progress**: Your upgraded deck carries over to future challenges
 
-### 🎮 Free Play Mode
+### Free Play Mode
 
 Pure gameplay without roleplay elements with progressive difficulty. Note: Free Play now lands on a dedicated "Free Play Mode" overview screen (matching the campaign flow) instead of launching the game directly from the mode selection.
 
@@ -76,47 +96,15 @@ This mode uses your campaign progress and upgraded deck, making it ideal for pla
 
 Note: The campaign overview's start button text will be `Play` on the first visit and switch to `Play Again` after you've completed a session, matching the behavior of other campaign mode screens.
 
-## 🧘 Features
+## Features
 
-- **Three Game Modes**: Jump Into Task, Campaign, and Free Play
+- **Three Game Modes**: `Jump Into Task`, `Campaign`, and `Free Play`
 - **Interactive Stress Management**: Visual stress meter with zen activities
 - **Deck Progression**: Upgrade your blackjack deck with more Aces
 - **Multiple Scenarios**: DMV visits, job interviews, and more stress situations
 - **Contextual Actions**: Task-specific choices that affect gameplay
 - **Responsive Design**: Works on desktop and mobile devices
 - **Progress Persistence**: Campaign progress saves automatically
-- **Comprehensive Testing**: 220+ automated tests for quality assurance
-
-## 🚀 Local Development
-
-### File Structure
-
-The game is organized into separate modules for maintainability:
-
-```md
-/
-├── index.html              # Main HTML structure with campaign interface
-├── assets/
-│   ├── css/               # Stylesheets
-│   │   ├── main.css       # Base styles and layout
-│   │   ├── components.css # UI component styles (includes campaign UI)
-│   │   └── responsive.css # Mobile and responsive styles
-│   └── js/                # JavaScript modules
-│       ├── game-state.js  # Game state and campaign state management
-│       ├── card-system.js # Blackjack logic with custom deck support
-│       ├── ui-manager.js  # DOM manipulation and updates
-│       ├── stress-system.js # Stress and zen point management
-│       ├── campaign-manager.js # Campaign progression and navigation
-│       ├── shop-system.js # Deck upgrade purchasing system
-│       ├── task-definitions.js # Modular task configurations
-│       └── main.js        # Game initialization and coordination
-├── tests/                 # Test files
-│   └── campaign-system.test.js # Campaign system tests
-├── README.md              # This file
-└── model_spec.md          # Comprehensive game design document
-```
-
-## 🛒 Campaign Mode Details
 
 ### Deck Upgrades
 
@@ -125,154 +113,15 @@ The game is organized into separate modules for maintainability:
 - **Persistent Power**: Upgraded decks and unlocked activities carry over to all future tasks and Jump Into Task mode
 - **Strategic Investment**: Save zen points for meaningful upgrades
 
-### Available Tasks
-
-1. **DMV License Renewal** - Navigate bureaucratic processes and paperwork
-2. **Job Interview Challenge** - Handle performance anxiety and professional pressure
-3. **More Coming Soon** - Additional scenarios planned for future updates
-
 ### Progression System
 
 - Tasks unlock sequentially as you complete previous challenges
-- Each task teaches different stress management techniques
 - Campaign completion unlocks special achievements
 
-### Development Workflow
+## Contributing
 
-1. Make changes to the appropriate files (HTML, CSS, or JavaScript modules)
-2. Refresh your browser to see changes
-3. **Run regression tests** to verify your changes don't break existing functionality
-4. No build process required - files are served directly
+If you are interesting in contributing to the project, please check out the [Contributing Guide](./CONTRIBUTING.md)!
 
-### Release Management
-
-The project supports multiple release methods:
-
-**GitHub Actions (Recommended):**
-
-- **Manual Trigger:** Actions tab → Release → Run workflow → Select version
-- **PR Labels:** Add `release:patch/minor/major` label → Merge PR → Auto-release
-
-**Local Release:**
-
-```bash
-npm run release              # Interactive
-npm run release -- --dry-run # Preview changes
-```
-
-**Version guidelines:**
-
-- **Patch** (0.21.0 → 0.21.1): Bug fixes, documentation updates
-- **Minor** (0.21.0 → 0.22.0): New features, new tasks, UI improvements
-- **Major** (0.21.0 → 1.0.0): Breaking changes, major redesigns
-
-**Setup:** See `.github/SETUP_CHECKLIST.md` for first-time configuration.
-
-**Documentation:** See `.github/RELEASE_GUIDE.md` for detailed instructions.
-
-All releases automatically deploy to GitHub Pages via GitHub Actions.
-
-### Testing
-
-The project includes comprehensive Playwright end-to-end tests for regression testing:
-
-```bash
-# Install dependencies (first time only)
-npm install
-
-# Run all tests
-npm test
-
-# Run tests in headed mode (see browser)
-npm run test:headed
-
-# Run mobile tests specifically
-npm run test:mobile
-
-# Run tests with UI mode for debugging
-npm run test:ui
-```
-
-**When to run tests:**
-
-- Before committing changes
-- After adding new features
-- When modifying game mechanics
-- When updating UI components
-
-**Test coverage includes:**
-
-- All three game modes (Jump Into Task, Campaign, Free Play)
-- Mobile viewports (iPhone, iPad, landscape)
-- Accessibility compliance
-- Shop and Mind Palace features
-- Gameplay mechanics and stress management
-
-See `tests/playwright/README.md` for detailed testing documentation.
-
-### Serving with a Local Server
-
-For development and testing, serve the files through a local server:
-
-```bash
-# Node.js (required for Playwright tests)
-npx serve . -p 8000
-```
-
-Then visit `http://localhost:8000` in your browser.
-
-## 💎 Zen Points System
-
-### Overview
-
-Zen points serve as the game's primary currency, earned through gameplay and spent on stress relief activities and permanent deck upgrades.
-
-### Earning Zen Points
-
-- **Task Start Bonus**: +100 zen points when beginning any task
-- **Round Wins**: +15 zen points for winning blackjack rounds
-- **House Bust**: +15 zen points when the house busts
-- **Task Completion**: +1000-2000 zen points based on performance (lower stress = higher bonus)
-
-### Spending Zen Points
-
-- **Stress Relief Activities**: Deep breathing (10), stretching (25), meditation (50)
-- **Deck Upgrades**: Add Wild Jokers (75, 125, 175, 225... progressive pricing)
-- **Premium Activities**: Mindful Breathing (1000 zen), Compartmentalize (2000 zen)
-
-### Persistence Architecture
-
-The zen points system uses a centralized manager (`ZenPointsManager`) that:
-
-- Maintains the authoritative balance across all game modes
-- Automatically syncs with campaign state for persistence
-- Handles all transactions with proper logging and validation
-- Ensures UI consistency across all screens
-
-## 🔧 Recent Updates
-
-### Zen Points Persistence Fix (Critical)
-
-- **Root Issue**: Task completion bonuses weren't persisting when returning to campaign overview
-- **Cause**: Timing issue where completion bonus was awarded after campaign state was saved
-- **Solution**: Reordered task completion flow to award bonus before saving state
-- **UI Sync Fix**: Added `updateDisplay()` calls to campaign navigation functions
-- **Testing**: Comprehensive end-to-end testing of task completion → shop purchase → campaign return flow
-
-### Campaign System Implementation
-
-- **Rogue-like progression**: Complete tasks to unlock new challenges
-- **Deck upgrades**: Spend zen points to add Aces between tasks
-- **Task-specific content**: Each scenario has unique actions and success messages
-- **Progress persistence**: Campaign state saves automatically
-
-### Bug Fixes
-
-- **Step counter reset**: Tasks now properly start at step 1 instead of continuing from previous task
-- **Task-specific success screens**: Completion messages now match the completed task (DMV vs Job Interview)
-- **Campaign reset functionality**: Reset and New Campaign buttons properly clear all state
-- **Error recovery**: Robust state validation and repair mechanisms
-
-## 📝 License
+## License
 
 This project is open source and available under the MIT License.
