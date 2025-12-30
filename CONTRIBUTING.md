@@ -46,7 +46,7 @@ The game is organized into separate modules for maintainability:
 
 ## Install Dependencies
 
-- Install [node.js](https://nodejs.org/en/download) v22+.
+- Install [node.js](https://nodejs.org/en/download), recommendation is v22+.
 
 ```bash
 # Install dependencies
