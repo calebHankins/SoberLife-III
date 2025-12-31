@@ -1,8 +1,8 @@
-# SoberLife - III
+# SoberLife-III
 
 A stress management game that combines blackjack mechanics with real-world scenarios. Practice stress management techniques through gameplay.
 
-- [SoberLife - III](#soberlife---iii)
+- [SoberLife-III](#soberlife-iii)
   - [🎮 Play the Game](#-play-the-game)
   - [Inspirations](#inspirations)
     - [Part of the SoberLife Series](#part-of-the-soberlife-series)
