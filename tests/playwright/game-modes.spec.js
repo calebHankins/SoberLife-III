@@ -14,7 +14,7 @@ test.describe('Game Mode Selection', () => {
     });
 
     test('should show game header and help button', async ({ page }) => {
-        await expect(page.locator('h1')).toContainText('SoberLife - III');
+        await expect(page.locator('h1')).toContainText('SoberLife-III');
         await expect(page.locator('#helpBtn')).toBeVisible();
     });
 
